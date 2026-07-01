@@ -1,17 +1,15 @@
 package com.odtheking.odinaddon.commands
 
 import com.github.stivais.commodore.Commodore
-import com.github.stivais.commodore.utils.GreedyString
 import com.odtheking.odin.utils.modMessage
+import com.odtheking.odinaddon.features.impl.skyblock.ChatCommandsPlus.replacements
 
 // Commands are handled via https://github.com/Stivais/Commodore
-val odinAddonCommand = Commodore("oa", "odinaddon") {
+val odinAddonCommand = Commodore("chatcommandsplus") {
 
     runs {
-        modMessage("Odin Addon command executed")
-    }
-
-    runs { greedy: GreedyString ->
-        modMessage("Command with parameter executed: ${greedy.string}")
+        replacements.forEach { (key, value) ->
+            modMessage("$key -> $value")
+        }
     }
 }
