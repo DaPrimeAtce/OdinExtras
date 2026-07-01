@@ -3,11 +3,13 @@ package com.daprimeatce.odinextras.features.impl.skyblock
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
+import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
@@ -24,12 +26,20 @@ object ChatCommandsPlus : Module(
     private val showSettings by DropdownSetting("Show Settings", false)
 
     private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
-    private val russianRoulette by BooleanSetting("Russian Roulette", false, desc = "Kick a random player from the party.").withDependency { showSettings }
-    private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
-    private val disband by BooleanSetting("Disband", false, desc = "Disbands the party.").withDependency { showSettings }
-    private val kick by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
-    private val invite by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
-    private val fiction by BooleanSetting("Fiction", false, desc = "My biggest wish... just once in my lifetime, to see a star be born!").withDependency { showSettings }
+    private val kickRandom by BooleanSetting("Kick Random", false, desc = "Kick a random player from the party.").withDependency { showSettings }
+    private val tyfr by BooleanSetting("Tyfr", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
+    private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
+    private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
+    private val rng by BooleanSetting("Rng", false, desc = "Will roll from 1 to a given max, inclusive.").withDependency { showSettings }
+
+    private val alternatePrefixes by DropdownSetting("Alternate Prefixes", false, desc = "Allows alternate prefixes listed as comma separated values, eg \".allinv, allinv, ai\"")
+    private val allinv by StringSetting("All Invite", "", desc = "Alternate values to trigger all invite.").withDependency { alternatePrefixes }
+    private val inv by StringSetting("Invite", "", desc = "Alternate values to trigger invite.") .withDependency { alternatePrefixes }
+    private val warp by StringSetting("Warp", "", desc = "Alternate values to trigger party warp.") .withDependency { alternatePrefixes }
+    private val disband by StringSetting("Disband", "", desc = "Alternate values to trigger party disband.") .withDependency { alternatePrefixes }
+    private val transfer by StringSetting("Transfer", "", desc = "Alternate values to trigger party transfer.") .withDependency { alternatePrefixes }
+    private val kick by StringSetting("Kick", "", desc = "Alternate values to trigger party warp.") .withDependency { alternatePrefixes }
+    private val reinv by StringSetting("Reinvite", "", desc = "Alternate values to trigger reinvite.") .withDependency { alternatePrefixes }
 
     private val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|From (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
 
@@ -84,13 +94,13 @@ object ChatCommandsPlus : Module(
 
         when (words.last()) {
             ":(" ->
-                if (kick && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
+                if (kickFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
                     sendCommand("p kick $user")
                     return
                 }
 
             ":)" ->
-                if (invite && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
+                if (inviteFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
                     sendCommand("p invite $user")
                     return
                 }
@@ -100,16 +110,48 @@ object ChatCommandsPlus : Module(
             "hi" ->
                 if (hi && channel == ChatChannel.PARTY && name != mc.player?.name?.string) channelMessage("bye", name, channel)
 
-            "!disband" ->
-                if (disband && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p disband")
+            "!kickrandom" ->
+                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p kick ${PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()}")
 
-            "!russianroulette", "!kickrandom" ->
-                if (russianRoulette && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p kick ${PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()}")
+            "!rng" -> {
+                if (!rng) return
+                val num = if (words.size > 1) words[1].toIntOrNull() else null
+                if (num != null) channelMessage("Rolled ${"%,d".format((1..num).random())}", name, channel)
+                else channelMessage("Could not parse a number", name, channel)
+            }
 
-            "!fiction" ->
-                if (fiction) channelMessage("Rolled: ${"%,d".format((1..50_000_000_000).random())}/50,000,000,000 for Fiction", name, channel)
+            else -> {
+                val trimmedAllInv = allinv.split(",").map { it.trim() }
+                val trimmedInv = inv.split(",").map { it.trim() }
+                val trimmedWarp = warp.split(",").map { it.trim() }
+                val trimmedTransfer = transfer.split(",").map { it.trim() }
+                val trimmedDisband = disband.split(",").map { it.trim() }
+                val trimmedKick = kick.split(",").map { it.trim() }
+                val trimmedReinv = reinv.split(",").map { it.trim() }
+
+                if (PartyUtils.isLeader() && allinv.isNotEmpty() && words[0] in trimmedAllInv && channel == ChatChannel.PARTY) sendCommand("p settings allinvite")
+                if ((PartyUtils.isLeader() || !PartyUtils.isInParty) && inv.isNotEmpty() && words[0] in trimmedInv && channel == ChatChannel.PRIVATE) sendCommand("p $name")
+                if (PartyUtils.isLeader() && trimmedWarp.isNotEmpty() && words[0] in trimmedWarp && channel == ChatChannel.PARTY) sendCommand("p warp")
+                if (PartyUtils.isLeader() && trimmedTransfer.isNotEmpty() && words[0] in trimmedTransfer && channel == ChatChannel.PARTY) {
+                    if (words.size > 1) sendCommand("p transfer ${findPartyMember(words[1])}")
+                    else sendCommand("p transfer $name")
+                }
+                if (PartyUtils.isLeader() && trimmedDisband.isNotEmpty() && words[0] in trimmedDisband && channel == ChatChannel.PARTY) sendCommand("p disband")
+                if (PartyUtils.isLeader() && trimmedKick.isNotEmpty() && words[0] in trimmedKick && channel == ChatChannel.PARTY && words.size > 1) sendCommand("p kick ${findPartyMember(words[1])}")
+                if (PartyUtils.isLeader() && trimmedReinv.isNotEmpty() && words[0] in trimmedReinv && channel == ChatChannel.PARTY) {
+                    modMessage("§aReinviting §6$name §ain 5 seconds...")
+                    schedule(100) {
+                        sendCommand("p invite $name")
+                    }
+                }
+            }
         }
+
+
     }
+
+    private fun findPartyMember(partialName: String): String =
+        PartyUtils.members.find { it.contains(partialName, true) } ?: partialName
 
     private fun channelMessage(message: Any, name: String, channel: ChatChannel) {
         when (channel) {
