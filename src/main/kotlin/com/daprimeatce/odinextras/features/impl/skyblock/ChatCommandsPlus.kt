@@ -116,7 +116,7 @@ object ChatCommandsPlus : Module(
             "!rng" -> {
                 if (!rng) return
                 val num = if (words.size > 1) words[1].toIntOrNull() else null
-                if (num != null) channelMessage("Rolled ${"%,d".format((1..num).random())}", name, channel)
+                if (num != null) channelMessage("Rolled ${"%,d".format((1..num).random())} from range 1-${"%,d".format(num)}", name, channel)
                 else channelMessage("Could not parse a number", name, channel)
             }
 
