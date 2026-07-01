@@ -6,7 +6,6 @@ import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.render.textDim
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
 import net.minecraft.world.effect.MobEffects
@@ -16,10 +15,8 @@ object KuudraEatenTimer : Module(
     name = "Kuudra Eaten Timer",
     description = "Timer until the stunner is eaten."
 ) {
-    // These are visible settings that will render under this module in the GUI
     private val select by SelectorSetting("Timer Type", "Milliseconds", listOf("Milliseconds", "Ticks"), desc = "Type of timer.")
 
-    // This is how you can register a HUD under the module
     private var blind = false
     private var ticks = 10
     private var cooldownTicks = 0
