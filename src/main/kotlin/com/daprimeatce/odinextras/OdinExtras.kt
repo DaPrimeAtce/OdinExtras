@@ -6,6 +6,7 @@ import com.odtheking.odin.features.ModuleManager
 import com.daprimeatce.odinextras.commands.commands
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus
 import com.daprimeatce.odinextras.features.impl.nether.KuudraEatenTimer
+import com.daprimeatce.odinextras.features.impl.boss.TickTimersPlus
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
@@ -25,7 +26,8 @@ object OdinExtras : ClientModInitializer {
         // Register modules by adding to the list
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
             KuudraEatenTimer,
-            ChatCommandsPlus
+            ChatCommandsPlus,
+			TickTimersPlus
         )
     }
 }
