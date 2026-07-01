@@ -21,7 +21,7 @@ object ChatCommandsPlus : Module(
     private val partyChatCommands by BooleanSetting("Party Commands", true, "Enables party chat commands.")
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
-    private val showSettings by DropdownSetting("Show Additional Command Settings", false)
+    private val showSettings by DropdownSetting("Show Settings", false)
 
     private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
     private val russianRoulette by BooleanSetting("Russian Roulette", false, desc = "Kick a random player from the party.").withDependency { showSettings }
