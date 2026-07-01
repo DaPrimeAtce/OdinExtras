@@ -30,7 +30,7 @@ object ChatCommandsPlus : Module(
     private val tyfr by BooleanSetting("Tyfr", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
     private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
     private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
-    private val rng by BooleanSetting("Rng", false, desc = "Will roll from 1 to a given max, inclusive.").withDependency { showSettings }
+    private val rng by BooleanSetting("Rng", false, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { showSettings }
 
     private val alternatePrefixes by DropdownSetting("Alternate Prefixes", false, desc = "Allows alternate prefixes listed as comma separated values, eg \".allinv, allinv, ai\"")
     private val allinv by StringSetting("All Invite", "", desc = "Alternate values to trigger all invite.").withDependency { alternatePrefixes }
@@ -115,9 +115,15 @@ object ChatCommandsPlus : Module(
 
             "!rng" -> {
                 if (!rng) return
-                val num = if (words.size > 1) words[1].replace(",", "").toLongOrNull() else null
-                if (num != null) channelMessage("Rolled ${"%,d".format((1..num).random())} from range 1 to ${"%,d".format(num)}", name, channel)
-                else channelMessage("Could not parse a number", name, channel)
+                val numFirst = if (words.size == 2) words[1].replace(",", "").toLongOrNull() else null
+                val numSecond = if (words.size == 3) words[2].replace(",", "").toLongOrNull() else null
+                if (numFirst != null && numSecond == null) channelMessage("Rolled ${"%,d".format((1..numFirst).random())} from range 1 to ${"%,d".format(numFirst)}.", name, channel)
+                else if (numFirst != null && numSecond != null) {
+                    val min = numFirst.coerceAtMost(numSecond)
+                    val max = numFirst.coerceAtLeast(numSecond)
+                    channelMessage("Rolled ${"%,d".format((min..max).random())} from range ${"%,d".format(min)} to ${"%,d".format(max)}.", name, channel)
+                }
+                else channelMessage("Could not parse a number.", name, channel)
             }
 
             else -> {
