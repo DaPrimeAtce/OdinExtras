@@ -79,14 +79,7 @@ object ChatCommandsPlus : Module(
     }
 
     private fun handleChatCommands(message: String, name: String, channel: ChatChannel) {
-        val commandsMap = when (channel) {
-            ChatChannel.PARTY -> mapOf("hi" to hi, "russianroulette" to russianRoulette, "fiction" to fiction, "tyfr" to tyfr)
-            ChatChannel.GUILD -> mapOf("hi" to hi, "fiction" to fiction)
-            ChatChannel.PRIVATE -> mapOf("hi" to hi, "fiction" to fiction)
-        }
-
         val words = message.split(" ").map { it.lowercase() }
-
         val user = if (words.size >= 2) words[words.size - 2] else null
 
         when (words.last()) {
