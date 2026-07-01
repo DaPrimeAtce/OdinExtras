@@ -14,22 +14,20 @@ import com.odtheking.odin.utils.skyblock.PartyUtils
 
 object ChatCommandsPlus : Module(
     name = "Chat Commands+",
-    description = "Adds extra chat commands."
+    description = "Adds extra chat commands. Highly recommended to use with base Odin chat commands."
 ) {
-    // These are visible settings that will render under this module in the GUI
     private val moreChatEmotes by BooleanSetting("More Chat Emotes", false, desc = "Adds more chat emotes. See \"/chatcommandsplus\".")
     private val partyChatCommands by BooleanSetting("Party Commands", true, "Enables party chat commands.")
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
-    private val showSettings by DropdownSetting("Show Settings", false)
+    private val showSettings by DropdownSetting("Show All Settings", false)
 
-    private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
-    private val russianRoulette by BooleanSetting("Russian Roulette", false, desc = "Kick a random player from the party.").withDependency { showSettings }
-    private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
     private val disband by BooleanSetting("Disband", false, desc = "Disbands the party.").withDependency { showSettings }
+    private val kickRandom by BooleanSetting("Russian Roulette", false, desc = "Kick a random player from the party.").withDependency { showSettings }
+    private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
+    private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
     private val kick by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
     private val invite by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
-    private val fiction by BooleanSetting("Fiction", false, desc = "My biggest wish... just once in my lifetime, to see a star be born!").withDependency { showSettings }
 
     private val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|From (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
 
@@ -103,11 +101,8 @@ object ChatCommandsPlus : Module(
             "!disband" ->
                 if (disband && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p disband")
 
-            "!russianroulette", "!kickrandom" ->
-                if (russianRoulette && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p kick ${PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()}")
-
-            "!fiction" ->
-                if (fiction) channelMessage("Rolled: ${"%,d".format((1..50_000_000_000).random())}/50,000,000,000 for Fiction", name, channel)
+           "!kickrandom" ->
+                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p kick ${PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()}")
         }
     }
 
