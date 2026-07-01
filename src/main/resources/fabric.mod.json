@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "OdinExtras",
   "description": "just some random stuff",
-  "authors": [],
+  "authors": ["DaPrimeAtce, 8joh"],
   "contact": {},
   "license": "BSD-3-Clause",
   "icon": "assets/icon.png",
