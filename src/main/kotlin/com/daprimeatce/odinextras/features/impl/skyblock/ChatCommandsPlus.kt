@@ -115,8 +115,8 @@ object ChatCommandsPlus : Module(
 
             "!rng" -> {
                 if (!rng) return
-                val numFirst = if (words.size == 2) words[1].replace(",", "").toLongOrNull() else null
-                val numSecond = if (words.size == 3) words[2].replace(",", "").toLongOrNull() else null
+                val numFirst = if (words.size > 1) words[1].replace(",", "").toLongOrNull() else null
+                val numSecond = if (words.size > 2) words[2].replace(",", "").toLongOrNull() else null
                 if (numFirst != null && numSecond == null) channelMessage("Rolled ${"%,d".format((1..numFirst).random())} from range 1 to ${"%,d".format(numFirst)}.", name, channel)
                 else if (numFirst != null && numSecond != null) {
                     val min = numFirst.coerceAtMost(numSecond)
