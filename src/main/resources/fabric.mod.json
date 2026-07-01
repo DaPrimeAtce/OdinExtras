@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "odinaddon",
+  "id": "odinextras",
   "version": "${version}",
-  "name": "OdinAddon",
-  "description": "",
+  "name": "OdinExtras",
+  "description": "just some random stuff",
   "authors": [],
   "contact": {},
   "license": "BSD-3-Clause",
-  "icon": "assets/odinaddon/icon.png",
+  "icon": "assets/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
       {
         "adapter": "kotlin",
-        "value": "com.odtheking.odinaddon.OdinAddon"
+        "value": "com.odtheking.odinextras.OdinExtras"
       }
     ]
   },
   "mixins": [
-    "odinaddon.mixins.json"
+    "odinextras.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

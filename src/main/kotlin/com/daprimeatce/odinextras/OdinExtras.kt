@@ -1,27 +1,27 @@
-package com.odtheking.odinaddon
+package com.odtheking.odinextras
 
 import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
-import com.odtheking.odinaddon.commands.odinAddonCommand
-import com.odtheking.odinaddon.features.impl.skyblock.ChatCommandsPlus
+import com.odtheking.odinextras.commands.odinExtrasCommand
+import com.odtheking.odinextras.features.impl.skyblock.ChatCommandsPlus
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
-object OdinAddon : ClientModInitializer {
+object OdinExtras : ClientModInitializer {
 
     override fun onInitializeClient() {
-        println("Odin Addon initialized!")
+        println("OdinExtras initialized!")
 
         // Register commands by adding to the array
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
-            arrayOf(odinAddonCommand).forEach { commodore -> commodore.register(dispatcher) }
+            arrayOf(odinExtrasCommand).forEach { commodore -> commodore.register(dispatcher) }
         }
 
         // Register objects to event bus by adding to the list
         listOf(this).forEach { EventBus.subscribe(it) }
 
         // Register modules by adding to the list
-        ModuleManager.registerModules(ModuleConfig("OdinAddon.json"), ChatCommandsPlus)
+        ModuleManager.registerModules(ModuleConfig("OdinExtras.json"), ChatCommandsPlus)
     }
 }
