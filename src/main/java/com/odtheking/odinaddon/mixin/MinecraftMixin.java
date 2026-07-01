@@ -1,6 +1,6 @@
-package com.odtheking.odinaddon.mixin;
+package com.odtheking.odinextras.mixin;
 
-import net.minecraft.client.Minecraft;
+/*import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,4 +14,4 @@ public abstract class MinecraftMixin {
     private void onGameLoadFinished(CallbackInfo ci) {
         System.out.println("Hello from Odin Addon mixin!");
     }
-}
+}*/
