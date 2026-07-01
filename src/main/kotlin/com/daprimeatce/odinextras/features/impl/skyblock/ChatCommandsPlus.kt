@@ -1,4 +1,4 @@
-package com.odtheking.odinextras.features.impl.skyblock
+package com.daprimeatce.odinextras.features.impl.skyblock
 
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting

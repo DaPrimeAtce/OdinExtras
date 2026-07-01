@@ -13,7 +13,7 @@
     "client": [
       {
         "adapter": "kotlin",
-        "value": "com.odtheking.odinextras.OdinExtras"
+        "value": "com.daprimeatce.odinextras.OdinExtras"
       }
     ]
   },

@@ -1,10 +1,10 @@
-package com.odtheking.odinextras
+package com.daprimeatce.odinextras
 
 import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
-import com.odtheking.odinextras.commands.odinExtrasCommand
-import com.odtheking.odinextras.features.impl.skyblock.ChatCommandsPlus
+import com.daprimeatce.odinextras.commands.odinExtrasCommand
+import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
