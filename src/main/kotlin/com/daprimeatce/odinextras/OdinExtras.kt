@@ -7,6 +7,8 @@ import com.daprimeatce.odinextras.commands.commands
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus
 import com.daprimeatce.odinextras.features.impl.nether.KuudraEatenTimer
 import com.daprimeatce.odinextras.features.impl.boss.TickTimersPlus
+import com.daprimeatce.odinextras.features.impl.render.DroppedItemScale
+import com.daprimeatce.odinextras.features.impl.skyblock.ArrowPoisonDisplay
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
@@ -27,7 +29,9 @@ object OdinExtras : ClientModInitializer {
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
             KuudraEatenTimer,
             ChatCommandsPlus,
-			TickTimersPlus
+			TickTimersPlus,
+            DroppedItemScale,
+            ArrowPoisonDisplay
         )
     }
 }
