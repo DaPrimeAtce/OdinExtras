@@ -7,7 +7,7 @@
   "authors": [],
   "contact": {},
   "license": "BSD-3-Clause",
-  "icon": "assets/odinextras/icon.png",
+  "icon": "assets/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
