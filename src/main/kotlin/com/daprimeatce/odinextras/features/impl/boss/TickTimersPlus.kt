@@ -56,7 +56,8 @@ object TickTimersPlus : Module(
 			if (enrageTickTime >= 0 && enrageHud.enabled) enrageTickTime--
 			if (ragTickTime >= 0 && ragHud.enabled) ragTickTime--
 		}
-		
+
+		// Reset values on world load, don't forget to change these with the initial values if needed
 		on<LevelEvent.Load> {
 			enrageTickTime = 66
 			enrageTriggered = false
