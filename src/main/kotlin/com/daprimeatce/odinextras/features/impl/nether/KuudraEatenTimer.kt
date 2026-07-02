@@ -23,9 +23,9 @@ object KuudraEatenTimer : Module(
 
     private val hud by HUD(name, desc = "Shows time remaining until eaten.") {
         if (it) {
-            textDim("Eaten in " + if (select == 0) "§a500ms" else "§a10t", 0, 0)
+            textDim("§bEaten in " + if (select == 0) "§a500ms" else "§a10t", 0, 0)
         } else if (KuudraUtils.inKuudra && blind) {
-            var text = "Eaten in " + color(ticks)
+            var text = "§bEaten in " + color(ticks)
             text += if (select == 0) "${ticks * 50}ms" else "${ticks}t"
 
             textDim(text, 0, 0) // This function automatically returns the width and height of the text rendered
