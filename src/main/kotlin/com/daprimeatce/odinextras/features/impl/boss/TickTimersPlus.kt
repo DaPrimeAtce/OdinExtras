@@ -74,7 +74,7 @@ object TickTimersPlus : Module(
 		}
 
 		var timeDisplay = when (timerType) {
-			0 -> color + (time / 20f).toFixed(1)
+			0 -> color + (time / 20f).toFixed(2)
 			1 -> color + (time * 50).toString()
 			else -> color + time.toString()
 		}
