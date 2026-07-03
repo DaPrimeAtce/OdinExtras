@@ -41,6 +41,8 @@ object ChatLogger : Module(
             val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[9]?.value ?: return@on
             val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[10]?.value ?: return@on
 
+            if (ign == "stash") return@on
+
             if (party && channel == Channel.PARTY) sendEmbed(ign, msg, channel)
             if (guild && channel == Channel.GUILD) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE) sendEmbed(ign, msg, channel)
