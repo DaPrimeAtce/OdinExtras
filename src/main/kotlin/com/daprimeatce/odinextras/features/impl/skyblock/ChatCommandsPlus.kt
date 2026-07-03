@@ -27,10 +27,10 @@ object ChatCommandsPlus : Module(
 
     private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
     private val kickRandom by BooleanSetting("Kick Random", false, desc = "Kick a random player from the party.").withDependency { showSettings }
-    private val tyfr by BooleanSetting("Tyfr", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
+    private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
     private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
     private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
-    private val rng by BooleanSetting("Rng", false, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { showSettings }
+    private val rng by BooleanSetting("RNG", false, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { showSettings }
 
     private val alternatePrefixes by DropdownSetting("Alternate Prefixes", false, desc = "Allows alternate prefixes listed as comma separated values, eg \".allinv, allinv, ai\"")
     private val allinv by StringSetting("All Invite", "", desc = "Alternate values to trigger all invite.").withDependency { alternatePrefixes }
@@ -62,7 +62,7 @@ object ChatCommandsPlus : Module(
         }
 
         on<MessageSentEvent> {
-            if (tyfr && message.lowercase() == "tyfr" || message.lowercase() == "tyfp") {
+            if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "gtg")) {
                 schedule(10) {
                     sendCommand("p leave")
                 }

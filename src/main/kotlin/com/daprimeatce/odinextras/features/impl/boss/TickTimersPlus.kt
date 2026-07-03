@@ -20,6 +20,7 @@ object TickTimersPlus : Module(
 	private val showPrefix by BooleanSetting("Show Prefix", true, desc = "Shows the prefix of the timers.")
 	
 	private val stormEnrageRegex = Regex("^⚠ Storm is enraged! ⚠$")
+	private val stormMoveRegex = Regex("^\\[BOSS] Storm: (ENERGY HEED MY CALL|THUNDER LET ME BE YOUR CATALYST)!$")
 	private val witherKingStartRegex = Regex("^\\[BOSS] Wither King: You\\.\\.\\. again\\?$")
 	
 	private var enrageTriggered = false
@@ -40,6 +41,15 @@ object TickTimersPlus : Module(
 		else 0 to 0
 	}
 	
+	private var stormMoveTriggered = false
+	private var stormMoveTickTime = 138 // Actual value
+	
+	private val stormMoveHud by HUD("Storm Move Hud", "Displays a timer for when Storm will begin to move after lightning. (Recommended to be used only if your party is crushing purple pillar instead of green pillar.)") {
+		if (it)                   textDim(formatTimer(138, 138, "§c§lStorm will move in: "), 0, 0)
+		else if (stormMoveTickTime >= 0 && stormMoveTriggered) textDim(formatTimer(stormMoveTickTime, 138, "§c§lStorm will move in: "), 0, 0)
+		else 0 to 0
+	}
+	
 	init {
 		on<ChatPacketEvent> {
 			if (enrageHud.enabled && !enrageTriggered && value.matches(stormEnrageRegex)) {
@@ -49,12 +59,17 @@ object TickTimersPlus : Module(
 			if (ragHud.enabled && !ragTriggered && value.matches(witherKingStartRegex)) {
 				ragTriggered = true
 			}
+			
+			if (stormMoveHud.enabled && !stormMoveTriggered && value.matches(stormMoveRegex)) {
+				stormMoveTriggered = true
+			}
 		}
 		
 		on<TickEvent.Server> {
 			if (!DungeonUtils.inBoss) return@on
 			if (enrageTriggered && enrageHud.enabled) enrageTickTime--
 			if (ragTriggered && ragHud.enabled) ragTickTime--
+			if (stormMoveTriggered && stormMoveHud.enabled) stormMoveTickTime--
 		}
 
 		// Reset values on world load, don't forget to change these with the initial values if needed
@@ -63,6 +78,8 @@ object TickTimersPlus : Module(
 			enrageTriggered = false
 			ragTickTime = 100
 			ragTriggered = false
+			stormMoveTickTime = 138
+			stormMoveTriggered = false
 		}
 	}
 	

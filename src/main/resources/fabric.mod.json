@@ -3,7 +3,7 @@
   "id": "odinextras",
   "version": "${version}",
   "name": "OdinExtras",
-  "description": "just some random stuff",
+  "description": "An addon to Odin with various features for Hypixel Skyblock.",
   "authors": ["DaPrimeAtce, 8joh"],
   "contact": {},
   "license": "BSD-3-Clause",
