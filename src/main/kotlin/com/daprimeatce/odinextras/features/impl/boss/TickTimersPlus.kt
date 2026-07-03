@@ -46,7 +46,7 @@ object TickTimersPlus : Module(
 				enrageTriggered = true
 			}
 
-			if (enrageHud.enabled && !enrageTriggered && value.matches(witherKingStartRegex)) {
+			if (ragHud.enabled && !ragTriggered && value.matches(witherKingStartRegex)) {
 				ragTriggered = true
 			}
 		}
