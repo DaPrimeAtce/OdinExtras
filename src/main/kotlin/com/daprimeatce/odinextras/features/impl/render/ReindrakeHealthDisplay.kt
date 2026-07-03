@@ -13,7 +13,6 @@ import com.odtheking.odin.utils.renderY
 import com.odtheking.odin.utils.renderZ
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
-import net.minecraft.world.entity.Entity
 
 
 object ReindrakeHealthDisplay : Module(
