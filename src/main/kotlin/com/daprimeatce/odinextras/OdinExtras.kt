@@ -7,6 +7,7 @@ import com.daprimeatce.odinextras.commands.commands
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus
 import com.daprimeatce.odinextras.features.impl.nether.KuudraEatenTimer
 import com.daprimeatce.odinextras.features.impl.boss.TickTimersPlus
+import com.daprimeatce.odinextras.features.impl.render.CPSDisplay
 import com.daprimeatce.odinextras.features.impl.render.DroppedItemScale
 import com.daprimeatce.odinextras.features.impl.render.ReindrakeHealthDisplay
 import com.daprimeatce.odinextras.features.impl.skyblock.ArrowPoisonDisplay
@@ -35,7 +36,8 @@ object OdinExtras : ClientModInitializer {
             DroppedItemScale,
             ArrowPoisonDisplay,
             ReindrakeHealthDisplay,
-            ChatLogger
+            ChatLogger,
+            CPSDisplay
         )
     }
 }
