@@ -13,12 +13,6 @@ val commands = mutableListOf(
                 modMessage("$key -> $value")
             }
         }
-    },
-
-    Commodore("odinextrastest") {
-        runs {
-            modMessage("Test")
-        }
     }
 
 )
