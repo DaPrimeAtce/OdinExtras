@@ -20,7 +20,7 @@ object ServerAlert : Module(
     name = "Server Alert",
     description = "Warns you when you join a recently joined server."
 ) {
-    private val thresholdMinutes by NumberSetting("Time Threshold", 5f, 1f, 60f, 1f, desc = "How long in minutes for a rejoin to warn you.")
+    private val thresholdMinutes by NumberSetting("Time Threshold", 15f, 1f, 60f, 1f, desc = "How long in minutes for a rejoin to warn you.")
     private val title by BooleanSetting("Create Title", true, desc = "Whether to create a title alongside the chat message.")
 
     private val dropdown by DropdownSetting("Sounds", false)
