@@ -12,5 +12,6 @@
     "requireAnnotations": true
   },
   "client": [
+    "MixinItemEntityRenderer"
   ]
 }
