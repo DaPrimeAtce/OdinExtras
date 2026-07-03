@@ -19,7 +19,7 @@ object ReindrakeHealthDisplay : Module(
     name = "Reindrake Health Display",
     description = "Displays the health of Reindrakes."
 ) {
-    var dragons = listOf<EnderDragon>()
+    private var dragons = listOf<EnderDragon>()
     private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
 
     init {
