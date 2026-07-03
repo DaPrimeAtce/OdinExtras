@@ -10,7 +10,6 @@ import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.events.InputEvent
 import com.odtheking.odin.events.core.on
 
-
 object CPSDisplay : Module(
     name = "CPS Display",
     description = "Displays your clicks per second."
