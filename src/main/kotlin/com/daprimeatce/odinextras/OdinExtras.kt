@@ -12,6 +12,7 @@ import com.daprimeatce.odinextras.features.impl.render.DroppedItemScale
 import com.daprimeatce.odinextras.features.impl.render.ReindrakeHealthDisplay
 import com.daprimeatce.odinextras.features.impl.skyblock.ArrowPoisonDisplay
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatLogger
+import com.daprimeatce.odinextras.features.impl.skyblock.ServerAlert
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
@@ -37,7 +38,8 @@ object OdinExtras : ClientModInitializer {
             ArrowPoisonDisplay,
             ReindrakeHealthDisplay,
             ChatLogger,
-            CPSDisplay
+            CPSDisplay,
+            ServerAlert
         )
     }
 }
