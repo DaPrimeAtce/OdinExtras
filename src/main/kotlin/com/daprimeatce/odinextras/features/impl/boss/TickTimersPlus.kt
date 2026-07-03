@@ -53,8 +53,8 @@ object TickTimersPlus : Module(
 		
 		on<TickEvent.Server> {
 			if (!DungeonUtils.inBoss) return@on
-			if (enrageTickTime >= 0 && enrageHud.enabled) enrageTickTime--
-			if (ragTickTime >= 0 && ragHud.enabled) ragTickTime--
+			if (enrageTriggered && enrageHud.enabled) enrageTickTime--
+			if (ragTriggered && ragHud.enabled) ragTickTime--
 		}
 
 		// Reset values on world load, don't forget to change these with the initial values if needed
