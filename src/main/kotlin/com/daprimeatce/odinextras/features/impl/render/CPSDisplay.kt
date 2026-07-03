@@ -10,6 +10,9 @@ import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.events.InputEvent
 import com.odtheking.odin.events.core.on
 
+// Code is adapted from OdinLegacy to work on modern Minecraft versions under the BSD-3 Clause license
+// https://github.com/odtheking/OdinLegacy/blob/main/src/main/kotlin/me/odinmain/features/impl/render/CPSDisplay.kt
+
 object CPSDisplay : Module(
     name = "CPS Display",
     description = "Displays your clicks per second."
