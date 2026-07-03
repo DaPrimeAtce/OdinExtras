@@ -21,7 +21,7 @@ object ReindrakeHealthDisplay : Module(
     description = "Displays the health of Reindrakes."
 ) {
     var dragons = listOf<EnderDragon>()
-    private val size by NumberSetting("Example Number Setting", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
+    private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
 
     init {
         TickTask(20) { // Scans for entities every 20t
