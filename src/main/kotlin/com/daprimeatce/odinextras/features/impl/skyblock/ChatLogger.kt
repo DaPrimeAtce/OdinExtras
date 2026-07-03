@@ -21,7 +21,7 @@ object ChatLogger : Module(
     private val party by BooleanSetting("Party Messages", true, desc = "Log party messages.")
     private val guild by BooleanSetting("Guild Messages", true, desc = "Log guild messages.")
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
-    private var webhook by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
+    private val webhook by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
 
     private val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|From (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
 
