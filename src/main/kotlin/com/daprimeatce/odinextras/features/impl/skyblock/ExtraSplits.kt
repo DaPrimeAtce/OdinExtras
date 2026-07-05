@@ -22,7 +22,7 @@ object ExtraSplits : Module(
 	private val totalTimeSplits by BooleanSetting("Total Run Time Splits", true, desc = "Shows a split timer for the full run time.")
 	private val timeLostToLag by BooleanSetting("Time Lost To Lag", true, desc = "Shows a split timer for how much run time is lost to lag.").withDependency { showTickTime }
 	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag.").withDependency { timeLostToLag && showTickTime }
-//	private val endOfRunRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$"), "§1Total")
+	private val endOfRunRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$")
 	private val extraSplitsHud by HUD("Extra Splits HUD", "Shows the extra split timers.") { extraSplitsExample ->
 		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
 
