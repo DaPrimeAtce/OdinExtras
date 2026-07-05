@@ -34,7 +34,8 @@ object OdinExtras : ClientModInitializer {
             ReindrakeHealthDisplay,
             ChatLogger,
             CPSDisplay,
-            ServerAlert
+            ServerAlert,
+            SlayerDisplay
         )
     }
 }
