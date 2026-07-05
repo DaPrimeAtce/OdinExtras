@@ -13,6 +13,8 @@ import com.odtheking.odin.utils.render.text
 import com.odtheking.odin.utils.skyblock.SplitsManager.currentSplits
 import com.odtheking.odin.utils.skyblock.SplitsManager.getAndUpdateSplitsTimes
 import com.odtheking.odin.utils.toFixed
+import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.ChatPacketEvent
 
 object ExtraSplits : Module(
 	name = "Extra Splits",
@@ -23,6 +25,9 @@ object ExtraSplits : Module(
 	private val timeLostToLag by BooleanSetting("Time Lost To Lag", true, desc = "Shows a split timer for how much run time is lost to lag.").withDependency { showTickTime }
 	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag.").withDependency { timeLostToLag && showTickTime }
 	private val endOfRunRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$")
+
+	// defined here instead
+	private var displayText = ""
 	private val extraSplitsHud by HUD("Extra Splits HUD", "Shows the extra split timers.") { extraSplitsExample ->
 		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
 
@@ -38,7 +43,9 @@ object ExtraSplits : Module(
 			}
             return@HUD totalWidth to 9 * 1
 		}
-
+		
+		if (!DungeonUtils.inDungeons) return@HUD 0 t0 0 // dungeon check
+		
 		val (times, tickTimes, current) = getAndUpdateSplitsTimes(currentSplits)
 		if (currentSplits.splits.isEmpty()) return@HUD 0 to 0
 		
@@ -48,10 +55,10 @@ object ExtraSplits : Module(
 			text("§a§lRun Time", 0, (currentSplits.splits.size - 1) * 1, Colors.WHITE)
 
 			val totalTime = formatTime(times.take(9).sum())
-			val displayText = if (showTickTime) "$totalTime §8(§7${(tickTimes.take(9).sum() / 20f).toFixed()}§8)" else totalTime
+			val displayTextTotal = if (showTickTime) "$totalTime §8(§7${(tickTimes.take(9).sum() / 20f).toFixed()}§8)" else totalTime
 			val timeX = if (fixedWidth) totalWidth - getStringWidth(displayText) else maxWidth + 4
 
-			text(displayText, timeX, (currentSplits.splits.size - 1) * 1, Colors.WHITE)
+			text(displayTextTotal, timeX, (currentSplits.splits.size - 1) * 1, Colors.WHITE)
 		}
 
 		if (timeLostToLag && totalTimeSplits && showTickTime) {
@@ -60,16 +67,25 @@ object ExtraSplits : Module(
 			val totalTime = times.take(9).sum() / 1000f
 			val totalTickTime = tickTimes.take(9).sum() / 20f
 			val timeDifference = totalTime - totalTickTime
-			val displayText = timeDifference.toFixed()
+			displayText = timeDifference.toFixed()
 			val timeX = if (fixedWidth) totalWidth - getStringWidth(displayText) else maxWidth + 4
 
 			text(displayText, timeX, (currentSplits.splits.size - 1) * 2, Colors.WHITE)
-
-			if (sendTimeLost == 1 && timeLostToLag) {
-				modMessage("$displayText lost to lag.")
-			}
 		}
 
 		totalWidth to 9 * (currentSplits.splits.size + 0)
+	}
+
+	init { 
+		on<ChatPacketEvent> {
+            if (!DungeonUtils.inDungeons || !endOfRunRegex.matches(value) || !timeLostToLag) return@on
+
+			if (sendTimeLost == 1) modMessage("$displayText lost to lag.")
+			else if (sendTimeLost == 2) // add send to pc
+			else if (sendTimeLost == 3) {
+				modMessage("$displayText lost to lag.")
+				// add send to pc
+			}
+        }
 	}
 }
