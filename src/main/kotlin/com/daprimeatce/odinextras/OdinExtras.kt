@@ -28,14 +28,15 @@ object OdinExtras : ClientModInitializer {
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
             KuudraEatenTimer,
             ChatCommandsPlus,
-			TickTimersPlus,
+            TickTimersPlus,
             DroppedItemScale,
             ArrowPoisonDisplay,
             ReindrakeHealthDisplay,
             ChatLogger,
             CPSDisplay,
             ServerAlert,
-            ExtraSplits
+            ExtraSplits,
+            SlayerDisplay
         )
     }
 }
