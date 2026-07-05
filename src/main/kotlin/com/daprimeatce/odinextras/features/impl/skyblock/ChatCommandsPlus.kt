@@ -94,13 +94,13 @@ object ChatCommandsPlus : Module(
 
         when (words.last()) {
             ":(" ->
-                if (kickFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
+                if (kickFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && user?.isNotEmpty() == true) {
                     sendCommand("p kick $user")
                     return
                 }
 
             ":)" ->
-                if (inviteFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD) {
+                if (inviteFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && user?.isNotEmpty() == true) {
                     sendCommand("p invite $user")
                     return
                 }
@@ -116,9 +116,8 @@ object ChatCommandsPlus : Module(
             "!rng" -> {
                 if (!rng) return
                 val numFirst = if (words.size > 1) words[1].replace(",", "").toLongOrNull() else null
-                val numSecond = if (words.size > 2) words[2].replace(",", "").toLongOrNull() else null
-                if (numFirst != null && numSecond == null) channelMessage("Rolled ${"%,d".format((1..numFirst).random())} from range 1 to ${"%,d".format(numFirst)}.", name, channel)
-                else if (numFirst != null && numSecond != null) {
+                val numSecond = if (words.size > 2) words[2].replace(",", "").toLongOrNull() else 1
+                if (numFirst != null && numSecond != null) {
                     val min = numFirst.coerceAtMost(numSecond)
                     val max = numFirst.coerceAtLeast(numSecond)
                     channelMessage("Rolled ${"%,d".format((min..max).random())} from range ${"%,d".format(min)} to ${"%,d".format(max)}.", name, channel)
