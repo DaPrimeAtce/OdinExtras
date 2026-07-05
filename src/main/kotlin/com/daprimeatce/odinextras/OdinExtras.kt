@@ -35,7 +35,8 @@ object OdinExtras : ClientModInitializer {
             ChatLogger,
             CPSDisplay,
             ServerAlert,
-            SlayerDisplay
+            SlayerDisplay,
+            VoidgloomLasers
         )
     }
 }
