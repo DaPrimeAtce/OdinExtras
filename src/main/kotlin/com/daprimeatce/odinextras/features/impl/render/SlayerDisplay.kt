@@ -7,7 +7,6 @@ import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
-import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
@@ -49,7 +48,7 @@ object SlayerDisplay : Module(
     private val hud by HUD(name, "Displays slayer info in the HUD.") {
         if (it) {
             textDim("§c03:00", 0, 0)
-            val exampleWidth = textDim("§r§c☠ §r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
+            val exampleWidth = textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
             return@HUD exampleWidth to 2 * mc.font.lineHeight + 5
         }
 
@@ -62,7 +61,7 @@ object SlayerDisplay : Module(
             }
         }
         if (healthStand != null) {
-            width = textDim(("§c☠" + healthStand?.displayName?.coloredString()?.substringAfter("§c☠")), 0, mc.font.lineHeight + 5, shadow = true).first
+            width = textDim((healthStand?.displayName?.coloredString()?.substringAfter("☠")?.drop(1)) ?: "", 0, mc.font.lineHeight + 5, shadow = true).first
         }
         width to 2 * mc.font.lineHeight + 5
     }
@@ -136,7 +135,6 @@ object SlayerDisplay : Module(
         armorStands.forEach { stand ->
             if (slayerNames.any { stand.displayName?.string?.contains(it) ?: false }) {
                 healthStand = stand
-                modMessage(healthStand?.displayName?.coloredString())
                 return@forEach
             }
         }
