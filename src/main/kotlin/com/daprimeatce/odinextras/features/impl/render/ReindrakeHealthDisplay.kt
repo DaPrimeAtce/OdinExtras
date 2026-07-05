@@ -33,9 +33,13 @@ object ReindrakeHealthDisplay : Module(
         on<RenderEvent.Extract> {
             dragons.forEach { dragon ->
                 val dragonEntity = dragon.asLivingEntity()
-                if (dragonEntity != null) drawText("§a${dragonEntity.getHealth().toInt()}§c❤",
+                if (dragonEntity != null) drawText("${color(dragonEntity.getHealth().toInt())}${dragonEntity.getHealth().toInt()}§c❤",
                     Vec3(dragonEntity.renderX, dragonEntity.renderY, dragonEntity.renderZ), size * 7, false)
             }
         }
+    }
+
+    private fun color(hp: Int): String {
+        return if (hp < 500) "§c" else if (hp < 1000) "§e" else "§a"
     }
 }
