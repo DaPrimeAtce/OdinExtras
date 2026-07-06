@@ -4,8 +4,9 @@ import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.handlers.TickTask
+import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
@@ -13,7 +14,10 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.util.StringDecomposer
+import net.minecraft.world.entity.EntityType
+import java.util.concurrent.ConcurrentHashMap
 
 object SlayerDisplay : Module(
     name = "Slayer Display",
@@ -29,6 +33,9 @@ object SlayerDisplay : Module(
     private val failRegex = Regex("^(\\s*)SLAYER QUEST FAILED!$")
     private val cancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
 
+    private var currentTick = 0
+    private val pendingStands = ConcurrentHashMap<Int, Int>() // id, tick spawned
+
     private val slayerNames = listOf(
         "Revenant Horror", "Atoned Horror",
         "Tarantula Broodfather", "Primordial Broodfather", "Conjoined Brood",
@@ -37,12 +44,11 @@ object SlayerDisplay : Module(
         "Inferno Demonlord",
         "Riftstalker Bloodfiend"
     )
-    private var cooldownTicks = 0
 
     private val hud by HUD(name, "Displays slayer info in the HUD.") {
         if (it) {
             textDim("§c03:00", 0, 0)
-            val exampleWidth = textDim("§2༕ §r§c☠ §r§bRevenant Horror I §r§e0§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
+            val exampleWidth = textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
             return@HUD exampleWidth to 2 * mc.font.lineHeight + 5
         }
 
@@ -55,7 +61,7 @@ object SlayerDisplay : Module(
             }
         }
         if (healthStand != null) {
-            width = textDim(healthStand?.displayName?.coloredString() ?: "", 0, mc.font.lineHeight + 5, shadow = true).first
+            width = textDim((healthStand?.displayName?.coloredString()?.substringAfter("☠")?.drop(1)) ?: "", 0, mc.font.lineHeight + 5, shadow = true).first
         }
         width to 2 * mc.font.lineHeight + 5
     }
@@ -64,18 +70,13 @@ object SlayerDisplay : Module(
         nameStand = null
         healthStand = null
         timeStand = null
-        cooldownTicks = 50
     }
 
     init {
         on<LevelEvent.Load> {
             resetValues()
-        }
-
-        on<TickEvent.Server> {
-            if (cooldownTicks >= 0) {
-                cooldownTicks--
-            }
+            currentTick = 0
+            pendingStands.clear()
         }
 
         on<ChatPacketEvent> {
@@ -84,45 +85,61 @@ object SlayerDisplay : Module(
             if (cancelRegex.matches(value)) resetValues()
         }
 
-        TickTask(10) {
-            if (DungeonUtils.inDungeons || KuudraUtils.inKuudra || cooldownTicks >= 0) return@TickTask
+        onReceive<ClientboundAddEntityPacket> {
+            if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@onReceive
 
-            var foundStand = false
-            val entities = mc.level?.entitiesForRendering() ?: return@TickTask
+            if (type == EntityType.ARMOR_STAND) {
+                pendingStands[id] = currentTick
+            }
+        }
 
-            armorStands.clear()
-            armorStands = entities.filterIsInstanceTo(armorStands)
+        on<TickEvent.Server> {
 
-            armorStands.forEach { stand ->
-                val displayName = stand.displayName?.string ?: return@forEach
-                val result = nameRegex.find(displayName)
-                if (result?.groups[1]?.value == mc.player?.name?.string) {
-                    nameStand = stand
-                    foundStand = true
+            if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
+
+            currentTick++
+
+            if (pendingStands.isEmpty()) return@on
+
+            val toRemove = mutableListOf<Int>()
+            pendingStands.forEach { (id, spawnTick) ->
+                val entity = mc.level?.getEntity(id) as? ArmorStand ?: run {
+                    toRemove.add(id)
                     return@forEach
                 }
-            }
+                val name = entity.customName?.string
 
-            if (!foundStand) {
-                nameStand = null
-                healthStand = null
-                timeStand = null
-                return@TickTask
-            }
-
-            val currentNameStand = nameStand ?: return@TickTask
-
-            armorStands.retainAll { it.distanceTo(currentNameStand) < 3 }
-
-            armorStands.forEach { stand ->
-                    if (slayerNames.any { stand.displayName?.string?.contains(it) ?: false }) {
-                        healthStand = stand
-                        return@forEach
+                when {
+                     name != null && nameRegex.find(name)?.groups[1]?.value == mc.player?.name?.string -> {
+                        toRemove.add(id)
+                        nameStand = entity
+                        schedule(2  , true) { handleBossSpawned() }
                     }
+                    !name.isNullOrEmpty() -> toRemove.add(id)
+                    currentTick - spawnTick > 40 -> toRemove.add(id)
+                }
             }
-
-            timeStand = armorStands.find { it.displayName?.string?.contains(":") == true }
+            toRemove.forEach { pendingStands.remove(it) }
         }
+    }
+
+    private fun handleBossSpawned() {
+        val entities = mc.level?.entitiesForRendering() ?: return
+
+        armorStands.clear()
+        armorStands = entities.filterIsInstanceTo(armorStands)
+
+        val currentNameStand = nameStand ?: return
+        armorStands.retainAll { it.distanceTo(currentNameStand) < 2 }
+
+        armorStands.forEach { stand ->
+            if (slayerNames.any { stand.displayName?.string?.contains(it) ?: false }) {
+                healthStand = stand
+                return@forEach
+            }
+        }
+
+        timeStand = armorStands.filter { it.displayName?.string?.contains(":") == true && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
     }
 
     private val colorToFormatting: Map<Int, ChatFormatting> =
