@@ -45,7 +45,7 @@ object ServerAlert : Module(
                 val secondsSince = Instant.now().epochSecond - lastTime
                 if (secondsSince < thresholdMinutes * 60) {
                     schedule(10) {
-                        modMessage("Recently joined $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
+                        modMessage("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
                         playSoundSettings(soundSettings())
                         if (title) {
                             mc.gui.setTimes(0, 40, 20)
