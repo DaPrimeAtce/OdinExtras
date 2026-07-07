@@ -4,38 +4,41 @@ import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.RenderEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.LevelEvent
+import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.drawText
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
-import com.odtheking.odin.utils.handlers.TickTask
 import com.odtheking.odin.utils.renderX
 import com.odtheking.odin.utils.renderY
 import com.odtheking.odin.utils.renderZ
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 
 
 object ReindrakeHealthDisplay : Module(
     name = "Reindrake Health Display",
     description = "Displays the health of Reindrakes."
 ) {
-    private var dragons = mutableListOf<EnderDragon>()
+    private var dragons = mutableMapOf<EnderDragon, Int>()
     private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
 
     init {
-        TickTask(20) { // Scans for entities every 20t
-            if (LocationUtils.currentArea != Island.JerryWorkshop) return@TickTask
-            val entities = mc.level?.entitiesForRendering() ?: return@TickTask
+        onReceive<ClientboundSetEntityDataPacket> {
+            if (LocationUtils.currentArea != Island.JerryWorkshop) return@onReceive
 
-            dragons = entities.filterIsInstanceTo(dragons, EnderDragon::class.java)
+            val dragon = mc.level?.getEntity(id) as? EnderDragon ?: return@onReceive
+            val health = (packedItems.find { it.id == 9 }?.value as? Float) ?: return@onReceive
+            dragons[dragon] = health.toInt()
         }
 
+
+
         on<RenderEvent.Extract> {
-            dragons.forEach { dragon ->
-                val dragonEntity = dragon.asLivingEntity()
-                if (dragonEntity != null) drawText("${color(dragonEntity.getHealth().toInt())}${dragonEntity.getHealth().toInt()}§c❤",
-                    Vec3(dragonEntity.renderX, dragonEntity.renderY, dragonEntity.renderZ), size * 7, false)
+            dragons.forEach { dragon, health ->
+                if (dragon != null) drawText("${color(health)}${health}§c❤",
+                    Vec3(dragon.renderX, dragon.renderY, dragon.renderZ), size * 7, false)
             }
         }
 
