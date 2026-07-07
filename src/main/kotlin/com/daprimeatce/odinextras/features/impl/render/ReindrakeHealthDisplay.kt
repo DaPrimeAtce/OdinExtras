@@ -3,6 +3,7 @@ package com.daprimeatce.odinextras.features.impl.render
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.RenderEvent
 import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.drawText
 import net.minecraft.world.phys.Vec3
@@ -19,7 +20,7 @@ object ReindrakeHealthDisplay : Module(
     name = "Reindrake Health Display",
     description = "Displays the health of Reindrakes."
 ) {
-    private var dragons = listOf<EnderDragon>()
+    private var dragons = mutableListOf<EnderDragon>()
     private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
 
     init {
@@ -27,7 +28,7 @@ object ReindrakeHealthDisplay : Module(
             if (LocationUtils.currentArea != Island.JerryWorkshop) return@TickTask
             val entities = mc.level?.entitiesForRendering() ?: return@TickTask
 
-            dragons = entities.filterIsInstance<EnderDragon>()
+            dragons = entities.filterIsInstanceTo(dragons, EnderDragon::class.java)
         }
 
         on<RenderEvent.Extract> {
@@ -36,6 +37,10 @@ object ReindrakeHealthDisplay : Module(
                 if (dragonEntity != null) drawText("${color(dragonEntity.getHealth().toInt())}${dragonEntity.getHealth().toInt()}§c❤",
                     Vec3(dragonEntity.renderX, dragonEntity.renderY, dragonEntity.renderZ), size * 7, false)
             }
+        }
+
+        on<LevelEvent.Load> {
+            dragons.clear()
         }
     }
 
