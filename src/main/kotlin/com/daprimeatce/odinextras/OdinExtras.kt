@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras
 import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
-import com.daprimeatce.odinextras.commands.commands
+import com.daprimeatce.odinextras.commands.odinExtrasCommand
 import com.daprimeatce.odinextras.features.impl.skyblock.*
 import com.daprimeatce.odinextras.features.impl.nether.*
 import com.daprimeatce.odinextras.features.impl.boss.*
@@ -18,7 +18,9 @@ object OdinExtras : ClientModInitializer {
 
         // Register commands by adding to the array
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
-            commands.forEach { commodore -> commodore.register(dispatcher) }
+            arrayOf(
+                odinExtrasCommand
+            ).forEach { commodore -> commodore.register(dispatcher) }
         }
 
         // Register objects to event bus by adding to the list
