@@ -11,6 +11,8 @@ import com.odtheking.odin.utils.render.drawText
 import com.odtheking.odin.utils.renderX
 import com.odtheking.odin.utils.renderY
 import com.odtheking.odin.utils.renderZ
+import com.odtheking.odin.utils.skyblock.Island
+import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.toFixed
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.world.entity.EntityType
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.HitResult
+import kotlin.collections.set
 
 object VoidgloomLasers : Module(
     name = "Voidgloom Lasers",
@@ -28,6 +31,7 @@ object VoidgloomLasers : Module(
     private var endermen = mutableMapOf<EnderMan, Int>()
     private var serverTicks = 0
 
+
     init {
         on<LevelEvent.Load> {
             serverTicks = 0
@@ -35,12 +39,15 @@ object VoidgloomLasers : Module(
         }
 
         on<TickEvent.Server> {
+            if (LocationUtils.currentArea != Island.TheEnd) return@on
             serverTicks++
             endermen.replaceAll { _, ticks -> ticks - 1 }
-            endermen.entries.removeAll { it.value <= 0 }
+            endermen.entries.removeAll { it.value <= -5 }
         }
 
         onReceive<ClientboundSetPassengersPacket> {
+            if (LocationUtils.currentArea != Island.TheEnd) return@onReceive
+
             for (id in passengers) {
                 val entity = mc.level?.getEntity(id) as? EnderMan ?: return@onReceive
                 if (entity.type == EntityType.ENDERMAN && entity !in endermen) endermen[entity] = 162
@@ -49,6 +56,7 @@ object VoidgloomLasers : Module(
 
         on<RenderEvent.Extract> {
             endermen.forEach { (eman, ticks) ->
+                if (ticks < 0) return@on
                 val emanEntity = eman.asLivingEntity()
                 if (emanEntity == null) return@on
 
@@ -58,7 +66,7 @@ object VoidgloomLasers : Module(
                 val player = mc.player?.asLivingEntity() ?: return@on
                 val clipContext = ClipContext(Vec3(camera), target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)
                 val hitResult = mc.level?.clip(clipContext)
-                if (hitResult?.type != HitResult.Type.MISS) return@on
+                if (hitResult?.type == HitResult.Type.BLOCK) return@on
 
                 drawText("${color(ticks)}${(ticks.toFloat() / 20).toFixed(2)}",
                     Vec3(emanEntity.renderX, emanEntity.renderY + 1.5, emanEntity.renderZ), size * 3, false)
