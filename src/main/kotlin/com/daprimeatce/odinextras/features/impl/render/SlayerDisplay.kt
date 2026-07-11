@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 object SlayerDisplay : Module(
     name = "Slayer Display",
-    description = "Displays the info above a slayer boss on your screen."
+    description = "Displays the info above a slayer boss on your screen, including hellion shield."
 ) {
     private var armorStands = mutableListOf<ArmorStand>()
     private var nameStand: ArmorStand? = null
@@ -94,8 +94,13 @@ object SlayerDisplay : Module(
         }
 
         on<TickEvent.Server> {
-
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
+
+            if (nameStand != null && nameStand!!.isCustomNameVisible) {
+                healthStand = null
+                timeStand = null
+                handleBossSpawned()
+            }
 
             currentTick++
 
@@ -130,7 +135,7 @@ object SlayerDisplay : Module(
         armorStands = entities.filterIsInstanceTo(armorStands)
 
         val currentNameStand = nameStand ?: return
-        armorStands.retainAll { it.distanceTo(currentNameStand) < 2 }
+        armorStands.retainAll { it.distanceTo(currentNameStand) < 0.5 }
 
         armorStands.forEach { stand ->
             if (slayerNames.any { stand.displayName?.string?.contains(it) ?: false }) {
