@@ -36,7 +36,7 @@ object KuudraEatenTimer : Module(
 
     init {
         onReceive<ClientboundUpdateMobEffectPacket> {
-            if (entityId == mc.player?.id && effect == MobEffects.BLINDNESS) {
+            if (entityId == mc.player?.id && effect == MobEffects.BLINDNESS && cooldownTicks <= 0) {
                 blind = true
                 ticks = 10
             }
@@ -49,7 +49,7 @@ object KuudraEatenTimer : Module(
             }
 
             if (blind) ticks--
-            if (blind && ticks <= 0) {
+            if (blind && ticks < 0) {
                 blind = false
                 cooldownTicks = 100
             }
@@ -58,6 +58,7 @@ object KuudraEatenTimer : Module(
         on<LevelEvent.Load> {
             blind = false
             ticks = 10
+            cooldownTicks = 0
         }
     }
 
