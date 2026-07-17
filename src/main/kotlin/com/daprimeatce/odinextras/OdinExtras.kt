@@ -8,6 +8,7 @@ import com.daprimeatce.odinextras.features.impl.skyblock.*
 import com.daprimeatce.odinextras.features.impl.nether.*
 import com.daprimeatce.odinextras.features.impl.boss.*
 import com.daprimeatce.odinextras.features.impl.render.*
+//import com.daprimeatce.odinextras.features.impl.dungeon.*
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
@@ -28,18 +29,11 @@ object OdinExtras : ClientModInitializer {
 
         // Register modules by adding to the list
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
-            KuudraEatenTimer,
-            ChatCommandsPlus,
-			TickTimersPlus,
-            DroppedItemScale,
-            ArrowPoisonDisplay,
-            ReindrakeHealthDisplay,
-            ChatLogger,
-            CPSDisplay,
-            ServerAlert,
-            SlayerDisplay,
-            VoidgloomLasers,
-            ExtraSplits
+            TickTimersPlus,   // Boss
+            /*TeammateNametags,*/   // Dungeon
+            KuudraEatenTimer,   // Kuudra
+            CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
+            ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ExtraSplits, ServerAlert   // Skyblock
         )
     }
 }

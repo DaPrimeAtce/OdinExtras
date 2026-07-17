@@ -13,6 +13,7 @@ import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
+import com.daprimeatce.odinextras.utils.messageRegex
 import kotlin.text.format
 
 object ChatCommandsPlus : Module(
@@ -42,8 +43,6 @@ object ChatCommandsPlus : Module(
     private val kick by StringSetting("Kick", "", desc = "Alternate values to trigger party warp.") .withDependency { alternatePrefixes }
     private val reinv by StringSetting("Reinvite", "", desc = "Alternate values to trigger reinvite.") .withDependency { alternatePrefixes }
 
-    private val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|From (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
-
     init {
         on<ChatPacketEvent> {
             val result = messageRegex.find(value) ?: return@on
@@ -54,8 +53,8 @@ object ChatCommandsPlus : Module(
                 else -> return@on
             }
 
-            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[9]?.value ?: return@on
-            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[10]?.value ?: return@on
+            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: return@on
+            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: return@on
 
             schedule(4) {
                 handleChatCommands(msg, ign, channel)
@@ -170,7 +169,8 @@ object ChatCommandsPlus : Module(
 
     val replacements = mapOf(
         ":panda:" to "70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)",
-        ":ascent:" to "♿"
+        ":x:" to ":no:", // This replacement assumes the player has MVP++
+        "sped" to "♿" // This is only here for the people who get angry and say things like this impulsively without thinking, and get themselves muted as a result. The best filter though, is using your brain and not being toxic.
     )
 
     private enum class ChatChannel {

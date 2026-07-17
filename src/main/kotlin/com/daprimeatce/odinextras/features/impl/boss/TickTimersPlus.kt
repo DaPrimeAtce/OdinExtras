@@ -3,6 +3,7 @@ package com.daprimeatce.odinextras.features.impl.boss
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.ChatPacketEvent
+import com.daprimeatce.odinextras.utils.*
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
@@ -18,10 +19,6 @@ object TickTimersPlus : Module(
 	private val timerType by SelectorSetting("Timer Type", "Seconds", listOf("Seconds", "Milliseconds", "Ticks"), desc = "Type of timer.")
 	private val symbolDisplay by BooleanSetting("Display Symbol", true, desc = "Displays s, ms, or t after the timers.")
 	private val showPrefix by BooleanSetting("Show Prefix", true, desc = "Shows the prefix of the timers.")
-	
-	private val stormEnrageRegex = Regex("^⚠ Storm is enraged! ⚠$")
-	private val stormMoveRegex = Regex("^\\[BOSS] Storm: (ENERGY HEED MY CALL|THUNDER LET ME BE YOUR CATALYST)!$")
-	private val witherKingStartRegex = Regex("^\\[BOSS] Wither King: You\\.\\.\\. again\\?$")
 	
 	private var enrageTriggered = false
 	private var enrageTickTime = 66 // Actual value
@@ -49,6 +46,15 @@ object TickTimersPlus : Module(
 		else if (stormMoveTickTime >= 0 && stormMoveTriggered) textDim(formatTimer(stormMoveTickTime, 138, "§c§lStorm will move in: "), 0, 0)
 		else 0 to 0
 	}
+
+	private var professorTriggered = false
+	private var professorTickTime = 138
+
+	private val professorHud by HUD("Professor Hud", "Displays a time for when to use fire freeze for the Professor boss in M3.") {
+		if (it)                   textDim(formatTimer(104, 104, "§3Fire freeze in: "), 0, 0)
+		else if (professorTickTime >= 0 && professorTriggered) textDim(formatTimer(professorTickTime, 104, "§3Fire freeze in: "), 0, 0)
+		else 0 to 0
+	}
 	
 	init {
 		on<ChatPacketEvent> {
@@ -63,6 +69,10 @@ object TickTimersPlus : Module(
 			if (stormMoveHud.enabled && !stormMoveTriggered && value.matches(stormMoveRegex)) {
 				stormMoveTriggered = true
 			}
+
+			if (professorHud.enabled && !professorTriggered && value.matches(professorRegex)) {
+				professorTriggered = true
+			}
 		}
 		
 		on<TickEvent.Server> {
@@ -70,6 +80,7 @@ object TickTimersPlus : Module(
 			if (enrageTriggered && enrageHud.enabled) enrageTickTime--
 			if (ragTriggered && ragHud.enabled) ragTickTime--
 			if (stormMoveTriggered && stormMoveHud.enabled) stormMoveTickTime--
+			if (professorTriggered && professorHud.enabled) professorTickTime--
 		}
 
 		// Reset values on world load, don't forget to change these with the initial values if needed
@@ -80,6 +91,8 @@ object TickTimersPlus : Module(
 			ragTriggered = false
 			stormMoveTickTime = 138
 			stormMoveTriggered = false
+			professorTickTime = 104
+			professorTriggered = false
 		}
 	}
 	

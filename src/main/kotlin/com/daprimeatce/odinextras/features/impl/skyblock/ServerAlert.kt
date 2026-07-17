@@ -13,6 +13,7 @@ import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.playSoundSettings
+import com.daprimeatce.odinextras.utils.serverRegex
 import net.minecraft.network.chat.Component
 import java.time.Instant
 
@@ -27,13 +28,12 @@ object ServerAlert : Module(
     private val sounds by BooleanSetting("Custom Sounds", false, desc = "Plays the selected custom sound.").withDependency { dropdown }
     private val soundSettings = createSoundSettings("Alert Sound", "block.note_block.pling") { sounds && dropdown }
 
-    private val messageRegex = Regex("^Sending to server (.*)...$")
     private val servers = mutableMapOf<String, Long>()
     private var currentServer = ""
 
     init {
         on<ChatPacketEvent> {
-            val result = messageRegex.find(value) ?: return@on
+            val result = serverRegex.find(value) ?: return@on
             val server = result.groups[1]?.value ?: return@on
             if (currentServer.isNotEmpty()) servers[currentServer] = Instant.now().epochSecond
             currentServer = server

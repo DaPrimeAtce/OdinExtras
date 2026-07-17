@@ -10,6 +10,7 @@ import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
+import com.daprimeatce.odinextras.utils.*
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -27,11 +28,6 @@ object SlayerDisplay : Module(
     private var nameStand: ArmorStand? = null
     private var healthStand: ArmorStand? = null
     private var timeStand: ArmorStand? = null
-
-    private val nameRegex = Regex("^Spawned by: (.*)$")
-    private val completeRegex = Regex("^(\\s*)SLAYER QUEST COMPLETE!$")
-    private val failRegex = Regex("^(\\s*)SLAYER QUEST FAILED!$")
-    private val cancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
 
     private var currentTick = 0
     private val pendingStands = ConcurrentHashMap<Int, Int>() // id, tick spawned

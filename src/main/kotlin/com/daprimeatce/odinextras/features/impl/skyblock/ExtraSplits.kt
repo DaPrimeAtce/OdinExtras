@@ -18,6 +18,7 @@ import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.features.impl.skyblock.Splits.showTickTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.skyblock.SplitsManager.currentSplits
+import com.daprimeatce.odinextras.utils.*
 
 object ExtraSplits : Module(
 	name = "Extra Splits",
@@ -27,11 +28,6 @@ object ExtraSplits : Module(
 	private val timeLostToLag by BooleanSetting("Time Lost To Lag", true, desc = "Shows a split timer for how much run time is lost to lag.").withDependency { showTickTime }
 	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag. (only works in dungeons)").withDependency { timeLostToLag && showTickTime }
 	private val fixedWidth by BooleanSetting("Fixed Width", true, desc = "Always use a fixed HUD width, right-aligning the times.")
-
-	private val startOfDungeonRegex = Regex("\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.|\\[NPC] Mort: Right-click the Orb for spells, and Left-click \\(or Drop\\) to use your Ultimate!")
-	private val endOfDungeonRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$")
-	private val startOfKuudraRegex = Regex("^\\[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!$")
-	private val endOfKuudraRegex = Regex("^\\[NPC] Elle: Good job everyone. A hard fought battle come to an end. Let's get out of here before we run into any more trouble!$")
 
 	var startTimeMs: Long = -1
 	var endTimeMs: Long = -1
