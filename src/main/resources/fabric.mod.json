@@ -26,12 +26,5 @@
     "minecraft": "~${minecraft_version}",
     "fabric-language-kotlin": ">=${fabric_kotlin_version}",
     "odin": "*"
-  },
-  "custom": {
-    "modmenu": {
-      "parent": {
-        "id": "odin"
-      }
-    }
   }
 }
