@@ -48,9 +48,9 @@ object TickTimersPlus : Module(
 	}
 
 	private var professorTriggered = false
-	private var professorTickTime = 138
+	private var professorTickTime = 104
 
-	private val professorHud by HUD("Professor Hud", "Displays a time for when to use fire freeze for the Professor boss in M3.") {
+	private val professorHud by HUD("Professor Hud", "Displays a time for when to use the fire freeze staff for the Professor boss in M3.") {
 		if (it)                   textDim(formatTimer(104, 104, "§3Fire freeze in: "), 0, 0)
 		else if (professorTickTime >= 0 && professorTriggered) textDim(formatTimer(professorTickTime, 104, "§3Fire freeze in: "), 0, 0)
 		else 0 to 0
