@@ -39,6 +39,7 @@ object ExtraSplits : Module(
 	var timeLost = ""
 	var startTicking = false
 	var startTickingStorm = false
+	var sentTime = false
 
 	private val extraSplitsHud by HUD("Extra Splits HUD", "Shows the extra split timers.") {
 
@@ -104,9 +105,10 @@ object ExtraSplits : Module(
 				return@on
 			}
 
-			if (endOfDungeonRegex.matches(value) || endOfKuudraRegex.matches(value)) {
+			if (!sentTime && (endOfDungeonRegex.matches(value) || endOfKuudraRegex.matches(value))) {
 				endTimeMs = System.currentTimeMillis()
 				startTicking = false
+				sentTime = true
 
 				schedule(5, true) {
 					if (sendTimeLost == 1) modMessage("$timeLost lost to lag.")
@@ -140,6 +142,7 @@ object ExtraSplits : Module(
 			timeLost = ""
 			startTicking = false
 			startTickingStorm = false
+			sentTime = false
 		}
 
 		on<TickEvent.Server> {
