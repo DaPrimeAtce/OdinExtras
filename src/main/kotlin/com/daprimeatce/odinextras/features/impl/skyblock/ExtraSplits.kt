@@ -24,77 +24,101 @@ object ExtraSplits : Module(
 	name = "Extra Splits",
 	description = "Extra timers for Kuudra and Dungeons that base Odin doesn't have."
 ) {
-	private val totalTimeSplits by BooleanSetting("Total Run Time Splits", true, desc = "Shows a split timer for the full run time.")
-	private val timeLostToLag by BooleanSetting("Time Lost To Lag", true, desc = "Shows a split timer for how much run time is lost to lag.").withDependency { showTickTime }
-	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag. (only works in dungeons)").withDependency { timeLostToLag && showTickTime }
-	private val stormDPS by BooleanSetting("Storm DPS Splits", true, desc = "Shows an extra split timer for Storm, ending after purple pillar DPS.")
 	private val fixedWidth by BooleanSetting("Fixed Width", true, desc = "Always use a fixed HUD width, right-aligning the times.")
 
-	var startTimeMs: Long = -1
-	var endTimeMs: Long = -1
-	var startTimeStormMs: Long = -1
-	var endTimeStormMs: Long = -1
-	var serverTicks = -1
-	var serverTicksStorm = -1
-	var timeLost = ""
-	var startTicking = false
-	var startTickingStorm = false
-	var sentTime = false
+	private var startTimeMs: Long = -1
+	private var endTimeMs: Long = -1
+	private var startTimeStormMs: Long = -1
+	private var endTimeStormMs: Long = -1
+	private var serverTicks = -1
+	private var serverTicksStorm = -1
+	private var timeLost = "" // updates text per tick instead of per frame so it doesn't jitter as much
+	private var startTicking = false
+	private var startTickingStorm = false
+	private var sentTime = false
 
-	private val extraSplitsHud by HUD("Extra Splits HUD", "Shows the extra split timers.") {
-
+	private val timeLostToLag by HUD("Time Lost To Lag", "Shows a split timer for how much run time is lost to lag.") {
 		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
-		val exampleTotalTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""
 		val exampleTimeLost = "00m 00.00s"
-		var count = 0 // number of features toggled on to calculate y value of rendering on the hud
 
 		if (it) {
 			if (fixedWidth) {
-				if (totalTimeSplits) {
-					text("§a§lTotal", 0, 0)
-					text(exampleTotalTime, totalWidth - getStringWidth("0h 00m 00.00s" + if (showTickTime) " (0s)" else ""), 0)
-					count++
-				}
-				if (timeLostToLag) {
-					text("§c§lLost", 0, count * 9)
-					text(exampleTimeLost, totalWidth - getStringWidth("00m 00.00s"), count * 9)
-					count++
-				}
+				text("§c§lLost", 0, 0)
+				text(exampleTimeLost, totalWidth - getStringWidth("00m 00.00s"), 0)
 			} else {
-				if (totalTimeSplits) {
-					text("§a§lTotal §r$exampleTotalTime", 0, 0)
-					count++
-				}
-				if (timeLostToLag) {
-					text("§c§lLost §r$exampleTimeLost", 0, count * 9)
-					count++
-				}
+				text("§c§lLost §r$exampleTimeLost", 0, 0)
 			}
-            return@HUD totalWidth to 9 * count
+			return@HUD totalWidth to mc.font.lineHeight
 		}
 
 		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
 
 		if (startTimeMs.toInt() == -1) return@HUD 0 to 0
 
-		if (totalTimeSplits) {
-			val totalTime = formatTime((if (endTimeMs > 0) endTimeMs else System.currentTimeMillis()) - startTimeMs, 2)
-			val displayText = if (showTickTime) "$totalTime §8(§7${(serverTicks / 20f).toFixed(2)}§8)" else totalTime
-			text("§a§lTotal", 0, 0, Colors.WHITE)
+		text("§c§lLost", 0, 9, Colors.WHITE)
 
-			if (fixedWidth) text(displayText, totalWidth - getStringWidth(displayText), 0, Colors.WHITE)
-			else text(displayText, maxWidth + 4, 0, Colors.WHITE)
-			count++
+		if (fixedWidth) text(timeLost, totalWidth - getStringWidth(timeLost), 0, Colors.WHITE)
+		else text(timeLost, maxWidth + 4, 0, Colors.WHITE)
+
+		totalWidth to mc.font.lineHeight
+	}
+	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag.").withDependency { timeLostToLag.enabled }
+
+	private val totalRunTime by HUD("Total Run Time", "Shows a split timer for the full run time.") {
+		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
+		val exampleTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""
+
+		if (it) {
+			if (fixedWidth) {
+				text("§a§lTotal", 0, 0)
+				text(exampleTime, totalWidth - getStringWidth("0h 00m 00.00s" + if (showTickTime) " (0s)" else ""), 0)
+			} else {
+				text("§a§lTotal §r$exampleTime", 0, 0)
+			}
+			return@HUD totalWidth to mc.font.lineHeight
 		}
 
-		if (timeLostToLag) {
-			text("§c§lLost", 0, count * 9, Colors.WHITE)
+		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
 
-			if (fixedWidth) text(timeLost, totalWidth - getStringWidth(timeLost), count * 9, Colors.WHITE)
-			else text(timeLost, maxWidth + 4, count * 9, Colors.WHITE)
-			count++
+		if (startTimeMs.toInt() == -1) return@HUD 0 to 0
+
+		val totalTime = formatTime((if (endTimeMs > 0) endTimeMs else System.currentTimeMillis()) - startTimeMs, 2)
+		val displayText = if (showTickTime) "$totalTime §8(§7${(serverTicks / 20f).toFixed(2)}§8)" else totalTime
+		text("§a§lTotal", 0, 0, Colors.WHITE)
+
+		if (fixedWidth) text(displayText, totalWidth - getStringWidth(displayText), 0, Colors.WHITE)
+		else text(displayText, maxWidth + 4, 0, Colors.WHITE)
+
+		totalWidth to mc.font.lineHeight
+	}
+
+	private val stormDps by HUD("Storm DPS", "Show the split timer for Storm purple pillar DPS.") {
+		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
+		val exampleTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""
+
+		if (it) {
+			if (fixedWidth) {
+				text("§3Storm DPS", 0, 0)
+				text(exampleTime, totalWidth - getStringWidth("0h 00m 00.00s" + if (showTickTime) " (0s)" else ""), 0)
+			} else {
+				text("§3Storm DPS §r$exampleTime", 0, 0)
+			}
+
+			return@HUD totalWidth to mc.font.lineHeight
 		}
-		totalWidth to 9 * count
+
+		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
+
+		if (startTimeStormMs.toInt() == -1) return@HUD 0 to 0
+
+		val totalTime = formatTime((if (endTimeStormMs > 0) endTimeStormMs else System.currentTimeMillis()) - startTimeStormMs, 2)
+		val displayText = if (showTickTime) "$totalTime §8(§7${(serverTicksStorm / 20f).toFixed(2)}§8)" else totalTime
+		text("§3Storm DPS", 0, 0, Colors.WHITE)
+
+		if (fixedWidth) text(displayText, totalWidth - getStringWidth(displayText), 0, Colors.WHITE)
+		else text(displayText, maxWidth + 4, 0, Colors.WHITE)
+
+		totalWidth to mc.font.lineHeight
 	}
 
 	init { 
@@ -156,41 +180,5 @@ object ExtraSplits : Module(
 			}
 		}
 	}
-	private val stormDPSHud by HUD("Storm DPS Hud", "Show the split timer for Storm purple pillar DPS.") {
 
-		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
-		val exampleTotalTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""
-		var count = 0 // number of features toggled on to calculate y value of rendering on the hud
-
-		if (it) {
-			if (fixedWidth) {
-				if (stormDPS) {
-					text("§3Storm DPS", 0, 0)
-					text(exampleTotalTime, totalWidth - getStringWidth("0h 00m 00.00s" + if (showTickTime) " (0s)" else ""), 0)
-					count++
-				}
-			} else {
-				if (stormDPS) {
-					text("§3Storm DPS §r$exampleTotalTime", 0, 0)
-					count++
-				}
-			}
-			return@HUD totalWidth to 9 * count
-		}
-
-		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
-
-		if (startTimeStormMs.toInt() == -1) return@HUD 0 to 0
-
-		if (stormDPS) {
-			val totalTime = formatTime((if (endTimeStormMs > 0) endTimeStormMs else System.currentTimeMillis()) - startTimeStormMs, 2)
-			val displayText = if (showTickTime) "$totalTime §8(§7${(serverTicksStorm / 20f).toFixed(2)}§8)" else totalTime
-			text("§3Storm DPS", 0, 0, Colors.WHITE)
-
-			if (fixedWidth) text(displayText, totalWidth - getStringWidth(displayText), 0, Colors.WHITE)
-			else text(displayText, maxWidth + 4, 0, Colors.WHITE)
-			count++
-		}
-		totalWidth to 9 * count
-	}
 }
