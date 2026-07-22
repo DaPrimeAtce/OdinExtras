@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras.utils
 // Started to see duplicate regex usage between files, so regex goes here now or something
 
 // Instanced content regex
-//val stormStartRegex = Regex("\\[BOSS] Storm: Pathetic Maxor, just like expected\\.")
+val stormStartRegex = Regex("\\[BOSS] Storm: Pathetic Maxor, just like expected\\.")
 val stormEnrageRegex = Regex("^⚠ Storm is enraged! ⚠$")
 val stormMoveRegex = Regex("^\\[BOSS] Storm: (ENERGY HEED MY CALL|THUNDER LET ME BE YOUR CATALYST)!$")
 val witherKingStartRegex = Regex("^\\[BOSS] Wither King: You\\.\\.\\. again\\?$")
