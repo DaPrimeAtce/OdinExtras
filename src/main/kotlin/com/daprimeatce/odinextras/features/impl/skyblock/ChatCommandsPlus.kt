@@ -62,7 +62,7 @@ object ChatCommandsPlus : Module(
         }
 
         on<MessageSentEvent> {
-            if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "gtg")) {
+            if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "tyfrs", "gtg")) {
                 schedule(10) {
                     sendCommand("p leave")
                 }
