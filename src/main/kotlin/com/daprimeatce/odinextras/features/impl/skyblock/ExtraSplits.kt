@@ -55,7 +55,7 @@ object ExtraSplits : Module(
 
 		if (startTimeMs.toInt() == -1) return@HUD 0 to 0
 
-		text("§c§lLost", 0, 9, Colors.WHITE)
+		text("§c§lLost", 0, 0, Colors.WHITE)
 
 		if (fixedWidth) text(timeLost, totalWidth - getStringWidth(timeLost), 0, Colors.WHITE)
 		else text(timeLost, maxWidth + 4, 0, Colors.WHITE)
