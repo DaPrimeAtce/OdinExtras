@@ -48,7 +48,7 @@ object ChatLogger : Module(
 
             if (party && channel == Channel.PARTY) sendEmbed(ign, msg, channel)
             if (guild && channel == Channel.GUILD) sendEmbed(ign, msg, channel)
-            if (private && channel == Channel.PRIVATE_FROM) sendEmbed(ign, ("From $ign: $msg"), channel)
+            if (private && channel == Channel.PRIVATE_FROM) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_TO) sendEmbed(ignSelf, ("To $ign: $msg"), channel)
         }
     }
