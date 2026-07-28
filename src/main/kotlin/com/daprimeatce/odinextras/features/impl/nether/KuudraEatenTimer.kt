@@ -16,19 +16,19 @@ object KuudraEatenTimer : Module(
     description = "Timer until the stunner is eaten."
 ) {
     private val select by SelectorSetting("Timer Type", "Milliseconds", listOf("Milliseconds", "Ticks"), desc = "Type of timer.")
+    private val cooldownTicks = 100 // In case blindness is applied again for some reason
 
-    private var blind = false
-    private var ticks = 10
-    private var cooldownTicks = 0
+    private var ticks = -1
 
     private val hud by HUD(name, desc = "Shows time remaining until eaten.") {
         if (it) {
             textDim("§bEaten in " + if (select == 0) "§a500ms" else "§a10t", 0, 0)
-        } else if (KuudraUtils.inKuudra && blind) {
-            var text = "§bEaten in " + color(ticks)
-            text += if (select == 0) "${ticks * 50}ms" else "${ticks}t"
+        } else if (KuudraUtils.inKuudra && ticks > cooldownTicks) {
+            val displayTicks = ticks - cooldownTicks
+            var text = "§bEaten in " + color(displayTicks)
+            text += if (select == 0) "${(displayTicks) * 50}ms" else "${displayTicks}t"
 
-            textDim(text, 0, 0) // This function automatically returns the width and height of the text rendered
+            textDim(text, 0, 0)
         } else {
             return@HUD 0 to 0
         }
@@ -36,29 +36,17 @@ object KuudraEatenTimer : Module(
 
     init {
         onReceive<ClientboundUpdateMobEffectPacket> {
-            if (entityId == mc.player?.id && effect == MobEffects.BLINDNESS && cooldownTicks <= 0) {
-                blind = true
-                ticks = 10
+            if (entityId == mc.player?.id && effect == MobEffects.BLINDNESS && ticks <= 0) {
+                ticks = 10 + cooldownTicks
             }
         }
 
         on<TickEvent.Server> {
-            if (cooldownTicks > 0) { // Shouldn't spam it restarting just in case
-                cooldownTicks--
-                return@on
-            }
-
-            if (blind) ticks--
-            if (blind && ticks < 0) {
-                blind = false
-                cooldownTicks = 100
-            }
+            if (ticks > 0) ticks--
         }
 
         on<LevelEvent.Load> {
-            blind = false
-            ticks = 10
-            cooldownTicks = 0
+            ticks = -1
         }
     }
 
