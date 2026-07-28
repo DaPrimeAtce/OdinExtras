@@ -90,18 +90,18 @@ object ChatCommandsPlus : Module(
 
     private fun handleChatCommands(message: String, name: String, channel: ChatChannel) {
         val words = message.split(" ").map { it.lowercase() }
-        val user = if (words.size >= 2) words[words.size - 2] else null
+        val faceUser = words.getOrNull(0)?.takeIf { it.length <= 16 }
 
         when (words.last()) {
             ":(" ->
-                if (kickFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && user?.isNotEmpty() == true) {
-                    sendCommand("p kick $user")
+                if (kickFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && faceUser?.isNotEmpty() == true) {
+                    sendCommand("p kick $faceUser")
                     return
                 }
 
             ":)" ->
-                if (inviteFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && user?.isNotEmpty() == true) {
-                    sendCommand("p invite $user")
+                if (inviteFace && PartyUtils.isLeader() && channel != ChatChannel.GUILD && faceUser?.isNotEmpty() == true) {
+                    sendCommand("p invite $faceUser")
                     return
                 }
         }
@@ -139,11 +139,11 @@ object ChatCommandsPlus : Module(
                 if ((PartyUtils.isLeader() || !PartyUtils.isInParty) && inv.isNotEmpty() && words[0] in trimmedInv && channel == ChatChannel.PRIVATE) sendCommand("p $name")
                 if (PartyUtils.isLeader() && trimmedWarp.isNotEmpty() && words[0] in trimmedWarp && channel == ChatChannel.PARTY) sendCommand("p warp")
                 if (PartyUtils.isLeader() && trimmedTransfer.isNotEmpty() && words[0] in trimmedTransfer && channel == ChatChannel.PARTY) {
-                    if (words.size > 1) sendCommand("p transfer ${findPartyMember(words[1])}")
+                    if (words.size > 1 && words[1].length <= 16) sendCommand("p transfer ${findPartyMember(words[1])}")
                     else sendCommand("p transfer $name")
                 }
                 if (PartyUtils.isLeader() && trimmedDisband.isNotEmpty() && words[0] in trimmedDisband && channel == ChatChannel.PARTY) sendCommand("p disband")
-                if (PartyUtils.isLeader() && trimmedKick.isNotEmpty() && words[0] in trimmedKick && channel == ChatChannel.PARTY && words.size > 1) sendCommand("p kick ${findPartyMember(words[1])}")
+                    if (PartyUtils.isLeader() && trimmedKick.isNotEmpty() && words[0] in trimmedKick && channel == ChatChannel.PARTY && words.size > 1 && words[1].length <= 16) sendCommand("p kick ${findPartyMember(words[1])}")
                 if (PartyUtils.isLeader() && trimmedReinv.isNotEmpty() && words[0] in trimmedReinv && channel == ChatChannel.PARTY) {
                     modMessage("§aReinviting §6$name §ain 5 seconds...")
                     schedule(100) {
@@ -157,7 +157,7 @@ object ChatCommandsPlus : Module(
     }
 
     private fun findPartyMember(partialName: String): String =
-        PartyUtils.members.find { it.contains(partialName, true) } ?: partialName
+        PartyUtils.members.find { it.contains(partialName, true) } ?: partialName.take(16)
 
     private fun channelMessage(message: Any, name: String, channel: ChatChannel) {
         when (channel) {
