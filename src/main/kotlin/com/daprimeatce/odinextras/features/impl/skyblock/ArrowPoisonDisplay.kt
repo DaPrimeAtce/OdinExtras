@@ -9,7 +9,6 @@ import com.odtheking.odin.utils.render.textDim
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
-
 object ArrowPoisonDisplay : Module(
     name = "Arrow Poison Display",
     description = "Shows the number of toxic and twilight arrow poisons in your inventory."
@@ -27,17 +26,20 @@ object ArrowPoisonDisplay : Module(
         widthTwilight.coerceAtMost(widthToxic) + 20 to mc.font.lineHeight * 2 + 5
     }
 
+
     init {
         on<TickEvent.End> {
+            if (!enabled || !hud.enabled) return@on
+
             numToxic = 0
             numTwilight = 0
-            val items = mc.player?.inventory?.getNonEquipmentItems() ?: return@on
+            val items = mc.player?.inventory?.nonEquipmentItems ?: return@on
 
             for (stack in items) {
-                if (!stack.isEmpty() && stack.itemId == "TOXIC_ARROW_POISON") {
-                    numToxic += stack.getCount()
-                } else if (!stack.isEmpty() && stack.itemId == "TWILIGHT_ARROW_POISON") {
-                    numTwilight += stack.getCount()
+                if (!stack.isEmpty && stack.itemId == "TOXIC_ARROW_POISON") {
+                    numToxic += stack.count
+                } else if (!stack.isEmpty && stack.itemId == "TWILIGHT_ARROW_POISON") {
+                    numTwilight += stack.count
                 }
             }
         }
