@@ -8,9 +8,4 @@ object ResourcePack : Module(
     description = "(WIP) Modify the Skyblock Resource Pack."
 ) {
     val movePack by BooleanSetting("Move Pack", true, "Allows you to move the resource pack instead of it being defaulted to the top of the resource pack list.")
-
-    fun moveResourcePack(): Boolean? {
-        if (!enabled || !movePack) return null
-        return movePack
-    }
 }

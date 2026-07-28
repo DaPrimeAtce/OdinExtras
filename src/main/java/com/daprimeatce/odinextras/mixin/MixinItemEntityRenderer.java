@@ -13,16 +13,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 @Mixin(ItemEntityRenderer.class)
 public class MixinItemEntityRenderer {
-    @Inject(method = "submit", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"))
+    @Inject(method = "submit", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", shift = At.Shift.AFTER))
     public void submit(final ItemEntityRenderState state, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final CameraRenderState camera, final CallbackInfo ci) {
-
-        if (!DroppedItemScale.INSTANCE.getEnabled()) {
-            poseStack.scale(1f, 1f, 1f);
-            return;
-        }
-
-        float scale = DroppedItemScale.INSTANCE.getScale();
-        if (scale != 1f) {
+        if (DroppedItemScale.INSTANCE.getEnabled()) {
+            float scale = DroppedItemScale.INSTANCE.getScale();
             poseStack.scale(scale, scale, scale);
         }
     }

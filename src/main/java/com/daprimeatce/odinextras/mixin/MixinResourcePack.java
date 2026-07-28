@@ -15,9 +15,10 @@ public class MixinResourcePack {
     @Shadow
     @Final
     private PackLocationInfo location;
+
     @Inject(method = "isFixedPosition", at = @At("HEAD"), cancellable = true)
     private void moveServerPack(CallbackInfoReturnable<Boolean> cir) {
-        if (Boolean.TRUE.equals(ResourcePack.INSTANCE.moveResourcePack())) {
+        if (ResourcePack.INSTANCE.getEnabled() && ResourcePack.INSTANCE.getMovePack()) {
             if (location.id().startsWith("server/")) {
                 cir.setReturnValue(false);
             }
