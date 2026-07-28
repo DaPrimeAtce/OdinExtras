@@ -31,7 +31,6 @@ public class MixinPanel {
         odinextras$alphabeticalOrder = List.copyOf(this.moduleButtons).stream().sorted((a, b) -> a.getModule().getName().compareToIgnoreCase(b.getModule().getName())).toList();
     }
 
-
     @Inject(method = "draw", at = @At("HEAD"))
     private void odinextras$applySortOrder(float mouseX, float mouseY, CallbackInfo ci) {
         if (ClickGUIPlus.INSTANCE.getAlphabeticalSorting() && ClickGUIPlus.INSTANCE.getEnabled()) {
