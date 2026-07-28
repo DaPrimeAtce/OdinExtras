@@ -56,8 +56,8 @@ object VoidgloomLasers : Module(
 
         on<RenderEvent.Extract> {
             endermen.forEach { (eman, ticks) ->
-                if (ticks < 0) return@on
-                val emanEntity = eman.asLivingEntity() ?: return@on
+                if (ticks < 0) return@forEach
+                val emanEntity = eman.asLivingEntity() ?: return@forEach
 
                 // Make sure this isn't basically esp
                 val camera = mc.gameRenderer.mainCamera.blockPosition()
