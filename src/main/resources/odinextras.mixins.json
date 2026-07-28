@@ -15,6 +15,7 @@
     "MixinItemEntityRenderer",
     "MixinAvatarRenderer",
     "MixinResourcePack",
-    "MixinPanel"
+    "MixinPanel",
+    "MixinClickGUIModule"
   ]
 }
