@@ -22,7 +22,8 @@ public class MixinItemEntityRenderer {
             at = @At(
                 value = "INVOKE",
                 target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V",
-                shift = At.Shift.AFTER)
+                shift = At.Shift.AFTER
+            )
     )
     public void odinextras$submit(
             final ItemEntityRenderState state,
