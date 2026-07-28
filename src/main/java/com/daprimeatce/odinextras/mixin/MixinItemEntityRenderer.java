@@ -13,8 +13,24 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 @Mixin(ItemEntityRenderer.class)
 public class MixinItemEntityRenderer {
-    @Inject(method = "submit", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", shift = At.Shift.AFTER))
-    public void submit(final ItemEntityRenderState state, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final CameraRenderState camera, final CallbackInfo ci) {
+    @Inject(method = "submit(" +
+                "Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;" +
+                "Lcom/mojang/blaze3d/vertex/PoseStack;" +
+                "Lnet/minecraft/client/renderer/SubmitNodeCollector;" +
+                "Lnet/minecraft/client/renderer/state/level/CameraRenderState;" +
+            ")V",
+            at = @At(
+                value = "INVOKE",
+                target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V",
+                shift = At.Shift.AFTER)
+    )
+    public void odinextras$submit(
+            final ItemEntityRenderState state,
+            final PoseStack poseStack,
+            final SubmitNodeCollector submitNodeCollector,
+            final CameraRenderState camera,
+            final CallbackInfo ci
+    ) {
         if (DroppedItemScale.INSTANCE.getEnabled()) {
             float scale = DroppedItemScale.INSTANCE.getScale();
             poseStack.scale(scale, scale, scale);
