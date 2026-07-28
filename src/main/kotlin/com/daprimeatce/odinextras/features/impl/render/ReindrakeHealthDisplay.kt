@@ -33,12 +33,9 @@ object ReindrakeHealthDisplay : Module(
             dragons[dragon] = health.toInt()
         }
 
-
-
         on<RenderEvent.Extract> {
-            dragons.forEach { dragon, health ->
-                if (dragon != null) drawText("${color(health)}${health}§c❤",
-                    Vec3(dragon.renderX, dragon.renderY, dragon.renderZ), size * 7, false)
+            dragons.forEach { (dragon, health) ->
+                drawText("${color(health)}${health}§c❤", Vec3(dragon.renderX, dragon.renderY, dragon.renderZ), size * 7, false)
             }
         }
 

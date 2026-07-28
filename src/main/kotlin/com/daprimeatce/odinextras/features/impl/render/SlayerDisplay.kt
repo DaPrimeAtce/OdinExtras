@@ -134,13 +134,13 @@ object SlayerDisplay : Module(
         armorStands.retainAll { it.distanceTo(currentNameStand) < 0.5 }
 
         armorStands.forEach { stand ->
-            if (slayerNames.any { stand.displayName?.string?.contains(it) ?: false }) {
+            if (slayerNames.any { stand.displayName.string.contains(it) }) {
                 healthStand = stand
                 return@forEach
             }
         }
 
-        timeStand = armorStands.filter { it.displayName?.string?.contains(":") == true && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
+        timeStand = armorStands.filter { it.displayName.string.contains(":") && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
     }
 
     private val colorToFormatting: Map<Int, ChatFormatting> =

@@ -51,7 +51,7 @@ object ExtraSplits : Module(
 			return@HUD totalWidth to mc.font.lineHeight
 		}
 
-		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
+		val maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
 
 		if (startTimeMs.toInt() == -1) return@HUD 0 to 0
 
@@ -78,7 +78,7 @@ object ExtraSplits : Module(
 			return@HUD totalWidth to mc.font.lineHeight
 		}
 
-		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
+		val maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
 
 		if (startTimeMs.toInt() == -1) return@HUD 0 to 0
 
@@ -107,7 +107,7 @@ object ExtraSplits : Module(
 			return@HUD totalWidth to mc.font.lineHeight
 		}
 
-		val maxWidth = currentSplits?.splits?.dropLast(1)?.maxOfOrNull { getStringWidth(it.name) } ?: 50
+		val maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
 
 		if (startTimeStormMs.toInt() == -1) return@HUD 0 to 0
 
