@@ -9,5 +9,5 @@ object ClickGUIPlus : Module(
     description = "Extra options for Odin's Click GUI."
 ) {
     val alphabeticalSorting by BooleanSetting("Alphabetical Sorting", true, desc = "Sorts the module lists alphabetically instead of Odin's default widest-first order.")
-    val scale by StringSetting("GUI Scale", "1", desc = "Enables a custom GUI scale between 0.5 and 1.5.")
+    val scale by StringSetting("GUI Scale", "1", desc = "Enables a custom GUI scale between 0.5 and 2.")
 }

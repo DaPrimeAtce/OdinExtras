@@ -13,7 +13,7 @@ public class MixinClickGUIModule {
     private void getStandardGuiScale(CallbackInfoReturnable<Float> cir) {
         if (ClickGUIPlus.INSTANCE.getEnabled()) {
             try {
-                cir.setReturnValue(Math.clamp(Float.parseFloat(ClickGUIPlus.INSTANCE.getScale()), 0.5f, 1.5f));
+                cir.setReturnValue(Math.clamp(Float.parseFloat(ClickGUIPlus.INSTANCE.getScale()), 0.5f, 2f));
                 cir.cancel();
             } catch (Exception _) {
                 cir.setReturnValue(1f);
