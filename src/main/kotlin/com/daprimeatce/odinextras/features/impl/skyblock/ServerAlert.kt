@@ -13,7 +13,7 @@ import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.playSoundSettings
-import com.daprimeatce.odinextras.utils.serverRegex
+import com.daprimeatce.odinextras.utils.RegexUtils
 import net.minecraft.network.chat.Component
 import java.time.Instant
 
@@ -33,7 +33,7 @@ object ServerAlert : Module(
 
     init {
         on<ChatPacketEvent> {
-            val result = serverRegex.find(value) ?: return@on
+            val result = RegexUtils.serverRegex.find(value) ?: return@on
             val server = result.groups[1]?.value ?: return@on
             if (currentServer.isNotEmpty()) servers[currentServer] = Instant.now().epochSecond
             currentServer = server

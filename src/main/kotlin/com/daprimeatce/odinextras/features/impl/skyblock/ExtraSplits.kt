@@ -18,7 +18,7 @@ import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.features.impl.skyblock.Splits.showTickTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.skyblock.SplitsManager.currentSplits
-import com.daprimeatce.odinextras.utils.*
+import com.daprimeatce.odinextras.utils.RegexUtils
 
 object ExtraSplits : Module(
 	name = "Extra Splits",
@@ -123,13 +123,13 @@ object ExtraSplits : Module(
 
 	init { 
 		on<ChatPacketEvent> {
-			if (startOfDungeonRegex.matches(value) || startOfKuudraRegex.matches(value)) {
+			if (RegexUtils.startOfDungeonRegex.matches(value) || RegexUtils.startOfKuudraRegex.matches(value)) {
 				startTimeMs = System.currentTimeMillis()
 				startTicking = true
 				return@on
 			}
 
-			if (!sentTime && (endOfDungeonRegex.matches(value) || endOfKuudraRegex.matches(value))) {
+			if (!sentTime && (RegexUtils.endOfDungeonRegex.matches(value) || RegexUtils.endOfKuudraRegex.matches(value))) {
 				endTimeMs = System.currentTimeMillis()
 				startTicking = false
 				sentTime = true
@@ -144,13 +144,13 @@ object ExtraSplits : Module(
 				}
 			}
 
-			if (stormStartRegex.matches(value)) {
+			if (RegexUtils.stormStartRegex.matches(value)) {
 				startTimeStormMs = System.currentTimeMillis()
 				startTickingStorm = true
 				return@on
 			}
 
-			if (stormEnrageRegex.matches(value)) {
+			if (RegexUtils.stormEnrageRegex.matches(value)) {
 				endTimeStormMs = System.currentTimeMillis()
 				startTickingStorm = false
 			}

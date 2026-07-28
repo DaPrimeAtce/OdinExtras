@@ -10,7 +10,7 @@ import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
-import com.daprimeatce.odinextras.utils.*
+import com.daprimeatce.odinextras.utils.RegexUtils
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -76,9 +76,9 @@ object SlayerDisplay : Module(
         }
 
         on<ChatPacketEvent> {
-            if (completeRegex.matches(value)) resetValues()
-            if (failRegex.matches(value)) resetValues()
-            if (cancelRegex.matches(value)) resetValues()
+            if (RegexUtils.slayerCompleteRegex.matches(value)) resetValues()
+            if (RegexUtils.slayerFailRegex.matches(value)) resetValues()
+            if (RegexUtils.slayerCancelRegex.matches(value)) resetValues()
         }
 
         onReceive<ClientboundAddEntityPacket> {
@@ -111,7 +111,7 @@ object SlayerDisplay : Module(
                 val name = entity.customName?.string
 
                 when {
-                     name != null && nameRegex.find(name)?.groups[1]?.value == mc.player?.name?.string -> {
+                     name != null && RegexUtils.slayerSpawnerRegex.find(name)?.groups[1]?.value == mc.player?.name?.string -> {
                         toRemove.add(id)
                         nameStand = entity
                         schedule(2  , true) { handleBossSpawned() }

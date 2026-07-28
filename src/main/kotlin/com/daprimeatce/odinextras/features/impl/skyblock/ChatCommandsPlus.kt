@@ -13,7 +13,7 @@ import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
-import com.daprimeatce.odinextras.utils.messageRegex
+import com.daprimeatce.odinextras.utils.RegexUtils
 import kotlin.text.format
 
 object ChatCommandsPlus : Module(
@@ -45,7 +45,7 @@ object ChatCommandsPlus : Module(
 
     init {
         on<ChatPacketEvent> {
-            val result = messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(value) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "From" -> if (!privateChatCommands) return@on else ChatChannel.PRIVATE
                 "Party" -> if (!partyChatCommands)  return@on else ChatChannel.PARTY

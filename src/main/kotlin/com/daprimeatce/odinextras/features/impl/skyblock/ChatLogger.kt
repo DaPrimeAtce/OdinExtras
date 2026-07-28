@@ -5,7 +5,7 @@ import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
-import com.daprimeatce.odinextras.utils.messageRegex
+import com.daprimeatce.odinextras.utils.RegexUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonArray
 import java.net.URI
@@ -29,7 +29,7 @@ object ChatLogger : Module(
         on<ChatPacketEvent> {
             if (webhookUrl.isEmpty()) return@on
 
-            val result = messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(value) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "Party" -> Channel.PARTY
                 "Guild" -> Channel.GUILD

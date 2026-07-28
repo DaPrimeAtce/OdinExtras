@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras.features.impl.boss
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.ChatPacketEvent
-import com.daprimeatce.odinextras.utils.*
+import com.daprimeatce.odinextras.utils.RegexUtils
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
@@ -58,19 +58,19 @@ object TickTimersPlus : Module(
 	
 	init {
 		on<ChatPacketEvent> {
-			if (enrageHud.enabled && !enrageTriggered && value.matches(stormEnrageRegex)) {
+			if (enrageHud.enabled && !enrageTriggered && value.matches(RegexUtils.stormEnrageRegex)) {
 				enrageTriggered = true
 			}
 
-			if (ragHud.enabled && !ragTriggered && value.matches(witherKingStartRegex)) {
+			if (ragHud.enabled && !ragTriggered && value.matches(RegexUtils.witherKingStartRegex)) {
 				ragTriggered = true
 			}
 			
-			if (stormMoveHud.enabled && !stormMoveTriggered && value.matches(stormMoveRegex)) {
+			if (stormMoveHud.enabled && !stormMoveTriggered && value.matches(RegexUtils.stormMoveRegex)) {
 				stormMoveTriggered = true
 			}
 
-			if (professorHud.enabled && !professorTriggered && value.matches(professorRegex)) {
+			if (professorHud.enabled && !professorTriggered && value.matches(RegexUtils.professorRegex)) {
 				professorTriggered = true
 			}
 		}
