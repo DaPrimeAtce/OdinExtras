@@ -12,8 +12,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Mixin(value = Panel.class, remap = false)
@@ -25,23 +23,21 @@ public class MixinPanel {
     private List<ModuleButton> odinextras$defaultOrder;
 
     @Unique
-    private Boolean odinextras$lastAlphabetical;
+    private List<ModuleButton> odinextras$alphabeticalOrder;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$captureDefaultOrder(Category category, CallbackInfo ci) {
         odinextras$defaultOrder = List.copyOf(this.moduleButtons);
+        odinextras$alphabeticalOrder = List.copyOf(this.moduleButtons).stream().sorted((a, b) -> a.getModule().getName().compareToIgnoreCase(b.getModule().getName())).toList();
     }
+
 
     @Inject(method = "draw", at = @At("HEAD"))
     private void odinextras$applySortOrder(float mouseX, float mouseY, CallbackInfo ci) {
-        boolean alphabetical = Boolean.TRUE.equals(ClickGUIPlus.INSTANCE.azSorting());
-        if (odinextras$lastAlphabetical != null && alphabetical == odinextras$lastAlphabetical) return;
-        odinextras$lastAlphabetical = alphabetical;
-
-        List<ModuleButton> reordered = new ArrayList<>(odinextras$defaultOrder);
-        if (alphabetical) {
-            reordered.sort(Comparator.comparing((ModuleButton button) -> button.getModule().getName(), String.CASE_INSENSITIVE_ORDER));
+        if (ClickGUIPlus.INSTANCE.getAlphabeticalSorting() && ClickGUIPlus.INSTANCE.getEnabled()) {
+            this.moduleButtons = odinextras$alphabeticalOrder;
+        } else {
+            this.moduleButtons = odinextras$defaultOrder;
         }
-        this.moduleButtons = reordered;
     }
 }
