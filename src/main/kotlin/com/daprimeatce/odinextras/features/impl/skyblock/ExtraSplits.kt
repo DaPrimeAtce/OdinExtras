@@ -64,6 +64,7 @@ object ExtraSplits : Module(
 	}
 	private val sendTimeLost by SelectorSetting("Send Time Lost", "Local", listOf("None", "Local", "Party", "Both"), desc = "Sends to the chat the run time lost to lag.").withDependency { timeLostToLag.enabled }
 
+	@Suppress("unused")
 	private val totalRunTime by HUD("Total Run Time", "Shows a split timer for the full run time.") {
 		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
 		val exampleTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""
@@ -92,6 +93,7 @@ object ExtraSplits : Module(
 		totalWidth to mc.font.lineHeight
 	}
 
+	@Suppress("unused")
 	private val stormDps by HUD("Storm DPS", "Show the split timer for Storm purple pillar DPS.") {
 		val totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (showTickTime) " (0h 00m 00s)" else "") + 2
 		val exampleTime = "0h 00m 00.00s" + if (showTickTime) " §8(§70s§8)" else ""

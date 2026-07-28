@@ -27,7 +27,7 @@ object ChatLogger : Module(
 
     init {
         on<ChatPacketEvent> {
-            if (webhookUrl.isEmpty()) return@on
+            if (!enabled || webhookUrl.isEmpty()) return@on
 
             val result = RegexUtils.messageRegex.find(value) ?: return@on
             val channel = when(result.value.split(" ")[0]) {

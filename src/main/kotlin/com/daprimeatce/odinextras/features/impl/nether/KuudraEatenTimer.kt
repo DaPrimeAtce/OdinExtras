@@ -20,6 +20,7 @@ object KuudraEatenTimer : Module(
 
     private var ticks = -1
 
+    @Suppress("unused")
     private val hud by HUD(name, desc = "Shows time remaining until eaten.") {
         if (it) {
             textDim("§bEaten in " + if (select == 0) "§a500ms" else "§a10t", 0, 0)
@@ -36,6 +37,8 @@ object KuudraEatenTimer : Module(
 
     init {
         onReceive<ClientboundUpdateMobEffectPacket> {
+            if (!enabled) return@onReceive
+
             if (entityId == mc.player?.id && effect == MobEffects.BLINDNESS && ticks <= 0) {
                 ticks = 10 + cooldownTicks
             }

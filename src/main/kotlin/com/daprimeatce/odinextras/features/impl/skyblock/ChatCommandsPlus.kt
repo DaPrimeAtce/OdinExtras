@@ -170,7 +170,8 @@ object ChatCommandsPlus : Module(
     val replacements = mapOf(
         ":panda:" to "70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)",
         ":x:" to ":no:", // This replacement assumes the player has MVP++
-        "sped" to "♿" // This is only here for the people who get angry and say things like this impulsively without thinking, and get themselves muted as a result. The best filter though, is using your brain and not being toxic.
+        "sped" to "♿", // This is only here for the people who get angry and say things like this impulsively without thinking, and get themselves muted as a result. The best filter though, is using your brain and not being toxic.
+        ":wheelchair:" to "♿" // might as well
     )
 
     private enum class ChatChannel {

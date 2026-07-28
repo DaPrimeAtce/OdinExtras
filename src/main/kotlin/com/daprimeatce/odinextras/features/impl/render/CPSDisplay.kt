@@ -23,6 +23,7 @@ object CPSDisplay : Module(
     private val textColor by ColorSetting("Text Color", Color(239, 239, 239, 1f), allowAlpha = true, desc = "The color of the text.")
     private val textSpacing by NumberSetting("Text Spacing", 15f, 10f, 20f, 1f, desc = "The spacing between the click counter and the button name.")
 
+    @Suppress("unused")
     private val hud by HUD("Display", "Displays your clicks per second in the HUD.") {
         leftClicks.removeAll { System.currentTimeMillis() - it > 1000 }
         rightClicks.removeAll { System.currentTimeMillis() - it > 1000 }
@@ -55,6 +56,8 @@ object CPSDisplay : Module(
 
 	init {
         on<InputEvent> {
+            if (!enabled) return@on
+
             if (key.value == InputConstants.MOUSE_BUTTON_LEFT) leftClicks.add(System.currentTimeMillis())
             if (key.value == InputConstants.MOUSE_BUTTON_RIGHT) rightClicks.add(System.currentTimeMillis())
         }

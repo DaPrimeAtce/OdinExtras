@@ -16,6 +16,7 @@ object ArrowPoisonDisplay : Module(
     private var numToxic = 0
     private var numTwilight = 0
 
+    @Suppress("unused")
     private val hud by HUD(name, "Shows the number of arrow poisons in the HUD.") {
         var widthToxic = textDim("${color(numToxic)}${numToxic}x", 20, 0).first
         var widthTwilight = textDim("${color(numTwilight)}${numTwilight}x", 20, mc.font.lineHeight + 5).first
@@ -29,7 +30,7 @@ object ArrowPoisonDisplay : Module(
 
     init {
         on<TickEvent.End> {
-            if (!enabled || !hud.enabled) return@on
+            if (!enabled) return@on
 
             numToxic = 0
             numTwilight = 0
