@@ -2,6 +2,7 @@ package com.daprimeatce.odinextras.features.impl.skyblock
 
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
+import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.utils.handlers.schedule
@@ -30,6 +31,8 @@ object ChatCommandsPlus : Module(
     private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
     private val kickRandom by BooleanSetting("Kick Random", false, desc = "Kick a random player from the party.").withDependency { showSettings }
     private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
+    private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { showSettings && tyfr}
+    private val tyfrWarning by BooleanSetting("TYFR Warning", false, desc = "Sends a local warning message when you trigger the TYFR command.").withDependency { showSettings && tyfr}
     private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
     private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
     private val rng by BooleanSetting("RNG", false, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { showSettings }
@@ -63,7 +66,8 @@ object ChatCommandsPlus : Module(
 
         on<MessageSentEvent> {
             if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "tyfrs", "gtg")) {
-                schedule(10) {
+                if (tyfrWarning) { modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠") }
+                schedule(tyfrDelay) {
                     sendCommand("p leave")
                 }
                 return@on
