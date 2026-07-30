@@ -66,7 +66,7 @@ object ChatCommandsPlus : Module(
 
         on<MessageSentEvent> {
             if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "tyfrs", "gtg")) {
-                if (tyfrWarning) { modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠") }
+                if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
                 schedule(tyfrDelay) {
                     sendCommand("p leave")
                 }
