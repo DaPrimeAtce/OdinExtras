@@ -65,14 +65,6 @@ object ChatCommandsPlus : Module(
         }
 
         on<MessageSentEvent> {
-            if (tyfr && message.lowercase() in listOf("tyfr", "tyfp", "tyfrs", "gtg")) {
-                if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
-                schedule(tyfrDelay) {
-                    sendCommand("p leave")
-                }
-                return@on
-            }
-
             if (!moreChatEmotes || (message.startsWith("/") && !listOf("/pc", "/ac", "/gc", "/msg", "/w", "/r").any { message.startsWith(it) })) return@on
 
             var replaced = false
@@ -128,6 +120,15 @@ object ChatCommandsPlus : Module(
                     channelMessage("Rolled ${"%,d".format((min..max).random())} from range ${"%,d".format(min)} to ${"%,d".format(max)}.", name, channel)
                 }
                 else channelMessage("Could not parse a number.", name, channel)
+            }
+
+            "tyfr", "tyfp", "tyfrs", "gtg" -> {
+                if (tyfr && channel == ChatChannel.PARTY && name == mc.player?.name?.string) {
+                    if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
+                    schedule(tyfrDelay) {
+                        sendCommand("p leave")
+                    }
+                }
             }
 
             else -> {
