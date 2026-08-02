@@ -4,6 +4,7 @@
   "package": "com.daprimeatce.odinextras.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "MixinMapInfo"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -12,10 +13,12 @@
     "requireAnnotations": true
   },
   "client": [
-    "MixinItemEntityRenderer",
     "MixinAvatarRenderer",
-    "MixinResourcePack",
+    "MixinClickGUIModule",
+    "MixinItemEntityRenderer",
     "MixinPanel",
-    "MixinClickGUIModule"
+    "MixinResourcePack",
+    "MixinMapInfo",
+    "MixinMapInfo$2"
   ]
 }
