@@ -4,6 +4,6 @@ import com.odtheking.odin.clickgui.settings.impl.DropdownSetting;
 import com.odtheking.odin.clickgui.settings.impl.StringSetting;
 
 public class SharedMixinState {
-    public static DropdownSetting score300Dropdown;
-    public static StringSetting score300CustomTitle;
+    public static DropdownSetting odinextras$score300Dropdown;
+    public static StringSetting odinextras$score300CustomTitle;
 }
