@@ -50,12 +50,15 @@ abstract class MixinMapInfo {
         Setting<?> scoreTitle = settings.remove("300 Score Title");
         if (scoreTitle == null) return;
 
+        Setting<?> printScoreTime = settings.remove("Print Score Time");
+        if (printScoreTime == null) return;
+
         // Might as well just register here for ordering
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>();
         reordered.put("300 Score", odinextras$score300Dropdown);
         reordered.put("300 Score Title", scoreTitle);
         reordered.put("Custom Title", odinextras$score300CustomTitle);
-        reordered.put("Print Score Time", odinextras$score300CustomTitle);
+        reordered.put("Print Score Time", printScoreTime);
         reordered.putAll(settings);
 
         settings.clear();
