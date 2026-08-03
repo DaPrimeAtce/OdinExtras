@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.mixin;
 
-import com.daprimeatce.odinextras.utils.MixinMapInfoDuck;
+import com.daprimeatce.odinextras.utils.DuckMixinMapInfo;
 import com.daprimeatce.odinextras.utils.SharedMixinState;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.odtheking.odin.clickgui.settings.Setting;
@@ -23,7 +23,7 @@ import static com.odtheking.odin.utils.PlayerUtilsKt.alert;
 
 @Mixin(MapInfo.class)
 @SuppressWarnings("unused")
-abstract class MixinMapInfo implements MixinMapInfoDuck {
+abstract class MixinMapInfo implements DuckMixinMapInfo {
     @Invoker("getScoreTitle")
     public abstract boolean odinextras$getScoreTitle();
 
@@ -207,8 +207,8 @@ abstract class MixinMapInfoSecondTickTask {
     @Overwrite
     @SuppressWarnings("DataFlowIssue")
     public void invoke() {
-        boolean scoreTitle = ((MixinMapInfoDuck)(Object) MapInfo.INSTANCE).odinextras$getScoreTitle();
-        boolean printWhenScore = ((MixinMapInfoDuck)(Object) MapInfo.INSTANCE).odinextras$getPrintWhenScore();
+        boolean scoreTitle = ((DuckMixinMapInfo)(Object) MapInfo.INSTANCE).odinextras$getScoreTitle();
+        boolean printWhenScore = ((DuckMixinMapInfo)(Object) MapInfo.INSTANCE).odinextras$getPrintWhenScore();
 
         if (!MapInfo.INSTANCE.getEnabled()
                 || !DungeonUtils.INSTANCE.getInDungeons()
