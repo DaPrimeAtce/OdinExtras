@@ -15,10 +15,11 @@
     "MixinAvatarRenderer",
     "MixinClickGUIModule",
     "MixinItemEntityRenderer",
-    "MixinPanel",
-    "MixinResourcePack",
+    "MixinLeapMenu",
+    "MixinLeapMenuSendCommand",
     "MixinMapInfo",
     "MixinMapInfoSecondTickTask",
-    "MixinLeapMenu"
+    "MixinPanel",
+    "MixinResourcePack"
   ]
 }

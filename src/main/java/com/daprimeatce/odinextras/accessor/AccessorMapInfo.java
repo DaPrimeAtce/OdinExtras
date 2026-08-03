@@ -1,6 +1,6 @@
-package com.daprimeatce.odinextras.utils;
+package com.daprimeatce.odinextras.accessor;
 
-public interface DuckMixinMapInfo {
+public interface AccessorMapInfo {
     boolean odinextras$getScoreTitle();
     boolean odinextras$getPrintWhenScore();
 }
