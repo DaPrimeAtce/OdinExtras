@@ -32,7 +32,7 @@ object OdinExtras : ClientModInitializer {
             TickTimersPlus,   // Boss
             TeammateNametags,   // Dungeon
             KuudraEatenTimer,   // Kuudra
-            ClickGUIPlus, CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
+            CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
             ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ExtraSplits, ResourcePack, ServerAlert   // Skyblock
         )
     }
