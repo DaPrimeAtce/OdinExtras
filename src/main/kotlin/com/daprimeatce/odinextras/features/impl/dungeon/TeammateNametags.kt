@@ -48,5 +48,4 @@ object TeammateNametags : Module(
     @JvmStatic
     fun shouldHideVanillaNametag(entity: Entity): Boolean =
         enabled && DungeonUtils.inDungeons && entity is Player && dungeonTeammatesNoSelf.any { it.name == entity.name.string }
-
 }

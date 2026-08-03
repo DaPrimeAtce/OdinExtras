@@ -18,6 +18,7 @@
     "MixinPanel",
     "MixinResourcePack",
     "MixinMapInfo",
-    "MixinMapInfoSecondTickTask"
+    "MixinMapInfoSecondTickTask",
+    "MixinLeapMenu"
   ]
 }

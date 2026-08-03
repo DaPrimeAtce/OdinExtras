@@ -17,6 +17,8 @@ public class SharedMixinState {
     public static BooleanSetting odinextras$score270ShouldPrintScoreTime;
     public static BooleanSetting odinextras$score270ShouldSendToParty;
     public static StringSetting odinextras$score270PartyMessage;
+    public static StringSetting odinextras$LeapMessage;
+    public static BooleanSetting odinextras$LeapAnnounce;
     public static boolean odinextras$shown270Title = false;
 
     // On world load
