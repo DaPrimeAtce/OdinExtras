@@ -96,7 +96,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
     private void odinextras$add270ScoreCustomTitleStringSetting(CallbackInfo ci) {
         StateSharedMixinMapInfo.odinextras$score270CustomTitle = new StringSetting(
                 "Custom Title",
-                "&f270 Score",
+                "270 Score",
                 64,
                 "What to render when reaching 270 score. Use \"&\" for color codes."
         );
