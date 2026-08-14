@@ -15,7 +15,7 @@ public class MixinChatUtils {
                 target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;"
             )
     )
-    private static String modifyDefaultPrefix(String original) {
+    private static String odinextras$modifyDefaultPrefix(String original) {
         if (calledFromOdinExtras()) {
             return original.replace("§3Odin §8»§r ", "§3Odin§aExtras §8»§r ");
         }
@@ -28,7 +28,7 @@ public class MixinChatUtils {
                     target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;"
             )
     )
-    private static String modifyPrefix(String original) {
+    private static String odinextras$modifyPrefix(String original) {
         if (calledFromOdinExtras()) {
             return "§3Odin§aExtras §8»§r ";
         }
