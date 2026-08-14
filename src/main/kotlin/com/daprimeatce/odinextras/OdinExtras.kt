@@ -30,7 +30,7 @@ object OdinExtras : ClientModInitializer {
         // Register modules by adding to the list
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
             TickTimersPlus,   // Boss
-            TeammateNametags,   // Dungeon
+            TeammateDeaths, TeammateNametags,   // Dungeon
             KuudraEatenTimer,   // Kuudra
             CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
             ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ExtraSplits, ServerAlert   // Skyblock
