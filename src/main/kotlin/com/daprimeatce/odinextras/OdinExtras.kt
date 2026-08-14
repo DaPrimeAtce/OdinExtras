@@ -35,6 +35,9 @@ object OdinExtras : ClientModInitializer {
             CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
             ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ExtraSplits, ServerAlert   // Skyblock
         )
+
+        // Registering too early uses default values rather than values stored in the config
+        ChatCommandsPlus.registerChatCommandsOnInitializeClient()
     }
 }
 

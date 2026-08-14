@@ -14,40 +14,188 @@ import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.odtheking.odin.features.impl.dungeon.DungeonQueue
+import com.odtheking.odin.utils.ServerUtils
+import com.odtheking.odin.utils.alert
+import com.odtheking.odin.utils.capitalizeFirst
+import com.odtheking.odin.utils.getPositionString
 import com.odtheking.odin.utils.modMessage
-import kotlin.text.format
+import com.odtheking.odin.utils.noControlCodes
+import com.odtheking.odin.utils.playSoundAtPlayer
+import com.odtheking.odin.utils.skyblock.LocationUtils
+import com.odtheking.odin.utils.toFixed
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
+import net.minecraft.sounds.SoundEvents
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 object ChatCommandsPlus : Module(
     name = "Chat Commands+",
     description = "Adds extra chat commands."
 ) {
-    // These are visible settings that will render under this module in the GUI
-    private val moreChatEmotes by BooleanSetting("More Chat Emotes", false, desc = "Adds more chat emotes. See \"/chatcommandsplus\".")
+    private val moreChatEmotes by BooleanSetting("Chat Emotes", false, desc = "Adds chat emotes. See \"/oe chatcommandsplus\".")
     private val partyChatCommands by BooleanSetting("Party Commands", true, "Enables party chat commands.")
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
-    private val showSettings by DropdownSetting("Show Settings", false)
+    private val booleanSettings by DropdownSetting("Toggle Commands", false, desc = "Enable togglable chat commands")
+    private val stringSettings by DropdownSetting("Customizable Commands", false, desc = "Enable chat commands that allows custom keywords as comma separated values, eg \".allinv, allinv, ai\"")
 
-    private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { showSettings }
-    private val kickRandom by BooleanSetting("Kick Random", false, desc = "Kick a random player from the party.").withDependency { showSettings }
-    private val tyfr by BooleanSetting("TYFR", false, desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { showSettings }
-    private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { showSettings && tyfr}
-    private val tyfrWarning by BooleanSetting("TYFR Warning", false, desc = "Sends a local warning message when you trigger the TYFR command.").withDependency { showSettings && tyfr}
-    private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { showSettings }
-    private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { showSettings }
-    private val rng by BooleanSetting("RNG", false, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { showSettings }
+    private val hi by BooleanSetting("Hi", false, desc = "Auto replies with \"bye\" to \"hi\"").withDependency { booleanSettings }
+    private val kickRandom by BooleanSetting("Kick Random", false, desc = "Kick a random player from the party.").withDependency { booleanSettings }
+    private val kickFace by BooleanSetting(":(", false, desc = "Kicks a player through \"[Name] :(\".").withDependency { booleanSettings }
+    private val inviteFace by BooleanSetting(":)", false, desc = "Invites a player through \"[Name] :)\".").withDependency { booleanSettings }
+    private val eightball by BooleanSetting("8ball", true, desc = "Sends a random 8ball response.").withDependency { booleanSettings }
+    private val dice by BooleanSetting("Dice", true, desc = "Rolls a six sided dice.").withDependency { booleanSettings }
+    private val autoConfirm by BooleanSetting("Auto Confirm Invite", true, desc = "Removes the need to confirm a party invite with the !invite command.").withDependency { booleanSettings }
+    private val rng by BooleanSetting("RNG", true, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { booleanSettings }
+    private val qInstance by BooleanSetting("Queue instance Commands", true, desc = "Queue instance commands.").withDependency { booleanSettings }
 
-    private val alternatePrefixes by DropdownSetting("Alternate Prefixes", false, desc = "Allows alternate prefixes listed as comma separated values, eg \".allinv, allinv, ai\"")
-    private val allinv by StringSetting("All Invite", "", desc = "Alternate values to trigger all invite.").withDependency { alternatePrefixes }
-    private val inv by StringSetting("Invite", "", desc = "Alternate values to trigger invite.") .withDependency { alternatePrefixes }
-    private val warp by StringSetting("Warp", "", desc = "Alternate values to trigger party warp.") .withDependency { alternatePrefixes }
-    private val disband by StringSetting("Disband", "", desc = "Alternate values to trigger party disband.") .withDependency { alternatePrefixes }
-    private val transfer by StringSetting("Transfer", "", desc = "Alternate values to trigger party transfer.") .withDependency { alternatePrefixes }
-    private val kick by StringSetting("Kick", "", desc = "Alternate values to trigger party warp.") .withDependency { alternatePrefixes }
-    private val reinv by StringSetting("Reinvite", "", desc = "Alternate values to trigger reinvite.") .withDependency { alternatePrefixes }
+    private val tyfr by StringSetting("TYFR", "", desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { stringSettings }
+    private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { stringSettings && tyfr.isNotEmpty()}
+    private val tyfrWarning by BooleanSetting("TYFR Warning", false, desc = "Sends a local warning message when you trigger the TYFR command.").withDependency { stringSettings && tyfr.isNotEmpty()}
+    private val warp by StringSetting("Warp", "!warp, !w", desc = "Executes the /party warp command.") .withDependency { stringSettings }
+    private val coords by StringSetting("Coords", "!coords, !co", desc = "Sends your current coordinates.").withDependency { stringSettings }
+    private val allinv by StringSetting("All Invite", "!ai, !allinv, !allinvite", desc = "Executes the /party settings allinvite command.").withDependency { stringSettings }
+    private val boop by StringSetting("Boop", "!boop", desc = "Executes the /boop command.").withDependency { stringSettings }
+    private val kick by StringSetting("Kick", "!kick, !k", desc = "Executes the /p kick command.") .withDependency { stringSettings }
+    private val cf by StringSetting("Coinflip", "!cf, !coinflip", desc = "Sends the result of a coinflip.").withDependency { stringSettings }
+    private val transfer by StringSetting("Transfer", "!pt, !ptme, !transfer", desc =  "Executes the /party transfer command.") .withDependency { stringSettings }
+    private val reinv by StringSetting("Reinvite", "!reinv, !reinvite", desc = "Reinvites the player who sent it a few seconds later.") .withDependency { stringSettings }
+    private val ping by StringSetting("Ping", "!ping", desc = "Sends your current Ping.").withDependency { stringSettings }
+    private val tps by StringSetting("TPS", "!tps", desc = "Sends your server's current TPS.").withDependency { stringSettings }
+    private val fps by StringSetting("FPS", "!fps", desc = "Sends your current FPS.").withDependency { stringSettings }
+    private val dt by StringSetting("DT", "!downtime, !dt", desc = "Sets a reminder for the end of the run and cancels auto requeue.").withDependency { stringSettings }
+    private val undt by StringSetting("UnDT", "!undowntime, !undt", desc = "Undoes a downtime command from earlier in a run.").withDependency { stringSettings }
+    private val inv by StringSetting("Invite", "!invite, !inv", desc = "Invites the player to your party.") .withDependency { stringSettings }
+    private val time by StringSetting("Time", "!time", desc = "Sends the current time.").withDependency { stringSettings }
+    private val demote by StringSetting("Demote", "!demote", desc = "Executes the /party demote command.").withDependency { stringSettings }
+    private val promote by StringSetting("Promote", "!promote", desc = "Executes the /party promote command.").withDependency { stringSettings }
+    private val kickOffline by StringSetting("Kick Offline", "!kickoffline, !ko", desc = "Allows you to kick offline players.").withDependency { stringSettings }
+    private val location by StringSetting("Location", "!location", desc = "Sends your current location.").withDependency { stringSettings }
+    private val holding by StringSetting("Holding", "!holding", desc = "Sends the item you are holding.").withDependency { stringSettings }
+    private val disband by StringSetting("Disband", ".disband", desc = "Disbands the party.") .withDependency { stringSettings }
+
+    private val dtReason = mutableListOf<Pair<String, String>>()
+
+    private lateinit var commands: List<ChatCommand>
+
+    fun registerChatCommandsOnInitializeClient() {
+        commands = listOf(
+            ChatCommand(allinv, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+                sendCommand("p settings allinvite")
+            },
+            ChatCommand(inv, channelsOf(ChatChannel.PRIVATE),  false) { _, name, _ ->
+                if (PartyUtils.isInParty) return@ChatCommand
+                if (autoConfirm) return@ChatCommand sendCommand("p invite $name")
+                modMessage(Component.literal("§aClick on this message to invite $name to your party!").withStyle {
+                    it.withClickEvent(ClickEvent.RunCommand("/party invite $name"))
+                        .withHoverEvent(HoverEvent.ShowText(Component.literal("§6Click to invite $name to your party.")))
+                })
+                playSoundAtPlayer(SoundEvents.NOTE_BLOCK_PLING.value())
+            },
+            ChatCommand(warp, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+                sendCommand("p warp")
+            },
+            ChatCommand(transfer, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+                val target = if (words.size > 1 && words[1].length <= 16) findPartyMember(words[1]) else name
+                sendCommand("p transfer $target")
+            },
+            ChatCommand(disband, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+                sendCommand("p disband")
+            },
+            ChatCommand(kick, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+                if (words.size > 1 && words[1].length <= 16) sendCommand("p kick ${findPartyMember(words[1])}")
+                else sendCommand("p kick $name")
+            },
+            ChatCommand(reinv, channelsOf(ChatChannel.PARTY), true) { _, name, _ ->
+                modMessage("§aReinviting §6$name §ain 5 seconds...")
+                schedule(100) { sendCommand("p invite $name") }
+            },
+            ChatCommand(tyfr, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
+                if (name == mc.player?.name?.string) {
+                    if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
+                    schedule(tyfrDelay) {
+                        sendCommand("p leave")
+                    }
+                }
+            },
+            ChatCommand(coords, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE), false) { _, name, channel ->
+                channelMessage(getPositionString(), name, channel)
+            },
+            ChatCommand(boop, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, _ ->
+                sendCommand("boop $name")
+            },
+            ChatCommand(cf, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage(if (Math.random() < 0.5) "Heads" else "Tails", name, channel)
+            },
+            ChatCommand(ping, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("Ping: ${ServerUtils.currentPing}ms", name, channel)
+            },
+            ChatCommand(tps, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("TPS: ${ServerUtils.averageTps.toFixed(1)}", name, channel)
+            },
+            ChatCommand(fps, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("FPS: ${mc.fps}", name, channel)
+            },
+            ChatCommand(dt, channelsOf(ChatChannel.PARTY), false) { words, name, _ ->
+                val reason = words.drop(1).joinToString(" ").takeIf { it.isNotBlank() } ?: "No reason given"
+                if (dtReason.any { it.first == name }) return@ChatCommand modMessage("§6${name} §calready has a reminder!")
+                modMessage("§aReminder set for the end of the run! §7(disabled auto requeue for this run)")
+                dtReason.add(name to reason)
+                DungeonQueue.disableRequeue = true
+            },
+            ChatCommand(undt, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
+                if (dtReason.none { it.first == name }) return@ChatCommand modMessage("§6${name} §chas no reminder set!")
+                modMessage("§aReminder removed!")
+                dtReason.removeIf { it.first == name }
+                if (dtReason.isEmpty()) DungeonQueue.disableRequeue = false
+            },
+            ChatCommand(time, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("Current Time: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss z", Locale.ENGLISH))}", name, channel)
+            },
+            ChatCommand(demote, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+                if (words.size > 1 && words[1].length <= 16) sendCommand("p demote ${findPartyMember(words[1])}")
+                else sendCommand("p demote $name")
+            },
+            ChatCommand(promote, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+                if (words.size > 1 && words[1].length <= 16) sendCommand("p promote ${findPartyMember(words[1])}")
+                else sendCommand("p promote $name")
+            },
+            ChatCommand(kickOffline, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+                sendCommand("p kickoffline")
+            },
+            ChatCommand(location, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("Current Location: ${LocationUtils.currentArea.displayName}", name, channel)
+            },
+            ChatCommand(holding, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+                ChatChannel.GUILD), false) { _, name, channel ->
+                channelMessage("Holding: ${mc.player?.mainHandItem?.hoverName?.string?.noControlCodes ?: "Nothing :("}", name, channel)
+            }
+        )
+    }
 
     init {
         on<ChatPacketEvent> {
+            if (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex)) {
+                if (dt.isEmpty() || dtReason.isEmpty()) return@on
+                schedule(30) {
+                    dtReason.find { it.first == mc.player?.name?.string }?.let { sendCommand("pc Downtime needed: ${it.second}") }
+                    modMessage("DT Reasons: ${dtReason.groupBy({ it.second }, { it.first }).entries.joinToString(", ") { (reason, names) -> "${names.joinToString(", ")}: $reason" }}")
+                    alert("§cPlayers need DT")
+                    dtReason.clear()
+                }
+            }
+
             val result = RegexUtils.messageRegex.find(value) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "From" -> if (!privateChatCommands) return@on else ChatChannel.PRIVATE
@@ -104,61 +252,64 @@ object ChatCommandsPlus : Module(
 
         when (words[0]) {
             "hi" ->
-                if (hi && channel == ChatChannel.PARTY && name != mc.player?.name?.string) channelMessage("bye", name, channel)
+                if (hi && channel == ChatChannel.PARTY && name != mc.player?.name?.string) channelMessage(
+                    "bye",
+                    name,
+                    channel
+                )
+
+            "8ball" ->
+                if (eightball) channelMessage(responses.random(), name, channel)
+
+            "dice" ->
+                if (dice) channelMessage((1..6).random(), name, channel)
 
             "!kickrandom" ->
-                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand("p kick ${PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()}")
+                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand(
+                    "p kick ${
+                        PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()
+                    }"
+                )
 
             "!rng" -> {
                 if (!rng) return
                 val numFirst = if (words.size > 1) words[1].replace(",", "").toLongOrNull() else null
                 val numSecond = if (words.size > 2) words[2].replace(",", "").toLongOrNull() else 1
-                if (numFirst != null && numSecond == null) channelMessage("Rolled ${"%,d".format((1..numFirst).random())} from range 1 to ${"%,d".format(numFirst)}.", name, channel)
+                if (numFirst != null && numSecond == null) channelMessage(
+                    "Rolled ${"%,d".format((1..numFirst).random())} from range 1 to ${
+                        "%,d".format(
+                            numFirst
+                        )
+                    }.", name, channel
+                )
                 else if (numFirst != null && numSecond != null) {
                     val min = numFirst.coerceAtMost(numSecond)
                     val max = numFirst.coerceAtLeast(numSecond)
-                    channelMessage("Rolled ${"%,d".format((min..max).random())} from range ${"%,d".format(min)} to ${"%,d".format(max)}.", name, channel)
-                }
-                else channelMessage("Could not parse a number.", name, channel)
+                    channelMessage(
+                        "Rolled ${"%,d".format((min..max).random())} from range ${"%,d".format(min)} to ${
+                            "%,d".format(
+                                max
+                            )
+                        }.", name, channel
+                    )
+                } else channelMessage("Could not parse a number.", name, channel)
             }
 
-            "tyfr", "tyfp", "tyfrs", "gtg" -> {
-                if (tyfr && channel == ChatChannel.PARTY && name == mc.player?.name?.string) {
-                    if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
-                    schedule(tyfrDelay) {
-                        sendCommand("p leave")
-                    }
-                }
-            }
-
-            else -> {
-                val trimmedAllInv = allinv.split(",").map { it.trim() }
-                val trimmedInv = inv.split(",").map { it.trim() }
-                val trimmedWarp = warp.split(",").map { it.trim() }
-                val trimmedTransfer = transfer.split(",").map { it.trim() }
-                val trimmedDisband = disband.split(",").map { it.trim() }
-                val trimmedKick = kick.split(",").map { it.trim() }
-                val trimmedReinv = reinv.split(",").map { it.trim() }
-
-                if (PartyUtils.isLeader() && allinv.isNotEmpty() && words[0] in trimmedAllInv && channel == ChatChannel.PARTY) sendCommand("p settings allinvite")
-                if ((PartyUtils.isLeader() || !PartyUtils.isInParty) && inv.isNotEmpty() && words[0] in trimmedInv && channel == ChatChannel.PRIVATE) sendCommand("p $name")
-                if (PartyUtils.isLeader() && trimmedWarp.isNotEmpty() && words[0] in trimmedWarp && channel == ChatChannel.PARTY) sendCommand("p warp")
-                if (PartyUtils.isLeader() && trimmedTransfer.isNotEmpty() && words[0] in trimmedTransfer && channel == ChatChannel.PARTY) {
-                    if (words.size > 1 && words[1].length <= 16) sendCommand("p transfer ${findPartyMember(words[1])}")
-                    else sendCommand("p transfer $name")
-                }
-                if (PartyUtils.isLeader() && trimmedDisband.isNotEmpty() && words[0] in trimmedDisband && channel == ChatChannel.PARTY) sendCommand("p disband")
-                    if (PartyUtils.isLeader() && trimmedKick.isNotEmpty() && words[0] in trimmedKick && channel == ChatChannel.PARTY && words.size > 1 && words[1].length <= 16) sendCommand("p kick ${findPartyMember(words[1])}")
-                if (PartyUtils.isLeader() && trimmedReinv.isNotEmpty() && words[0] in trimmedReinv && channel == ChatChannel.PARTY) {
-                    modMessage("§aReinviting §6$name §ain 5 seconds...")
-                    schedule(100) {
-                        sendCommand("p invite $name")
-                    }
-                }
+            "f1", "f2", "f3", "f4", "f5", "f6", "f7", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "t1", "t2", "t3", "t4", "t5" -> {
+                if (!qInstance || channel != ChatChannel.PARTY || !PartyUtils.isLeader()) return
+                modMessage("§8Entering -> §e${words[0].capitalizeFirst()}")
+                sendCommand("odin ${words[0].lowercase()}")
             }
         }
 
 
+        for (command in commands) {
+            if (command.requiresLeader && !PartyUtils.isLeader()) continue
+            if (channel in command.channels && commandMatches(command.keywords, words[0])) {
+                command.action(words, name, channel)
+                return
+            }
+        }
     }
 
     private fun findPartyMember(partialName: String): String =
@@ -172,14 +323,66 @@ object ChatCommandsPlus : Module(
         }
     }
 
+    private val responses = arrayOf(
+        "It is certain.", "It is decidedly so.", "Without a doubt.",
+        "Yes definitely.", "You may rely on it.", "As I see it, yes.",
+        "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.",
+        "Reply hazy try again.", "Ask again later.", "Better not tell you now.",
+        "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.",
+        "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."
+    )
+
     val replacements = mapOf(
+        "<3" to "❤",
+        "o/" to "( ﾟ◡ﾟ)/",
+        ":star:" to "✮",
+        ":yes:" to "✔",
+        ":no:" to "✖",
+        ":java:" to "☕",
+        ":arrow:" to "➜",
+        ":shrug:" to "¯\\_(\u30c4)_/¯",
+        ":tableflip:" to "(╯°□°）╯︵ ┻━┻",
+        ":totem:" to "☉_☉",
+        ":typing:" to "✎...",
+        ":maths:" to "√(π+x)=L",
+        ":snail:" to "@'-'",
+        "ez" to "ｅｚ",
+        ":thinking:" to "(0.o?)",
+        ":gimme:" to "༼つ◕_◕༽つ",
+        ":wizard:" to "('-')⊃━☆ﾟ.*･｡ﾟ",
+        ":pvp:" to "⚔",
+        ":peace:" to "✌",
+        ":puffer:" to "<('O')>",
+        "h/" to "ヽ(^◇^*)/",
+        ":sloth:" to "(・⊝・)",
+        ":dog:" to "(ᵔᴥᵔ)",
+        ":dj:" to "ヽ(⌐■_■)ノ♬",
+        ":yey:" to "ヽ (◕◡◕) ﾉ",
+        ":snow:" to "☃",
+        ":dab:" to "<o/",
+        ":cat:" to "= ＾● ⋏ ●＾ =",
+        ":cute:" to "(✿◠‿◠)",
+        ":skull:" to "☠",
+        ":bum:" to "♿",
         ":panda:" to "70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)",
         ":x:" to ":no:", // This replacement assumes the player has MVP++
-        "sped" to "♿", // This is only here for the people who get angry and say things like this impulsively without thinking, and get themselves muted as a result. The best filter though, is using your brain and not being toxic.
         ":wheelchair:" to "♿" // might as well
     )
 
-    private enum class ChatChannel {
+    enum class ChatChannel {
         PARTY, GUILD, PRIVATE
     }
+
+
+    data class ChatCommand(
+        val keywords: String,
+        val channels: Set<ChatChannel>,
+        val requiresLeader: Boolean,
+        val action: (words: List<String>, name: String, channel: ChatChannel) -> Unit
+    )
+
+    fun commandMatches(keywords: String, target: String) =
+        keywords.isNotEmpty() && target in keywords.split(",").map { it.trim() }
+
+    fun channelsOf(vararg c: ChatChannel) = c.toSet()
 }
