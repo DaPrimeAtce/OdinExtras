@@ -13,7 +13,7 @@ import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.playSoundSettings
 import com.daprimeatce.odinextras.utils.RegexUtils
-import com.daprimeatce.odinextras.utils.modMessageExtras
+import com.odtheking.odin.utils.modMessage
 import net.minecraft.network.chat.Component
 import java.time.Instant
 
@@ -45,7 +45,7 @@ object ServerAlert : Module(
                 val secondsSince = Instant.now().epochSecond - lastTime
                 if (secondsSince < thresholdMinutes * 60) {
                     schedule(10) {
-                        modMessageExtras("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
+                        modMessage("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
                         playSoundSettings(soundSettings())
                         if (title) {
                             mc.gui.setTimes(0, 40, 20)

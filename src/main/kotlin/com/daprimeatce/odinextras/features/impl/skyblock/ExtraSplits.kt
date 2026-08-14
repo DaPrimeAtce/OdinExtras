@@ -18,7 +18,7 @@ import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.daprimeatce.odinextras.utils.RegexUtils
-import com.daprimeatce.odinextras.utils.modMessageExtras
+import com.odtheking.odin.utils.modMessage
 
 object ExtraSplits : Module(
 	name = "Extra Splits",
@@ -137,10 +137,10 @@ object ExtraSplits : Module(
 				sentTime = true
 
 				schedule(5, true) {
-					if (sendTimeLost == 1) modMessageExtras("$timeLost lost to lag.")
+					if (sendTimeLost == 1) modMessage("$timeLost lost to lag.")
 					else if (sendTimeLost == 2) sendCommand("pc $timeLost lost to lag")
 					else if (sendTimeLost == 3) {
-						modMessageExtras("$timeLost lost to lag.")
+						modMessage("$timeLost lost to lag.")
 						sendCommand("pc $timeLost lost to lag")
 					}
 				}

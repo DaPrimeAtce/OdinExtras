@@ -5,8 +5,8 @@ import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.clickgui.ClickGUI
 import com.odtheking.odin.clickgui.HudManager
 import com.odtheking.odin.utils.handlers.schedule
-import com.daprimeatce.odinextras.utils.modMessageExtras
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.replacements
+import com.odtheking.odin.utils.modMessage
 
 // Commands are handled via https://github.com/Stivais/Commodore
 val odinExtrasCommand = Commodore("oe", "odinextras") {
@@ -17,7 +17,7 @@ val odinExtrasCommand = Commodore("oe", "odinextras") {
 
     literal("chatcommandsplus").runs {
         replacements.forEach { (key, value) ->
-            modMessageExtras("$key -> $value")
+            modMessage("$key -> $value")
         }
     }
 
