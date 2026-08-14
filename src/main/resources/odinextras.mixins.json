@@ -3,8 +3,7 @@
   "minVersion": "0.8",
   "package": "com.daprimeatce.odinextras.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   },
@@ -13,6 +12,7 @@
   },
   "client": [
     "MixinAvatarRenderer",
+    "MixinChatUtils",
     "MixinClickGUIModule",
     "MixinItemEntityRenderer",
     "MixinLeapMenu",
@@ -20,6 +20,6 @@
     "MixinMapInfo",
     "MixinMapInfoSecondTickTask",
     "MixinPanel",
-    "MixinChatUtils"
+    "MixinModuleManager"
   ]
 }
