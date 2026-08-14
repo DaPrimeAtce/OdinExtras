@@ -12,6 +12,7 @@ object RegexUtils {
     val endOfDungeonRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$")
     val startOfKuudraRegex = Regex("^\\[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!$")
     val endOfKuudraRegex = Regex("^\\[NPC] Elle: Good job everyone. A hard fought battle come to an end. Let's get out of here before we run into any more trouble!$")
+    val playerDeathRegex = Regex("^ (☠) ?(\\w{1,16}) ?(.+) (and became a ghost.)$")
 
     // Slayer regex
     val slayerSpawnerRegex = Regex("^Spawned by: (.*)$")
