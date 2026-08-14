@@ -5,16 +5,16 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
-import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.modMessage
+import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.daprimeatce.odinextras.utils.modMessageExtras
 import kotlin.text.format
 
 object ChatCommandsPlus : Module(
@@ -124,7 +124,7 @@ object ChatCommandsPlus : Module(
 
             "tyfr", "tyfp", "tyfrs", "gtg" -> {
                 if (tyfr && channel == ChatChannel.PARTY && name == mc.player?.name?.string) {
-                    if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
+                    if (tyfrWarning) modMessageExtras("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
                     schedule(tyfrDelay) {
                         sendCommand("p leave")
                     }
@@ -150,7 +150,7 @@ object ChatCommandsPlus : Module(
                 if (PartyUtils.isLeader() && trimmedDisband.isNotEmpty() && words[0] in trimmedDisband && channel == ChatChannel.PARTY) sendCommand("p disband")
                     if (PartyUtils.isLeader() && trimmedKick.isNotEmpty() && words[0] in trimmedKick && channel == ChatChannel.PARTY && words.size > 1 && words[1].length <= 16) sendCommand("p kick ${findPartyMember(words[1])}")
                 if (PartyUtils.isLeader() && trimmedReinv.isNotEmpty() && words[0] in trimmedReinv && channel == ChatChannel.PARTY) {
-                    modMessage("§aReinviting §6$name §ain 5 seconds...")
+                    modMessageExtras("§aReinviting §6$name §ain 5 seconds...")
                     schedule(100) {
                         sendCommand("p invite $name")
                     }

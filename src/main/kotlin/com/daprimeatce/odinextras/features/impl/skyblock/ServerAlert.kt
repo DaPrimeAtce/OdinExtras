@@ -3,17 +3,17 @@ package com.daprimeatce.odinextras.features.impl.skyblock
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
+import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
-import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LevelEvent
+import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.createSoundSettings
 import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
-import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.playSoundSettings
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.daprimeatce.odinextras.utils.modMessageExtras
 import net.minecraft.network.chat.Component
 import java.time.Instant
 
@@ -45,7 +45,7 @@ object ServerAlert : Module(
                 val secondsSince = Instant.now().epochSecond - lastTime
                 if (secondsSince < thresholdMinutes * 60) {
                     schedule(10) {
-                        modMessage("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
+                        modMessageExtras("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
                         playSoundSettings(soundSettings())
                         if (title) {
                             mc.gui.setTimes(0, 40, 20)

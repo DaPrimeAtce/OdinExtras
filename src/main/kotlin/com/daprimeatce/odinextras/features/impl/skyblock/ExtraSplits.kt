@@ -4,21 +4,21 @@ import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.features.impl.skyblock.Splits.showTickTime
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.formatTime
-import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.render.getStringWidth
 import com.odtheking.odin.utils.render.text
 import com.odtheking.odin.utils.toFixed
+import com.odtheking.odin.utils.handlers.schedule
+import com.odtheking.odin.utils.skyblock.SplitsManager.currentSplits
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
-import com.odtheking.odin.features.impl.skyblock.Splits.showTickTime
-import com.odtheking.odin.utils.handlers.schedule
-import com.odtheking.odin.utils.skyblock.SplitsManager.currentSplits
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.daprimeatce.odinextras.utils.modMessageExtras
 
 object ExtraSplits : Module(
 	name = "Extra Splits",
@@ -137,10 +137,10 @@ object ExtraSplits : Module(
 				sentTime = true
 
 				schedule(5, true) {
-					if (sendTimeLost == 1) modMessage("$timeLost lost to lag.")
+					if (sendTimeLost == 1) modMessageExtras("$timeLost lost to lag.")
 					else if (sendTimeLost == 2) sendCommand("pc $timeLost lost to lag")
 					else if (sendTimeLost == 3) {
-						modMessage("$timeLost lost to lag.")
+						modMessageExtras("$timeLost lost to lag.")
 						sendCommand("pc $timeLost lost to lag")
 					}
 				}
