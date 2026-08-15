@@ -335,6 +335,7 @@ object ChatCommandsPlus : Module(
 
     val replacements = mapOf(
         "<3" to "❤",
+        "</3" to "\uD83D\uDC94",
         "o/" to "( ﾟ◡ﾟ)/",
         ":star:" to "✮",
         ":yes:" to "✔",
@@ -373,7 +374,6 @@ object ChatCommandsPlus : Module(
     enum class ChatChannel {
         PARTY, GUILD, PRIVATE
     }
-
 
     data class ChatCommand(
         val keywords: String,
