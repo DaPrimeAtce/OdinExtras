@@ -51,7 +51,7 @@ object ChatCommandsPlus : Module(
     private val dice by BooleanSetting("Dice", true, desc = "Rolls a six sided dice.").withDependency { booleanSettings }
     private val autoConfirm by BooleanSetting("Auto Confirm Invite", true, desc = "Removes the need to confirm a party invite with the !invite command.").withDependency { booleanSettings }
     private val rng by BooleanSetting("RNG", true, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { booleanSettings }
-    private val qInstance by BooleanSetting("Queue instance Commands", true, desc = "Queue instance commands.").withDependency { booleanSettings }
+    private val qInstance by BooleanSetting("Queue Instance", true, desc = "Queue instance commands.").withDependency { booleanSettings }
 
     private val tyfr by StringSetting("TYFR", "", desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { stringSettings }
     private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { stringSettings && tyfr.isNotEmpty()}
