@@ -37,6 +37,8 @@ object ChatCommandsPlus : Module(
     description = "Adds extra chat commands."
 ) {
     private val moreChatEmotes by BooleanSetting("Chat Emotes", false, desc = "Adds chat emotes. See \"/oe chatcommandsplus\".")
+    private val chatEmotesMvpPlusPlus by BooleanSetting("I'm MVP++", false, desc = "Skips replacing emotes that MVP++ already has access to.").withDependency { moreChatEmotes }
+
     private val partyChatCommands by BooleanSetting("Party Commands", true, "Enables party chat commands.")
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
@@ -84,10 +86,10 @@ object ChatCommandsPlus : Module(
 
     fun registerChatCommandsOnInitializeClient() {
         commands = listOf(
-            ChatCommand(allinv, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+            ChatCommand({ allinv }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
                 sendCommand("p settings allinvite")
             },
-            ChatCommand(inv, channelsOf(ChatChannel.PRIVATE),  false) { _, name, _ ->
+            ChatCommand({ inv }, channelsOf(ChatChannel.PRIVATE),  false) { _, name, _ ->
                 if (PartyUtils.isInParty) return@ChatCommand
                 if (autoConfirm) return@ChatCommand sendCommand("p invite $name")
                 modMessage(Component.literal("§aClick on this message to invite $name to your party!").withStyle {
@@ -96,25 +98,25 @@ object ChatCommandsPlus : Module(
                 })
                 playSoundAtPlayer(SoundEvents.NOTE_BLOCK_PLING.value())
             },
-            ChatCommand(warp, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+            ChatCommand({ warp }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
                 sendCommand("p warp")
             },
-            ChatCommand(transfer, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+            ChatCommand({ transfer }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
                 val target = if (words.size > 1 && words[1].length <= 16) findPartyMember(words[1]) else name
                 sendCommand("p transfer $target")
             },
-            ChatCommand(disband, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+            ChatCommand({ disband }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
                 sendCommand("p disband")
             },
-            ChatCommand(kick, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+            ChatCommand({ kick }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("p kick ${findPartyMember(words[1])}")
                 else sendCommand("p kick $name")
             },
-            ChatCommand(reinv, channelsOf(ChatChannel.PARTY), true) { _, name, _ ->
+            ChatCommand({ reinv }, channelsOf(ChatChannel.PARTY), true) { _, name, _ ->
                 modMessage("§aReinviting §6$name §ain 5 seconds...")
                 schedule(100) { sendCommand("p invite $name") }
             },
-            ChatCommand(tyfr, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
+            ChatCommand({ tyfr }, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
                 if (name == mc.player?.name?.string) {
                     if (tyfrWarning) modMessage("§c⚠ §eTYFR found, leaving party in §b$tyfrDelay §eticks. §c⚠")
                     schedule(tyfrDelay) {
@@ -122,63 +124,71 @@ object ChatCommandsPlus : Module(
                     }
                 }
             },
-            ChatCommand(coords, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE), false) { _, name, channel ->
+            ChatCommand({ coords }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE), false) { _, name, channel ->
                 channelMessage(getPositionString(), name, channel)
             },
-            ChatCommand(boop, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { boop }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("boop ${words[1]}")
                 else sendCommand("boop $name")
             },
-            ChatCommand(cf, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { cf }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage(if (Math.random() < 0.5) "Heads" else "Tails", name, channel)
             },
-            ChatCommand(ping, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { ping }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("Ping: ${ServerUtils.currentPing}ms", name, channel)
             },
-            ChatCommand(tps, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { tps }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("TPS: ${ServerUtils.averageTps.toFixed(1)}", name, channel)
             },
-            ChatCommand(fps, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { fps }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("FPS: ${mc.fps}", name, channel)
             },
-            ChatCommand(dt, channelsOf(ChatChannel.PARTY), false) { words, name, _ ->
+            ChatCommand({ dt }, channelsOf(ChatChannel.PARTY), false) { words, name, _ ->
                 val reason = words.drop(1).joinToString(" ").takeIf { it.isNotBlank() } ?: "No reason given"
                 if (dtReason.any { it.first == name }) return@ChatCommand modMessage("§6${name} §calready has a reminder!")
                 modMessage("§aReminder set for the end of the run! §7(disabled auto requeue for this run)")
                 dtReason.add(name to reason)
                 DungeonQueue.disableRequeue = true
             },
-            ChatCommand(undt, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
+            ChatCommand({ undt }, channelsOf(ChatChannel.PARTY), false) { _, name, _ ->
                 if (dtReason.none { it.first == name }) return@ChatCommand modMessage("§6${name} §chas no reminder set!")
                 modMessage("§aReminder removed!")
                 dtReason.removeIf { it.first == name }
                 if (dtReason.isEmpty()) DungeonQueue.disableRequeue = false
             },
-            ChatCommand(time, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { time }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("Current Time: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss z", Locale.ENGLISH))}", name, channel)
             },
-            ChatCommand(demote, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+            ChatCommand({ demote }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("p demote ${findPartyMember(words[1])}")
                 else sendCommand("p demote $name")
             },
-            ChatCommand(promote, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
+            ChatCommand({ promote }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("p promote ${findPartyMember(words[1])}")
                 else sendCommand("p promote $name")
             },
-            ChatCommand(kickOffline, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
+            ChatCommand({ kickOffline }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
                 sendCommand("p kickoffline")
             },
-            ChatCommand(location, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { location }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("Current Location: ${LocationUtils.currentArea.displayName}", name, channel)
             },
-            ChatCommand(holding, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
+            ChatCommand(
+                { holding }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
                 channelMessage("Holding: ${mc.player?.mainHandItem?.hoverName?.string?.noControlCodes ?: "Nothing :("}", name, channel)
             }
@@ -221,8 +231,9 @@ object ChatCommandsPlus : Module(
 
             for (i in words.indices) {
                 replacements[words[i]]?.let {
+                    if (it.isMvpPlusPlusEmote && chatEmotesMvpPlusPlus) return@on
                     replaced = true
-                    words[i] = it
+                    words[i] = it.replacement
                 }
             }
 
@@ -333,42 +344,47 @@ object ChatCommandsPlus : Module(
         "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."
     )
 
+    data class ChatEmote(
+        val replacement: String,
+        val isMvpPlusPlusEmote: Boolean
+    )
+
     val replacements = mapOf(
-        "<3" to "❤",
-        "</3" to "\uD83D\uDC94",
-        "o/" to "( ﾟ◡ﾟ)/",
-        ":star:" to "✮",
-        ":yes:" to "✔",
-        ":no:" to "✖",
-        ":java:" to "☕",
-        ":arrow:" to "➜",
-        ":shrug:" to "¯\\_(\u30c4)_/¯",
-        ":tableflip:" to "(╯°□°）╯︵ ┻━┻",
-        ":totem:" to "☉_☉",
-        ":typing:" to "✎...",
-        ":maths:" to "√(π+x)=L",
-        ":snail:" to "@'-'",
-        "ez" to "ｅｚ",
-        ":thinking:" to "(0.o?)",
-        ":gimme:" to "༼つ◕_◕༽つ",
-        ":wizard:" to "('-')⊃━☆ﾟ.*･｡ﾟ",
-        ":pvp:" to "⚔",
-        ":peace:" to "✌",
-        ":puffer:" to "<('O')>",
-        "h/" to "ヽ(^◇^*)/",
-        ":sloth:" to "(・⊝・)",
-        ":dog:" to "(ᵔᴥᵔ)",
-        ":dj:" to "ヽ(⌐■_■)ノ♬",
-        ":yey:" to "ヽ (◕◡◕) ﾉ",
-        ":snow:" to "☃",
-        ":dab:" to "<o/",
-        ":cat:" to "= ＾● ⋏ ●＾ =",
-        ":cute:" to "(✿◠‿◠)",
-        ":skull:" to "☠",
-        ":bum:" to "♿",
-        ":panda:" to "70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)",
-        ":x:" to ":no:", // This replacement assumes the player has MVP++
-        ":wheelchair:" to "♿" // might as well
+        "<3" to ChatEmote("❤", true),
+        "o/" to ChatEmote("( ﾟ◡ﾟ)/", true),
+        ":star:" to ChatEmote("✮", true),
+        ":yes:" to ChatEmote("✔", true),
+        ":no:" to ChatEmote("✖", true),
+        ":java:" to ChatEmote("☕", false),
+        ":arrow:" to ChatEmote("➜", false),
+        ":shrug:" to ChatEmote("¯\\_(\u30c4)_/¯", false),
+        ":tableflip:" to ChatEmote("(╯°□°）╯︵ ┻━┻", false),
+        ":totem:" to ChatEmote("☉_☉", false),
+        ":typing:" to ChatEmote("✎...", false),
+        ":maths:" to ChatEmote("√(π+x)=L", false),
+        ":snail:" to ChatEmote("@'-'", false),
+        "ez" to ChatEmote("ｅｚ", false),
+        ":thinking:" to ChatEmote("(0.o?)", false),
+        ":gimme:" to ChatEmote("༼つ◕_◕༽つ", false),
+        ":wizard:" to ChatEmote("('-')⊃━☆ﾟ.*･｡ﾟ", false),
+        ":pvp:" to ChatEmote("⚔", false),
+        ":peace:" to ChatEmote("✌", false),
+        ":puffer:" to ChatEmote("<('O')>", false),
+        "h/" to ChatEmote("ヽ(^◇^*)/", false),
+        ":sloth:" to ChatEmote("(・⊝・)", false),
+        ":dog:" to ChatEmote("(ᵔᴥᵔ)", false),
+        ":dj:" to ChatEmote("ヽ(⌐■_■)ノ♬", false),
+        ":yey:" to ChatEmote("ヽ (◕◡◕) ﾉ", false),
+        ":snow:" to ChatEmote("☃", false),
+        ":dab:" to ChatEmote("<o/", false),
+        ":cat:" to ChatEmote("= ＾● ⋏ ●＾ =", false),
+        ":cute:" to ChatEmote("(✿◠‿◠)", false),
+        ":skull:" to ChatEmote("☠", false),
+        ":bum:" to ChatEmote("♿", false),
+
+        ":panda:" to ChatEmote("70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)", false),
+        ":x:" to ChatEmote(":no:", false),
+        ":wheelchair:" to ChatEmote("♿", false)
     )
 
     enum class ChatChannel {
@@ -376,14 +392,14 @@ object ChatCommandsPlus : Module(
     }
 
     data class ChatCommand(
-        val keywords: String,
+        val keywords: () -> String,
         val channels: Set<ChatChannel>,
         val requiresLeader: Boolean,
         val action: (words: List<String>, name: String, channel: ChatChannel) -> Unit
     )
 
-    fun commandMatches(keywords: String, target: String) =
-        keywords.isNotEmpty() && target in keywords.split(",").map { it.trim() }
+    fun commandMatches(keywords: () -> String, target: String) =
+        keywords().isNotEmpty() && target in keywords().split(",").map { it.trim() }
 
     fun channelsOf(vararg c: ChatChannel) = c.toSet()
 }
