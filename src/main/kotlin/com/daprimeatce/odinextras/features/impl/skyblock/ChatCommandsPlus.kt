@@ -126,8 +126,9 @@ object ChatCommandsPlus : Module(
                 channelMessage(getPositionString(), name, channel)
             },
             ChatCommand(boop, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, _ ->
-                sendCommand("boop $name")
+                ChatChannel.GUILD), false) { words, name, _ ->
+                if (words.size > 1 && words[1].length <= 16) sendCommand("boop ${words[1]}")
+                else sendCommand("boop $name")
             },
             ChatCommand(cf, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
