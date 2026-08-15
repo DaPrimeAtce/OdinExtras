@@ -15,9 +15,9 @@ val odinExtrasCommand = Commodore("oe", "odinextras") {
         schedule(0) { mc.setScreen(ClickGUI) }
     }
 
-    literal("chatcommandsplus").runs {
-        replacements.forEach { (key, value) ->
-            modMessage("$key -> $value")
+    literal("chatemotes").runs {
+        replacements.forEach { (key, emote) ->
+            modMessage("$key -> ${emote.replacement}")
         }
     }
 
