@@ -53,7 +53,7 @@ object ChatCommandsPlus : Module(
     private val rng by BooleanSetting("RNG", true, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { booleanSettings }
     private val qInstance by BooleanSetting("Queue Instance", true, desc = "Queue instance commands.").withDependency { booleanSettings }
 
-    private val tyfr by StringSetting("TYFR", "", desc = "Auto leave party upon saying \"tyfr\" or \"tyfp\".").withDependency { stringSettings }
+    private val tyfr by StringSetting("TYFR", "", desc = "Auto leave party upon saying a specified key word(s).").withDependency { stringSettings }
     private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { stringSettings && tyfr.isNotEmpty()}
     private val tyfrWarning by BooleanSetting("TYFR Warning", false, desc = "Sends a local warning message when you trigger the TYFR command.").withDependency { stringSettings && tyfr.isNotEmpty()}
     private val warp by StringSetting("Warp", "!warp, !w", desc = "Executes the /party warp command.") .withDependency { stringSettings }
