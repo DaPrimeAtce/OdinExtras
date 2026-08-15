@@ -270,10 +270,10 @@ object ChatCommandsPlus : Module(
                     channel
                 )
 
-            "8ball" ->
+            "!8ball" ->
                 if (eightball) channelMessage(responses.random(), name, channel)
 
-            "dice" ->
+            "!dice" ->
                 if (dice) channelMessage((1..6).random(), name, channel)
 
             "!kickrandom" ->
