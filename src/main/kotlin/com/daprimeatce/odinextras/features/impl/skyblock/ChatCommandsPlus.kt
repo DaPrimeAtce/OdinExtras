@@ -199,14 +199,14 @@ object ChatCommandsPlus : Module(
 
     init {
         on<ChatPacketEvent> {
-            if (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex)) {
+            if (!dtAlert && (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex))) {
                 if (dt.isEmpty() || dtReason.isEmpty()) return@on
+                dtAlert = true
                 schedule(30) {
                     dtReason.find { it.first == mc.player?.name?.string }?.let { sendCommand("pc Downtime needed: ${it.second}") }
                     modMessage("DT Reasons: ${dtReason.groupBy({ it.second }, { it.first }).entries.joinToString(", ") { (reason, names) -> "${names.joinToString(", ")}: $reason" }}")
                     alert("§cPlayers need DT")
                     dtReason.clear()
-                    dtAlert = true
                 }
             }
 
@@ -247,6 +247,7 @@ object ChatCommandsPlus : Module(
         }
         on<LevelEvent.Load> {
             dtAlert = false
+            dtReason.clear()
         }
     }
 
@@ -316,7 +317,7 @@ object ChatCommandsPlus : Module(
             "!f1", "!f2", "!f3", "!f4", "!f5", "!f6", "!f7", "!m1", "!m2", "!m3", "!m4", "!m5", "!m6", "!m7", "!t1", "!t2", "!t3", "!t4", "!t5" -> {
                 if (!qInstance || channel != ChatChannel.PARTY || !PartyUtils.isLeader()) return
                 val wordsNoExclaim = message.drop(1).split(" ").map { it.lowercase() }
-                modMessage("§8Entering -> §e${wordsNoExclaim[0].capitalizeFirst()}")
+                modMessage("§eEntering -> §b${wordsNoExclaim[0].capitalizeFirst()}")
                 sendCommand("odin ${wordsNoExclaim[0].lowercase()}")
             }
         }
