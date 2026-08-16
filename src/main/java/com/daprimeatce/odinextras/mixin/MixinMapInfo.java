@@ -7,9 +7,12 @@ import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting;
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting;
 import com.odtheking.odin.clickgui.settings.impl.StringSetting;
+import com.odtheking.odin.events.ScoreUpdateEvent;
+import com.odtheking.odin.events.core.EventBus;
 import com.odtheking.odin.features.impl.dungeon.MapInfo;
-import com.odtheking.odin.utils.handlers.TickTask;
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
@@ -170,14 +173,9 @@ abstract class MixinMapInfo implements AccessorMapInfo {
         return Setting.Companion.withDependency(original, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
 
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "NEW", target = "Lcom/odtheking/odin/clickgui/settings/impl/BooleanSetting;", ordinal = 3))
-    private static BooleanSetting odinextras$addBase300ScorePrintWhenScoreDependency(BooleanSetting original) {
-        return Setting.Companion.withDependency(original, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
-    }
-
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void odinextras$add270ScoreTickTask(CallbackInfo ci) {
-        new TickTask(10, false, () -> {
+    @Inject(method = "<clinit>", at = @At("TAIL"))
+    private static void odinextras$addScoreListener(CallbackInfo ci) {
+        Function1<ScoreUpdateEvent, Unit> handler = (event) -> {
             if (!MapInfo.INSTANCE.getEnabled() ||
                     !DungeonUtils.INSTANCE.getInDungeons()
                     || StateSharedMixinMapInfo.odinextras$shown270Title
@@ -187,32 +185,32 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 return null;
 
             if (StateSharedMixinMapInfo.odinextras$score270ShouldRenderTitle.getValue()) alert(StateSharedMixinMapInfo.odinextras$score270CustomTitle.getValue().replace("&", "§"), true);
-            if (StateSharedMixinMapInfo.odinextras$score270ShouldPrintScoreTime.getValue() && DungeonUtils.INSTANCE.getFloor() != null) modMessage("§b" + DungeonUtils.INSTANCE.getScore() + " §ascore reached in §6" + DungeonUtils.INSTANCE.getDungeonTime() + " || " + DungeonUtils.INSTANCE.getFloor().name() + ".", "§3Odin §8»§r ", null);
+            if (StateSharedMixinMapInfo.odinextras$score270ShouldPrintScoreTime.getValue() && DungeonUtils.INSTANCE.getFloor() != null) modMessage("§b" + DungeonUtils.INSTANCE.getScore() + " §ascore reached in §6" + DungeonUtils.INSTANCE.getDungeonTime() + " || " + DungeonUtils.INSTANCE.getFloor().name() + ".", "§3Odin§aExtras §8»§r ", null);
             if (StateSharedMixinMapInfo.odinextras$score270ShouldSendToParty.getValue()) sendCommand("pc " + StateSharedMixinMapInfo.odinextras$score270PartyMessage.getValue());
             StateSharedMixinMapInfo.odinextras$shown270Title = true;
-            return null;
-        });
+            return Unit.INSTANCE;
+        };
+
+        EventBus.INSTANCE.registerListener(MapInfo.class, ScoreUpdateEvent.class, 0, false, handler);
     }
 }
 
-
-@Mixin(targets = "com.odtheking.odin.features.impl.dungeon.MapInfo$2", remap = false)
 @SuppressWarnings("unused")
-abstract class MixinMapInfoSecondTickTask {
-
+@Mixin(targets = "com.odtheking.odin.features.impl.dungeon.MapInfo$1", remap = false)
+abstract class MixinMapInfoOnScoreUpdateEvent {
     /**
      * @author odtheking, adapted by TurtleGD
-     * @reason Tweaking if statement logic to check for a new toggle
+     * @reason Tweaking if statement logic to check for the new 300 score party message toggle
      */
     @Overwrite
     @SuppressWarnings("DataFlowIssue")
-    public void invoke() {
+    public void invoke(ScoreUpdateEvent event) {
         boolean scoreTitle = ((AccessorMapInfo)(Object) MapInfo.INSTANCE).odinextras$getScoreTitle();
         boolean printWhenScore = ((AccessorMapInfo)(Object) MapInfo.INSTANCE).odinextras$getPrintWhenScore();
 
         if (!MapInfo.INSTANCE.getEnabled()
                 || !DungeonUtils.INSTANCE.getInDungeons()
-                || MapInfo.INSTANCE.getShownTitle()
+                || StateSharedMixinMapInfo.odinextras$shown300Title
                 || (!scoreTitle && !printWhenScore && !StateSharedMixinMapInfo.odinextras$score300ShouldSendToParty.getValue())
                 || DungeonUtils.INSTANCE.getScore() < 300)
             return;
@@ -220,6 +218,6 @@ abstract class MixinMapInfoSecondTickTask {
         if (scoreTitle) alert(StateSharedMixinMapInfo.odinextras$score300CustomTitle.getValue().replace("&", "§"), true);
         if (printWhenScore && DungeonUtils.INSTANCE.getFloor() != null) modMessage("§b" + DungeonUtils.INSTANCE.getScore() + " §ascore reached in §6" + DungeonUtils.INSTANCE.getDungeonTime() + " || " + DungeonUtils.INSTANCE.getFloor().name() + ".", "§3Odin §8»§r ", null);
         if (StateSharedMixinMapInfo.odinextras$score300ShouldSendToParty.getValue()) sendCommand("pc " + StateSharedMixinMapInfo.odinextras$score300PartyMessage.getValue());
-        MapInfo.INSTANCE.setShownTitle(true);
+        StateSharedMixinMapInfo.odinextras$shown300Title = true;
     }
 }

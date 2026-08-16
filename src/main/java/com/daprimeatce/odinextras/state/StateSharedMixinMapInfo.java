@@ -10,6 +10,7 @@ public class StateSharedMixinMapInfo {
     public static StringSetting odinextras$score300CustomTitle;
     public static BooleanSetting odinextras$score300ShouldSendToParty;
     public static StringSetting odinextras$score300PartyMessage;
+    public static boolean odinextras$shown300Title = false;
 
     public static DropdownSetting odinextras$score270Dropdown;
     public static BooleanSetting odinextras$score270ShouldRenderTitle;
@@ -21,6 +22,9 @@ public class StateSharedMixinMapInfo {
 
     // On world load
     static {
-        ClientPlayConnectionEvents.JOIN.register((_, _, _) -> odinextras$shown270Title = false);
+        ClientPlayConnectionEvents.JOIN.register((_, _, _) -> {
+            odinextras$shown270Title = false;
+            odinextras$shown300Title = false;
+        });
     }
 }
