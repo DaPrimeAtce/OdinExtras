@@ -169,7 +169,7 @@ object ChatCommandsPlus : Module(
             ChatCommand(
                 { time }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
                 ChatChannel.GUILD), false) { _, name, channel ->
-                channelMessage("Current Time: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss z", Locale.ENGLISH))}", name, channel)
+                channelMessage("Current Time: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a (z)", Locale.ENGLISH))}", name, channel)
             },
             ChatCommand({ demote }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("p demote ${findPartyMember(words[1])}")

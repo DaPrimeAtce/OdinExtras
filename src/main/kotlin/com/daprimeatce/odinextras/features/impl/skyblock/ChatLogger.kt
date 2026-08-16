@@ -5,6 +5,8 @@ import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.features.ModuleManager
+import com.odtheking.odin.utils.modMessage
 import com.daprimeatce.odinextras.utils.RegexUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonArray
@@ -22,7 +24,8 @@ object ChatLogger : Module(
     private val party by BooleanSetting("Party Messages", true, desc = "Log party messages.")
     private val guild by BooleanSetting("Guild Messages", true, desc = "Log guild messages.")
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
-    private val webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
+    private var webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
+    private var webhookUser by StringSetting("IGN of Webhook User", "", desc = "The username tied to the webhook URL. (This a privacy feature, which when the user's IGN does not match the one listed here, the webhook URL deletes itself. Leave empty to disable.)")
     private val webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook. (WARNING: Leaving this empty will cause messages to not send.)")
 
     init {
@@ -50,6 +53,12 @@ object ChatLogger : Module(
             if (guild && channel == Channel.GUILD) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_FROM) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_TO) sendEmbed(ignSelf, ("To $ign: $msg"), channel)
+            if (webhookUser.isNotEmpty() && webhookUser != ignSelf) {
+                modMessage("§b$ignSelf §cdoes not match the username §b$webhookUser§c, removing Webhook URL.")
+                webhookUrl = ""
+                webhookUser = ""
+                ModuleManager.saveConfigurations()
+            }
         }
     }
 
