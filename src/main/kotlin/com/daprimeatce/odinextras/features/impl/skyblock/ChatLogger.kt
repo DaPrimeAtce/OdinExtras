@@ -27,7 +27,7 @@ object ChatLogger : Module(
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
     private var webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
     private var webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook.")
-    private val privacyClear by BooleanSetting("Privacy Clear", true, "Clears the webhook URL when a different player is detected, such as from sharing a config file. Recommended to leave on. (WARNING: You MUST manually clear the webhook link if you wish to keep it private when sharing config files.)")
+    private val privacyClear by BooleanSetting("Privacy Clear", true, "Clears the webhook URL when a different player is detected, such as from sharing a config file. Recommended to leave on. (WARNING: This only removes the URL when the game is ran. If you plan to share your configs with others, you MUST manually remove the URL before sharing, otherwise they will still have access to the URL via the config file.)")
     private val privacyInfo by ListSetting("Privacy Info", mutableListOf(""))
 
     init {
