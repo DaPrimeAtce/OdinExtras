@@ -26,8 +26,8 @@ object ChatLogger : Module(
     private val guild by BooleanSetting("Guild Messages", true, desc = "Log guild messages.")
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
     private var webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
-    private var webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook. (WARNING: Leaving this empty will cause messages to not send.)")
-    private val privacyClear by BooleanSetting("Privacy Clear", true, "Clears the webhook URL when a different player is detected, such as from sharing a config file. (WARNING: You MUST manually clear the webhook link if you want to keep it private when sharing configs.)")
+    private var webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook.")
+    private val privacyClear by BooleanSetting("Privacy Clear", true, "Clears the webhook URL when a different player is detected, such as from sharing a config file. Recommended to leave on. (WARNING: You MUST manually clear the webhook link if you wish to keep it private when sharing config files.)")
     private val privacyInfo by ListSetting("Privacy Info", mutableListOf(""))
 
     init {
@@ -38,10 +38,10 @@ object ChatLogger : Module(
                 privacyInfo[0] = mc.player?.name?.string ?: ""
             } else if (privacyInfo[0] != "" && mc.player != null && privacyInfo[0] != mc.player!!.name.string && privacyClear) {
                 webhookUrl = ""
-                webhookName = ""
+                webhookName = "OdinExtras"
                 privacyInfo[0] = mc.player!!.name.string
                 ModuleManager.saveConfigurations()
-                modMessage("§bDetected a different username,§c clearing webhook information from the Chat Logger Module.", "§3Odin§aExtras §b(Privacy Clear) §8»§r ")
+                modMessage("§bDetected a different username,§c clearing webhook information from the Chat Logger module.", "§3Odin§aExtras §b(Privacy Clear) §8»§r ")
                 return@on
             }
 
@@ -99,7 +99,7 @@ object ChatLogger : Module(
         val embeds = JsonArray().apply { add(embed) }
 
         val body = JsonObject().apply {
-            addProperty("username", webhookName)
+            addProperty("username", webhookName.ifEmpty { "OdinExtras" })
             add("embeds", embeds)
         }
 
