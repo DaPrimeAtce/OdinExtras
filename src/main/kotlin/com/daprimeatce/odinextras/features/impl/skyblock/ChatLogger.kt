@@ -10,6 +10,7 @@ import com.odtheking.odin.utils.modMessage
 import com.daprimeatce.odinextras.utils.RegexUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonArray
+import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -25,12 +26,24 @@ object ChatLogger : Module(
     private val guild by BooleanSetting("Guild Messages", true, desc = "Log guild messages.")
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
     private var webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
-    private var webhookUser by StringSetting("IGN of Webhook User", "", desc = "The username tied to the webhook URL. (This a privacy feature, which when the user's IGN does not match the one listed here, the webhook URL deletes itself. Leave empty to disable.)")
-    private val webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook. (WARNING: Leaving this empty will cause messages to not send.)")
+    private var webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook. (WARNING: Leaving this empty will cause messages to not send.)")
+    private val privacyClear by BooleanSetting("Privacy Clear", true, "Clears the webhook URL when a different player is detected, such as from sharing a config file. (WARNING: You MUST manually clear the webhook link if you want to keep it private when sharing configs.)")
+    private val privacyInfo by ListSetting("Privacy Info", mutableListOf(""))
 
     init {
         on<ChatPacketEvent> {
             if (!enabled || webhookUrl.isEmpty()) return@on
+
+            if (privacyInfo[0] == "") {
+                privacyInfo[0] = mc.player?.name?.string ?: ""
+            } else if (privacyInfo[0] != "" && mc.player != null && privacyInfo[0] != mc.player!!.name.string && privacyClear) {
+                webhookUrl = ""
+                webhookName = ""
+                privacyInfo[0] = mc.player!!.name.string
+                ModuleManager.saveConfigurations()
+                modMessage("§bDetected a different username,§c clearing webhook information from the Chat Logger Module.", "§3Odin§aExtras §b(Privacy Clear) §8»§r ")
+                return@on
+            }
 
             val result = RegexUtils.messageRegex.find(value) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
@@ -53,12 +66,6 @@ object ChatLogger : Module(
             if (guild && channel == Channel.GUILD) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_FROM) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_TO) sendEmbed(ignSelf, ("To $ign: $msg"), channel)
-            if (webhookUser.isNotEmpty() && webhookUser != ignSelf) {
-                modMessage("§b$ignSelf §cdoes not match the username §b$webhookUser§c, removing Webhook URL.")
-                webhookUrl = ""
-                webhookUser = ""
-                ModuleManager.saveConfigurations()
-            }
         }
     }
 
