@@ -14,6 +14,7 @@ import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.sendChatMessage
 import com.odtheking.odin.utils.skyblock.PartyUtils
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.features.impl.dungeon.DungeonQueue
 import com.odtheking.odin.utils.ServerUtils
 import com.odtheking.odin.utils.alert
@@ -81,6 +82,7 @@ object ChatCommandsPlus : Module(
     private val disband by StringSetting("Disband", ".disband", desc = "Disbands the party.") .withDependency { stringSettings }
 
     private val dtReason = mutableListOf<Pair<String, String>>()
+    private var dtAlert = false
 
     private lateinit var commands: List<ChatCommand>
 
@@ -204,6 +206,7 @@ object ChatCommandsPlus : Module(
                     modMessage("DT Reasons: ${dtReason.groupBy({ it.second }, { it.first }).entries.joinToString(", ") { (reason, names) -> "${names.joinToString(", ")}: $reason" }}")
                     alert("§cPlayers need DT")
                     dtReason.clear()
+                    dtAlert = true
                 }
             }
 
@@ -241,6 +244,9 @@ object ChatCommandsPlus : Module(
 
             cancel()
             sendChatMessage(words.joinToString(" "))
+        }
+        on<LevelEvent.Load> {
+            dtAlert = false
         }
     }
 
