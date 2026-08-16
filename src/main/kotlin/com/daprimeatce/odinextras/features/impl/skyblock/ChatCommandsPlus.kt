@@ -307,7 +307,7 @@ object ChatCommandsPlus : Module(
                 } else channelMessage("Could not parse a number.", name, channel)
             }
 
-            "f1", "f2", "f3", "f4", "f5", "f6", "f7", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "t1", "t2", "t3", "t4", "t5" -> {
+            "!f1", "!f2", "!f3", "!f4", "!f5", "!f6", "!f7", "!m1", "!m2", "!m3", "!m4", "!m5", "!m6", "!m7", "!t1", "!t2", "!t3", "!t4", "!t5" -> {
                 if (!qInstance || channel != ChatChannel.PARTY || !PartyUtils.isLeader()) return
                 modMessage("§8Entering -> §e${words[0].capitalizeFirst()}")
                 sendCommand("odin ${words[0].lowercase()}")
