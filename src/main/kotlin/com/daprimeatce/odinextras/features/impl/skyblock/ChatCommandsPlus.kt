@@ -92,12 +92,12 @@ object ChatCommandsPlus : Module(
                 sendCommand("p settings allinvite")
             },
             ChatCommand({ inv }, channelsOf(ChatChannel.PRIVATE),  false) { _, name, _ ->
-                if (PartyUtils.isInParty) return@ChatCommand
-                if (autoConfirm) return@ChatCommand sendCommand("p invite $name")
-                modMessage(Component.literal("§aClick on this message to invite $name to your party!").withStyle {
-                    it.withClickEvent(ClickEvent.RunCommand("/party invite $name"))
-                        .withHoverEvent(HoverEvent.ShowText(Component.literal("§6Click to invite $name to your party.")))
-                })
+                if (autoConfirm) sendCommand("p invite $name")
+                else modMessage(
+                    Component.literal("§aClick on this message to invite $name to your party!").withStyle {
+                        it.withClickEvent(ClickEvent.RunCommand("/party invite $name"))
+                            .withHoverEvent(HoverEvent.ShowText(Component.literal("§6Click to invite $name to your party.")))
+                    })
                 playSoundAtPlayer(SoundEvents.NOTE_BLOCK_PLING.value())
             },
             ChatCommand({ warp }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
