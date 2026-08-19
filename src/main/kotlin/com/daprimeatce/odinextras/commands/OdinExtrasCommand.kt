@@ -4,7 +4,6 @@ import com.github.stivais.commodore.Commodore
 import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.clickgui.ClickGUI
 import com.odtheking.odin.clickgui.HudManager
-import com.odtheking.odin.utils.handlers.schedule
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.replacements
 import com.odtheking.odin.utils.modMessage
 
@@ -12,7 +11,7 @@ import com.odtheking.odin.utils.modMessage
 val odinExtrasCommand = Commodore("oe", "odinextras") {
 
     runs {
-        schedule(0) { mc.setScreen(ClickGUI) }
+        mc.schedule { mc.setScreen(ClickGUI) }
     }
 
     literal("chatemotes").runs {
@@ -21,7 +20,7 @@ val odinExtrasCommand = Commodore("oe", "odinextras") {
         }
     }
 
-    literal("hud", "gui").runs{
-        schedule(0) { mc.setScreen(HudManager) }
+    literal("hud", "gui").runs {
+        mc.schedule { mc.setScreen(HudManager) }
     }
 }
