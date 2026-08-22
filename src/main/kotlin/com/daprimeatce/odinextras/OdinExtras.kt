@@ -6,7 +6,6 @@ import com.odtheking.odin.features.ModuleManager
 import com.daprimeatce.odinextras.commands.odinExtrasCommand
 import com.daprimeatce.odinextras.features.impl.skyblock.*
 import com.daprimeatce.odinextras.features.impl.nether.*
-import com.daprimeatce.odinextras.features.impl.boss.*
 import com.daprimeatce.odinextras.features.impl.render.*
 import com.daprimeatce.odinextras.features.impl.dungeon.*
 import net.fabricmc.api.ClientModInitializer
@@ -29,7 +28,7 @@ object OdinExtras : ClientModInitializer {
 
         // Register modules by adding to the list
         ModuleManager.registerModules(ModuleConfig("OdinExtras.json"),
-            TickTimersPlus,   // Boss
+            // no Boss category modules yet    // Boss
             TeammateDeaths, TeammateNametags,   // Dungeon
             KuudraEatenTimer,   // Kuudra
             CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
