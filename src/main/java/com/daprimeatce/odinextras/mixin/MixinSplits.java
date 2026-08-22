@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.mixin;
 
-import com.daprimeatce.odinextras.utils.RegexUtils;
+/*import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.odtheking.odin.clickgui.settings.impl.*;
 import com.odtheking.odin.events.ChatPacketEvent;
 import com.odtheking.odin.events.LevelEvent;
@@ -289,3 +289,4 @@ abstract class MixinSplits {
         );
     }
 }
+*/
