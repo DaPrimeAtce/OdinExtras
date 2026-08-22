@@ -12,6 +12,7 @@ import com.odtheking.odin.features.Module;
 import com.odtheking.odin.clickgui.settings.Setting;
 import net.minecraft.client.Minecraft;
 import kotlin.Pair;
+import net.minecraft.client.gui.Font;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,6 +30,9 @@ abstract class MixinTickTimers implements AccessorTickTimers {
     protected abstract boolean getSymbolDisplay();
     @Shadow
     protected abstract boolean getShowPrefix();
+
+    @Unique
+    private static final Font font = Minecraft.getInstance().font;
 
     @Unique
     private static HUDSetting professorHud;
@@ -50,11 +54,10 @@ abstract class MixinTickTimers implements AccessorTickTimers {
             "Displays a time for when to use the fire freeze staff for the Professor boss in M3.",
             ((Module)(Object) this),
                 (graphics, example) -> {
-                    // logic whatever idk
-                    graphics.text(Minecraft.getInstance().font, formatTimer(104, 104, "§3Fire freeze in: "), 0, 0, 0xFFFFFFFF);
+                    if (example) graphics.text(font, formatTimer(104, 104, "§3Fire freeze in: "), 0, 0, 0xFFFFFFFF);
+                    else if (professorTickTime >= 0 && professorTriggered) graphics.text(font, formatTimer(professorTickTime, 104, "§3Fire freeze in: "), 0, 0, 0xFFFFFFFF);
                     return new Pair<>(90, 10);
                 }
-
         );
 
         var professorTriggered = false;
