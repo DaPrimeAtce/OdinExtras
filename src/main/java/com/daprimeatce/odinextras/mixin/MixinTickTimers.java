@@ -123,7 +123,7 @@ abstract class MixinTickTimers implements AccessorTickTimers {
         String color;
         if (time >= max * 0.66) color = "§a";
         else if (time >= max * 0.33) color = "§6";
-        else color = "§a";
+        else color = "§c";
 
         String timeDisplay;
         if (getDisplayInTicks()) timeDisplay = color + time;
