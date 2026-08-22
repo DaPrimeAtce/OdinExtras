@@ -21,6 +21,7 @@
     "MixinMapInfoOnScoreUpdateEvent",
     "MixinPanel",
     "MixinModuleManager",
-    "MixinTickTimers"
+    "MixinTickTimers",
+    "MixinSplits"
   ]
 }
