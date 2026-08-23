@@ -77,7 +77,7 @@ object ChatLogger : Module(
     }
 
     fun getIntFromRGB(r: Int, g: Int, b: Int): Int {
-        return (r shl 16) or (g shl 8) or b
+        return (r.coerceIn(0, 255) shl 16) or (g.coerceIn(0, 255) shl 8) or b.coerceIn(0, 255)
     }
 
     private val client: HttpClient = HttpClient.newHttpClient()
