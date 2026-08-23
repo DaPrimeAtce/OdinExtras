@@ -21,7 +21,7 @@ object RegexUtils {
     val slayerCancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
 
     // Misc regex
-    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
+    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)\$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)\$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|(Party Finder > (\\[[^]]*?])? ?(\\w{1,16}) joined the (dungeon group!|group!) \\(?(\\w{1,7}) Level \\w{1,60}\\)\$))")
     val serverRegex = Regex("^Sending to server (.*)...$")
 }
 
