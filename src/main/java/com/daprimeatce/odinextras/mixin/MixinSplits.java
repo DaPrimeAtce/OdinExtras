@@ -106,7 +106,7 @@ abstract class MixinSplits {
                         } else {
                             graphics.text(Minecraft.getInstance().font, ("§a§lTotal §r" + exampleTime), 0, 0, 0xFFFFFFFF);
                         }
-                        return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
+                        return new Pair<>(totalWidth - 4, Minecraft.getInstance().font.lineHeight);
                     }
 
                     int maxWidth = getMaxSplitsWidth();
@@ -162,7 +162,7 @@ abstract class MixinSplits {
         sendTimeLost = new SelectorSetting(
                 "Send Time Lost",
                 "Local",
-                List.of("None", "Local", "Party", "Both"),
+                List.of("None", "Local", "Party"),
                 "Sends to the chat the run time lost to lag."
         );
         Setting.Companion.withDependency(sendTimeLost, () -> timeLostToLag.isEnabled());
@@ -214,6 +214,7 @@ abstract class MixinSplits {
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>(settings);
         reordered.put("Total Run Time", totalRunTime);
         reordered.put("Time Lost To Lag", timeLostToLag);
+        reordered.put("Send Time Lost", sendTimeLost);
         reordered.put("Storm DPS", stormDps);
         reordered.putAll(settings);
 
@@ -280,10 +281,7 @@ abstract class MixinSplits {
                         schedule(5, true, () -> {
                             if (sendTimeLost.getValue() == 1) modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
                             else if (sendTimeLost.getValue() == 2) sendCommand("pc " + timeLost + " lost to lag");
-                            else if (sendTimeLost.getValue() == 3) {
-                                modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
-                                sendCommand("pc " + timeLost + " lost to lag");
-                            }
+
                             if (stormStartRegex.matcher(event.getValue()).matches()) {
                                 startTimeStormMs = System.currentTimeMillis();
                                 startTickingStorm = true;
