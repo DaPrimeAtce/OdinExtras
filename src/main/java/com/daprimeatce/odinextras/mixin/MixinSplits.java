@@ -281,20 +281,22 @@ abstract class MixinSplits {
                         schedule(5, true, () -> {
                             if (sendTimeLost.getValue() == 1) modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
                             else if (sendTimeLost.getValue() == 2) sendCommand("pc " + timeLost + " lost to lag");
-
-                            if (stormStartRegex.matcher(event.getValue()).matches()) {
-                                startTimeStormMs = System.currentTimeMillis();
-                                startTickingStorm = true;
-                                return null;
-                            }
-
-                            if (stormEnrageRegex.matcher(event.getValue()).matches()) {
-                                endTimeStormMs = System.currentTimeMillis();
-                                startTickingStorm = false;
-                            }
                             return null;
                         });
                     }
+
+                    if (stormStartRegex.matcher(event.getValue()).matches()) {
+                        startTimeStormMs = System.currentTimeMillis();
+                        startTickingStorm = true;
+                        return null;
+                    }
+
+                    if (stormEnrageRegex.matcher(event.getValue()).matches()) {
+                        endTimeStormMs = System.currentTimeMillis();
+                        startTickingStorm = false;
+                        return null;
+                    }
+
                     return null;
                 }
         );
