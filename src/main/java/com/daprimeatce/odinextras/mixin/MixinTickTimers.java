@@ -67,8 +67,8 @@ abstract class MixinTickTimers {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$addExtraTickTimers(CallbackInfo ci) {
+        Module module = ((Module)(Object) this);
 
-        Module module = ((Module)(Object)this);
         professorHud = new HUDSetting(
             "Professor Hud",
             10,
@@ -145,24 +145,7 @@ abstract class MixinTickTimers {
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddTickEventServer(CallbackInfo ci) {
-        EventBus.INSTANCE.registerListener(
-            TickTimers.class,
-            TickEvent.Server.class,
-            0,
-            false,
-            event -> {
-                if (professorTriggered && professorHud.isEnabled()) professorTickTime--;
-                if (stormMoveTriggered && stormMoveHud.isEnabled()) stormMoveTickTime--;
-                if (stormEnrageTriggered && stormEnrageHud.isEnabled()) stormEnrageTickTime--;
-                if (ragTriggered && ragHud.isEnabled()) ragTickTime--;
-                return null;
-            }
-        );
-    }
-
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddTickLevelEventLoad(CallbackInfo ci) {
+    private static void odinextras$tickTimersAddOnEvents(CallbackInfo ci) {
         EventBus.INSTANCE.registerListener(
             TickTimers.class,
             LevelEvent.Load.class,
@@ -180,30 +163,41 @@ abstract class MixinTickTimers {
                 return null;
             }
         );
-    }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddChatPacketEvent(CallbackInfo ci) {
         EventBus.INSTANCE.registerListener(
-            TickTimers.class,
-            ChatPacketEvent.class,
-            0,
-            false,
-            event -> {
-                if (professorHud.isEnabled() && !professorTriggered && professorRegex.matcher(event.getValue()).matches()) {
-                    professorTriggered = true;
+                TickTimers.class,
+                ChatPacketEvent.class,
+                0,
+                false,
+                event -> {
+                    if (professorHud.isEnabled() && !professorTriggered && professorRegex.matcher(event.getValue()).matches()) {
+                        professorTriggered = true;
+                    }
+                    if (stormMoveHud.isEnabled() && !stormMoveTriggered && stormMoveRegex.matcher(event.getValue()).matches()) {
+                        stormMoveTriggered = true;
+                    }
+                    if (stormEnrageHud.isEnabled() && !stormEnrageTriggered && stormEnrageRegex.matcher(event.getValue()).matches()) {
+                        stormEnrageTriggered = true;
+                    }
+                    if (ragHud.isEnabled() && !ragTriggered && ragRegex.matcher(event.getValue()).matches()) {
+                        ragTriggered = true;
+                    }
+                    return null;
                 }
-                if (stormMoveHud.isEnabled() && !stormMoveTriggered && stormMoveRegex.matcher(event.getValue()).matches()) {
-                    stormMoveTriggered = true;
+        );
+
+        EventBus.INSTANCE.registerListener(
+                TickTimers.class,
+                TickEvent.Server.class,
+                0,
+                false,
+                event -> {
+                    if (professorTriggered && professorHud.isEnabled()) professorTickTime--;
+                    if (stormMoveTriggered && stormMoveHud.isEnabled()) stormMoveTickTime--;
+                    if (stormEnrageTriggered && stormEnrageHud.isEnabled()) stormEnrageTickTime--;
+                    if (ragTriggered && ragHud.isEnabled()) ragTickTime--;
+                    return null;
                 }
-                if (stormEnrageHud.isEnabled() && !stormEnrageTriggered && stormEnrageRegex.matcher(event.getValue()).matches()) {
-                    stormEnrageTriggered = true;
-                }
-                if (ragHud.isEnabled() && !ragTriggered && ragRegex.matcher(event.getValue()).matches()) {
-                    ragTriggered = true;
-                }
-                return null;
-            }
         );
     }
 

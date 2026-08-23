@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.mixin;
 
-/*import com.daprimeatce.odinextras.utils.RegexUtils;
+import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.odtheking.odin.clickgui.settings.impl.*;
 import com.odtheking.odin.events.ChatPacketEvent;
 import com.odtheking.odin.events.LevelEvent;
@@ -9,6 +9,8 @@ import com.odtheking.odin.events.core.EventBus;
 import com.odtheking.odin.features.impl.skyblock.Splits;
 import com.odtheking.odin.features.Module;
 import com.odtheking.odin.clickgui.settings.Setting;
+import com.odtheking.odin.utils.skyblock.Split;
+import com.odtheking.odin.utils.skyblock.SplitsManager;
 import net.minecraft.client.Minecraft;
 import kotlin.Pair;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,12 +18,16 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.odtheking.odin.utils.ChatUtilsKt.modMessage;
 import static com.odtheking.odin.utils.ChatUtilsKt.sendCommand;
 import static com.odtheking.odin.utils.Utils.formatTime;
+import static com.odtheking.odin.utils.handlers.TickTasksKt.schedule;
+import static com.odtheking.odin.utils.render.DrawContextUtilsKt.getStringWidth;
 
 @Mixin(Splits.class)
 @SuppressWarnings("unused")
@@ -35,6 +41,8 @@ abstract class MixinSplits {
     private static HUDSetting totalRunTime;
     @Unique
     private static HUDSetting timeLostToLag;
+    @Unique
+    private static SelectorSetting sendTimeLost;
     @Unique
     private static HUDSetting stormDps;
 
@@ -73,43 +81,43 @@ abstract class MixinSplits {
     private static final Pattern stormEnrageRegex = RegexUtils.INSTANCE.getStormEnrageRegex().toPattern();
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void odinextras$addExtraSplitTimers(CallbackInfo ci) {
+    private void odinextras$addExtraSplitsTimers(CallbackInfo ci) {
+        Module module = ((Module)(Object) this);
 
-        Module module = ((Module)(Object)this);
         totalRunTime = new HUDSetting(
                 "Total Run Time",
                 10,
                 10,
-                1f,
+                2f,
                 true,
                 "Shows a split timer for the full run time.",
                 module,
                 (graphics, example) -> {
-                    var totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (getShowTickTime()) " (0h 00m 00s)" else "") + 2
-                    var exampleTime = "0h 00m 00.00s" + if (getShowTickTime()) " §8(§70s§8)" else ""
+                    int totalWidth = getStringWidth("Split 0: 0h 00m 00s" + (getShowTickTime() ? " (0h 00m 00s)" : "") + 2);
+                    String exampleTime = "0h 00m 00.00s" + (getShowTickTime() ? " §8(§70s§8)" : "");
 
                     if (example) {
                         if (getFixedWidth()) {
                             graphics.text(Minecraft.getInstance().font, ("§a§lTotal"), 0, 0, 0xFFFFFFFF);
-                            graphics.text(Minecraft.getInstance().font, ((exampleTime), totalWidth - getStringWidth("0h 00m 00.00s" + if (getShowTickTime()) " (0s)" else ""), 0)
+                            graphics.text(Minecraft.getInstance().font, exampleTime, totalWidth - getStringWidth("0h 00m 00.00s" + (getShowTickTime() ? " (0s)" : "")), 0, 0xFFFFFFFF);
                         } else {
-                            graphics.text(Minecraft.getInstance().font, ("§a§lTotal §r$exampleTime"), 0, 0, 0xFFFFFFFF);
+                            graphics.text(Minecraft.getInstance().font, ("§a§lTotal §r" + exampleTime), 0, 0, 0xFFFFFFFF);
                         }
-                        return new Pair<>(105, 10); //totalWidth to mc.font.lineHeight
+                        return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                     }
 
-                    var maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
+                    int maxWidth = getMaxSplitsWidth();
 
-                    if (startTimeMs.toInt() == -1) return new Pair<>(0, 0); //return@HUD 0 to 0
+                    if (startTimeMs == -1) return new Pair<>(0, 0);
 
-                    var totalTime = formatTime((if (endTimeMs > 0) endTimeMs else System.currentTimeMillis()) - startTimeMs, 2)
-                    var displayText = if (getShowTickTime()) "$totalTime §8(§7${(serverTicks / 20f).toFixed(2)}§8)" else totalTime
+                    String totalTime = formatTime(((endTimeMs > 0) ? endTimeMs : System.currentTimeMillis()) - startTimeMs, 2);
+                    String displayText = getShowTickTime() ? totalTime + " §8(§7" + String.format("%.2f", serverTicks / 20f) + "§8)" : totalTime;
                     graphics.text(Minecraft.getInstance().font, ("§a§lTotal"), 0, 0, 0xFFFFFFFF);
 
                     if (getFixedWidth()) graphics.text(Minecraft.getInstance().font, (displayText), totalWidth - getStringWidth(displayText), 0, 0xFFFFFFFF);
-                    else graphics.text(Minecraft.getInstance().font, (displayText, maxWidth + 4, 0, 0xFFFFFFFF);
+                    else graphics.text(Minecraft.getInstance().font, displayText, maxWidth + 4, 0, 0xFFFFFFFF);
 
-                    totalWidth to mc.font.lineHeight
+                    return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                 }
         );
 
@@ -117,78 +125,87 @@ abstract class MixinSplits {
                 "Time Lost To Lag",
                 10,
                 10,
-                1f,
+                2f,
                 true,
                 "Shows a split timer for how much run time is lost to lag.",
                 module,
                 (graphics, example) -> {
-                    var totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (getShowTickTime()) " (0h 00m 00s)" else "") + 2
-                    var exampleTimeLost = "00m 00.00s"
+                    int totalWidth = getStringWidth("Split 0: 0h 00m 00s" + (getShowTickTime() ? " (0h 00m 00s)" : "")) + 2;
+                    String exampleTimeLost = "00m 00.00s";
 
                     if (example) {
                         if (getFixedWidth()) {
                             graphics.text(Minecraft.getInstance().font, ("§c§lLost"), 0, 0, 0xFFFFFFFF);
-                            graphics.text(Minecraft.getInstance().font, (exampleTimeLost), totalWidth - getStringWidth("00m 00.00s"), 0);
+                            graphics.text(Minecraft.getInstance().font, exampleTimeLost, totalWidth - getStringWidth("00m 00.00s"), 0, 0xFFFFFFFF);
                         } else {
-                            graphics.text(Minecraft.getInstance().font, ("§c§lLost §r$exampleTimeLost"), 0, 0, 0xFFFFFFFF);
+                            graphics.text(Minecraft.getInstance().font, ("§c§lLost §r" + exampleTimeLost), 0, 0, 0xFFFFFFFF);
                         }
-                        return new Pair<>(105, 10); //totalWidth to mc.font.lineHeight
+                        return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                     }
 
-                    var maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
+                    int maxWidth = getMaxSplitsWidth();
 
-                    if (startTimeMs.toInt() == -1) return new Pair<>(0, 0); //return@HUD 0 to 0
+                    if (startTimeMs == -1) return new Pair<>(0, 0);
 
-                    graphics.text(Minecraft.getInstance().font, ("§c§lLost", 0, 0,, 0xFFFFFFFF);
+                    graphics.text(Minecraft.getInstance().font, "§c§lLost", 0, 0, 0xFFFFFFFF);
 
                     if (getFixedWidth()) graphics.text(Minecraft.getInstance().font, (timeLost), totalWidth - getStringWidth(timeLost), 0, 0xFFFFFFFF);
                     else graphics.text(Minecraft.getInstance().font, (timeLost), maxWidth + 4, 0, 0xFFFFFFFF);
 
-                    totalWidth to mc.font.lineHeight
+                    return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                 }
         );
+
+        sendTimeLost = new SelectorSetting(
+                "Send Time Lost",
+                "Local",
+                List.of("None", "Local", "Party", "Both"),
+                "Sends to the chat the run time lost to lag."
+        );
+        Setting.Companion.withDependency(sendTimeLost, () -> timeLostToLag.isEnabled());
+
 
         stormDps = new HUDSetting(
                 "Storm DPS",
                 10,
                 10,
-                1f,
+                2f,
                 true,
                 "Show the split timer for Storm purple pillar DPS.",
                 module,
                 (graphics, example) -> {
-                    var totalWidth = getStringWidth("Split 0: 0h 00m 00s" + if (getShowTickTime()) " (0h 00m 00s)" else "") + 2
-                    var exampleTime = "0h 00m 00.00s" + if (getShowTickTime()) " §8(§70s§8)" else ""
+                    int totalWidth = getStringWidth("Split 0: 0h 00m 00s" + (getShowTickTime() ? " (0h 00m 00s)" : "")) + 2;
+                    String exampleTime = "0h 00m 00.00s" + (getShowTickTime() ? " §8(§70s§8)" : "");
 
-                    if (it) {
+                    if (example) {
                         if (getFixedWidth()) {
                             graphics.text(Minecraft.getInstance().font, ("§3Storm DPS"), 0, 0, 0xFFFFFFFF);
-                            graphics.text(Minecraft.getInstance().font, (exampleTime, totalWidth - getStringWidth("0h 00m 00.00s" + if (getShowTickTime()) " (0s)" else ""), 0);
+                            graphics.text(Minecraft.getInstance().font, exampleTime, totalWidth - getStringWidth("0h 00m 00.00s" + (getShowTickTime() ? " (0s)" : "")), 0, 0xFFFFFFFF);
                         } else {
-                            graphics.text(Minecraft.getInstance().font, ("§3Storm DPS §r$exampleTime"), 0, 0, 0xFFFFFFFF);
+                            graphics.text(Minecraft.getInstance().font, ("§3Storm DPS §r" + exampleTime), 0, 0, 0xFFFFFFFF);
                         }
 
-                        return new Pair<>(105, 10); //totalWidth to mc.font.lineHeight
+                        return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                     }
 
-                    var maxWidth = currentSplits.splits.dropLast(1).maxOfOrNull { split -> getStringWidth(split.name) } ?: 50
+                    int maxWidth = getMaxSplitsWidth();
 
-                    if (startTimeMs.toInt() == -1) return new Pair<>(0, 0); //return@HUD 0 to 0
+                    if (startTimeStormMs == -1) return new Pair<>(0, 0);
 
-                    var totalTime = formatTime((if (endTimeStormMs > 0) endTimeStormMs else System.currentTimeMillis()) - startTimeStormMs, 2);
-                    var displayText = if (getShowTickTime()) "$totalTime §8(§7${(serverTicksStorm / 20f).toFixed(2)}§8)" else totalTime
+                    String totalTime = formatTime(((endTimeStormMs > 0) ? endTimeStormMs : System.currentTimeMillis()) - startTimeStormMs, 2);
+                    String displayText = getShowTickTime() ? totalTime + " §8(§7" + String.format("%.2f", serverTicksStorm / 20f) + "§8)" : totalTime;
                     graphics.text(Minecraft.getInstance().font, ("§3Storm DPS"), 0, 0, 0xFFFFFFFF);
 
-                    if (getFixedWidth()) graphics.text(Minecraft.getInstance().font, (displayText, totalWidth - getStringWidth(displayText), 0, 0xFFFFFFFF);
-                    else graphics.text(Minecraft.getInstance().font, (displayText, maxWidth + 4, 0, 0xFFFFFFFF);
+                    if (getFixedWidth()) graphics.text(Minecraft.getInstance().font, displayText, totalWidth - getStringWidth(displayText), 0, 0xFFFFFFFF);
+                    else graphics.text(Minecraft.getInstance().font, displayText, maxWidth + 4, 0, 0xFFFFFFFF);
 
-                    totalWidth to mc.font.lineHeight
+                    return new Pair<>(totalWidth, Minecraft.getInstance().font.lineHeight);
                 }
         );
     }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void odinextras$reorderTickTimers(CallbackInfo ci) {
+    private static void odinextras$reorderSplits(CallbackInfo ci) {
         LinkedHashMap<String, Setting<?>> settings = Splits.INSTANCE.getSettings();
 
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>(settings);
@@ -202,7 +219,7 @@ abstract class MixinSplits {
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddTickEventServer(CallbackInfo ci) {
+    private static void odinextras$splitsAddOnEvents(CallbackInfo ci) {
         EventBus.INSTANCE.registerListener(
                 Splits.class,
                 TickEvent.Server.class,
@@ -212,7 +229,7 @@ abstract class MixinSplits {
                     if (startTicking) {
                         serverTicks++;
 
-                        timeLost = formatTime((System.currentTimeMillis() - startTimeMs) - (serverTicks * 50))
+                        timeLost = formatTime((System.currentTimeMillis() - startTimeMs) - (serverTicks * 50L), 2);
                     }
                     if (startTickingStorm) {
                         serverTicksStorm++;
@@ -220,10 +237,7 @@ abstract class MixinSplits {
                     return null;
                 }
         );
-    }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddTickLevelEventLoad(CallbackInfo ci) {
         EventBus.INSTANCE.registerListener(
                 Splits.class,
                 LevelEvent.Load.class,
@@ -243,10 +257,7 @@ abstract class MixinSplits {
                     return null;
                 }
         );
-    }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private static void odinextras$tickTimersAddChatPacketEvent(CallbackInfo ci) {
         EventBus.INSTANCE.registerListener(
                 Splits.class,
                 ChatPacketEvent.class,
@@ -256,37 +267,44 @@ abstract class MixinSplits {
                     if (startOfDungeonRegex.matcher(event.getValue()).matches() || startOfKuudraRegex.matcher(event.getValue()).matches()) {
                         startTimeMs = System.currentTimeMillis();
                         startTicking = true;
-                        return;
+                        return null;
                     }
 
                     if (!sentTime && (endOfDungeonRegex.matcher(event.getValue()).matches() || endOfKuudraRegex.matcher(event.getValue()).matches())) {
                         endTimeMs = System.currentTimeMillis();
                         startTicking = false;
                         sentTime = true;
-
-                        schedule(5, true) {
-                            if (sendTimeLost == 1) modMessage("$timeLost lost to lag.");
-                            else if (sendTimeLost == 2) sendCommand("pc $timeLost lost to lag");
-                            else if (sendTimeLost == 3) {
-                                modMessage("$timeLost lost to lag.");
-                                sendCommand("pc $timeLost lost to lag");
+                        schedule(5, true, () -> {
+                            if (sendTimeLost.getValue() == 1) modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
+                            else if (sendTimeLost.getValue() == 2) sendCommand("pc " + timeLost + " lost to lag");
+                            else if (sendTimeLost.getValue() == 3) {
+                                modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
+                                sendCommand("pc " + timeLost + " lost to lag");
                             }
-                        }
-                    }
+                            if (stormStartRegex.matcher(event.getValue()).matches()) {
+                                startTimeStormMs = System.currentTimeMillis();
+                                startTickingStorm = true;
+                                return null;
+                            }
 
-                    if (stormStartRegex.matcher(event.getValue()).matches()) {
-                        startTimeStormMs = System.currentTimeMillis();
-                        startTickingStorm = true;
-                        return;
-                    }
-
-                    if (stormEnrageRegex.matcher(event.getValue()).matches()) {
-                        endTimeStormMs = System.currentTimeMillis();
-                        startTickingStorm = false;
+                            if (stormEnrageRegex.matcher(event.getValue()).matches()) {
+                                endTimeStormMs = System.currentTimeMillis();
+                                startTickingStorm = false;
+                            }
+                            return null;
+                        });
                     }
                     return null;
                 }
         );
     }
+
+    @Unique
+    private static int getMaxSplitsWidth() {
+        List<Split> splits = SplitsManager.INSTANCE.getCurrentSplits().getSplits();
+        if (!splits.isEmpty()) splits.removeLast();
+        else return 50;
+
+        return splits.stream().mapToInt(split -> getStringWidth(split.getName())).max().orElse(50);
+    }
 }
-*/
