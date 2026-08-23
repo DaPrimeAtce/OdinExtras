@@ -1,16 +1,16 @@
 package com.daprimeatce.odinextras.features.impl.skyblock
 
+import com.daprimeatce.odinextras.utils.RegexUtils
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
+import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.ChatPacketEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.ModuleManager
 import com.odtheking.odin.utils.modMessage
-import com.daprimeatce.odinextras.utils.RegexUtils
-import com.google.gson.JsonObject
-import com.google.gson.JsonArray
-import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -76,6 +76,10 @@ object ChatLogger : Module(
         PRIVATE_TO
     }
 
+    fun getIntFromRGB(r: Int, g: Int, b: Int): Int {
+        return (r shl 16) or (g shl 8) or b
+    }
+
     private val client: HttpClient = HttpClient.newHttpClient()
 
     private fun sendEmbed(player: String, message: String, channel: Channel) {
@@ -87,10 +91,10 @@ object ChatLogger : Module(
         val embed = JsonObject().apply {
             add("author", playerObj)
             addProperty("color", when (channel) {
-                Channel.PRIVATE_FROM -> 16711935
-                Channel.PRIVATE_TO -> 16711935
-                Channel.GUILD -> 32768
-                Channel.PARTY -> 255
+                Channel.PRIVATE_FROM -> getIntFromRGB(255, 0, 255)
+                Channel.PRIVATE_TO -> getIntFromRGB(255, 0, 255)
+                Channel.GUILD -> getIntFromRGB(0, 255, 0)
+                Channel.PARTY -> getIntFromRGB(0, 0, 255)
             })
             addProperty("description", message)
             addProperty("timestamp", Instant.now().toString())
