@@ -12,13 +12,16 @@ import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.utils.skyblock.Split;
 import com.odtheking.odin.utils.skyblock.SplitsManager;
 import net.minecraft.client.Minecraft;
+
 import kotlin.Pair;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -301,7 +304,7 @@ abstract class MixinSplits {
 
     @Unique
     private static int getMaxSplitsWidth() {
-        List<Split> splits = SplitsManager.INSTANCE.getCurrentSplits().getSplits();
+        List<Split> splits = new ArrayList<>(SplitsManager.INSTANCE.getCurrentSplits().getSplits());
         if (!splits.isEmpty()) splits.removeLast();
         else return 50;
 
