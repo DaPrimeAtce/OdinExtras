@@ -32,7 +32,7 @@ object OdinExtras : ClientModInitializer {
             TeammateDeaths, TeammateNametags,   // Dungeon
             KuudraEatenTimer,   // Kuudra
             CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
-            ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ExtraSplits, ServerAlert   // Skyblock
+            ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ServerAlert   // Skyblock
         )
 
         // Registering too early uses default values rather than values stored in the config
