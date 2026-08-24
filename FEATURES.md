@@ -20,4 +20,4 @@
 - Server Alert: Sends a warning if you rejoin a server you were previously in. 
 - Total Time, Time Lost to Lag, and Storm DPS Splits timers (added into base Splits module)
 ## Nether:
-- Kuudra Eaten Timer: Renders a timer for how long until the player is eaten by kuudra.
+- Kuudra Eaten Timer: Renders a timer for how long until the player is eaten by kuudra. 
