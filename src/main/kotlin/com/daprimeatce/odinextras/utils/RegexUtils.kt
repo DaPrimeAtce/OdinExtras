@@ -12,6 +12,7 @@ object RegexUtils {
     val endOfDungeonRegex = Regex("^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$")
     val startOfKuudraRegex = Regex("^\\[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!$")
     val endOfKuudraRegex = Regex("^\\[NPC] Elle: Good job everyone. A hard fought battle come to an end. Let's get out of here before we run into any more trouble!$")
+    val playerDeathRegex = Regex("^ (☠) ?(\\w{1,16}) ?(.+) (and became a ghost\\.)$")
 
     // Slayer regex
     val slayerSpawnerRegex = Regex("^Spawned by: (.*)$")
@@ -20,7 +21,7 @@ object RegexUtils {
     val slayerCancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
 
     // Misc regex
-    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)$)")
+    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)\$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)\$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|Co-op > (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|(Party Finder > (\\[[^]]*?])? ?(\\w{1,16}) joined the (dungeon group!|group!) \\(?(\\w{1,7}) Level \\w{1,60}\\)\$))")
     val serverRegex = Regex("^Sending to server (.*)...$")
 }
 

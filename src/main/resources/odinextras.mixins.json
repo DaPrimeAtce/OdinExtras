@@ -3,8 +3,7 @@
   "minVersion": "0.8",
   "package": "com.daprimeatce.odinextras.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   },
@@ -12,10 +11,17 @@
     "requireAnnotations": true
   },
   "client": [
-    "MixinItemEntityRenderer",
     "MixinAvatarRenderer",
-    "MixinResourcePack",
+    "MixinChatUtils",
+    "MixinClickGUIModule",
+    "MixinItemEntityRenderer",
+    "MixinLeapMenu",
+    "MixinLeapMenuSendCommand",
+    "MixinMapInfo",
+    "MixinMapInfoOnScoreUpdateEvent",
     "MixinPanel",
-    "MixinClickGUIModule"
+    "MixinModuleManager",
+    "MixinTickTimers",
+    "MixinSplits"
   ]
 }

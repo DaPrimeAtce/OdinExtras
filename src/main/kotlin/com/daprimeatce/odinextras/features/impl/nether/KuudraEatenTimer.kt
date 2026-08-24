@@ -7,9 +7,9 @@ import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.textDim
+import com.odtheking.odin.utils.skyblock.KuudraUtils
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
 import net.minecraft.world.effect.MobEffects
-import com.odtheking.odin.utils.skyblock.KuudraUtils
 
 object KuudraEatenTimer : Module(
     name = "Kuudra Eaten Timer",
