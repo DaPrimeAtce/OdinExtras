@@ -284,7 +284,7 @@ object ChatCommandsPlus : Module(
                 if (dice) channelMessage((1..6).random(), name, channel)
 
             "!kickrandom" ->
-                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader()) sendCommand(
+                if (kickRandom && channel == ChatChannel.PARTY && PartyUtils.isLeader() && PartyUtils.members.size != 1) sendCommand(
                     "p kick ${
                         PartyUtils.members.filterNot { it == mc.player?.name?.string }.random()
                     }"
