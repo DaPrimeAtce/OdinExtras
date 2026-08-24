@@ -25,6 +25,7 @@ object ChatLogger : Module(
     private val party by BooleanSetting("Party Messages", true, desc = "Log party messages.")
     private val guild by BooleanSetting("Guild Messages", true, desc = "Log guild messages.")
     private val private by BooleanSetting("Private Messages", true, desc = "Log private messages.")
+    private val coop by BooleanSetting("Co-op Messages", true, desc = "Log co-op messages.")
     private val partyfinder by BooleanSetting("Party Finder", true, desc = "Log Party Finder join messages.")
     private var webhookUrl by StringSetting("Webhook URL", "", 200 ,desc = "Webhook to log messages through.")
     private var webhookName by StringSetting("Webhook Name", "OdinExtras", 32, desc = "The name of the webhook.")
@@ -52,13 +53,14 @@ object ChatLogger : Module(
                 "Guild" -> Channel.GUILD
                 "From" -> Channel.PRIVATE_FROM
                 "To" -> Channel.PRIVATE_TO
+                "Co-op" -> Channel.COOP
                 "Party Finder" -> Channel.PARTY_FINDER_JOIN
                 else -> null
             }
 
             if (channel == null) return@on
-            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: result.groups[14]?.value ?: return@on
-            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[12]?.value ?: return@on
+            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: result.groups[13]?.value ?: result.groups[17]?.value ?: return@on
+            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[14]?.value ?: result.groups[15]?.value ?:return@on
 
             if (ign == "stash") return@on
 
@@ -68,6 +70,7 @@ object ChatLogger : Module(
             if (guild && channel == Channel.GUILD) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_FROM) sendEmbed(ign, msg, channel)
             if (private && channel == Channel.PRIVATE_TO) sendEmbed(ignSelf, ("To $ign: $msg"), channel)
+            if (coop && channel == Channel.COOP) sendEmbed(ign, msg, channel)
             if (partyfinder && channel == Channel.PARTY_FINDER_JOIN) sendEmbed(ign, msg, channel)
         }
     }
@@ -77,6 +80,7 @@ object ChatLogger : Module(
         GUILD,
         PRIVATE_FROM,
         PRIVATE_TO,
+        COOP,
         PARTY_FINDER_JOIN
     }
 
@@ -99,7 +103,8 @@ object ChatLogger : Module(
                 Channel.PRIVATE_TO -> getIntFromRGB(255, 0, 255)
                 Channel.GUILD -> getIntFromRGB(0, 255, 0)
                 Channel.PARTY -> getIntFromRGB(0, 0, 255)
-                Channel.PARTY_FINDER_JOIN -> getIntFromRGB(255, 147, 0)
+                Channel.COOP -> getIntFromRGB(83, 255, 255)
+                Channel.PARTY_FINDER_JOIN -> getIntFromRGB(251, 168, 0)
             })
             addProperty("description", message)
             addProperty("timestamp", Instant.now().toString())
