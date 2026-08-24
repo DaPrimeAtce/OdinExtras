@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "odinextras",
+  "version": "${version}",
+  "name": "OdinExtras",
+  "description": "An addon to Odin with various features for Hypixel Skyblock.",
+  "authors": ["DaPrimeAtce, 8joh"],
+  "contact": {},
+  "license": "BSD-3-Clause",
+  "icon": "assets/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "com.daprimeatce.odinextras.OdinExtras"
+      }
+    ]
+  },
+  "mixins": [
+    "odinextras.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "minecraft": "~${minecraft_version}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_version}",
+    "odin": "*"
+  }
+}
