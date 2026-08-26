@@ -15,10 +15,14 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.TextColor
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.util.StringDecomposer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import java.util.concurrent.ConcurrentHashMap
+
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 object SlayerDisplay : Module(
     name = "Slayer Display",
@@ -41,7 +45,10 @@ object SlayerDisplay : Module(
         "Riftstalker Bloodfiend"
     )
 
-    private val hud by HUD(name, "Displays slayer info in the HUD.") {
+    private val colorCodeField = ChatFormatting::class.java.getDeclaredField("code").apply { isAccessible = true }
+
+
+        private val hud by HUD(name, "Displays slayer info in the HUD.") {
         if (it) {
             textDim("§c03:00", 0, 0)
             val exampleWidth = textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
@@ -84,7 +91,7 @@ object SlayerDisplay : Module(
         onReceive<ClientboundAddEntityPacket> {
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@onReceive
 
-            if (type == EntityType.ARMOR_STAND) {
+            if (type == EntityTypes.ARMOR_STAND) {
                 pendingStands[id] = currentTick
             }
         }
@@ -143,8 +150,10 @@ object SlayerDisplay : Module(
         timeStand = armorStands.filter { it.displayName.string.contains(":") && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
     }
 
+    private val colors = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
+
     private val colorToFormatting: Map<Int, ChatFormatting> =
-        ChatFormatting.entries.filter { it.isColor }.associateBy { it.color ?: -1 }
+        ChatFormatting.entries.filter { colorCodeField.get(it) as Char in colors}.associateBy { TextColor.fromLegacyFormat(it)?.value ?: -1 }
 
     fun Component.coloredString(): String {
         val builder = StringBuilder()

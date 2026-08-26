@@ -21,8 +21,8 @@ object ArrowPoisonDisplay : Module(
         var widthToxic = textDim("${color(numToxic)}${numToxic}x", 20, 0).first
         var widthTwilight = textDim("${color(numTwilight)}${numTwilight}x", 20, mc.font.lineHeight + 5).first
 
-        drawItemStack(ItemStack(Items.LIME_DYE), 0, -4)
-        drawItemStack(ItemStack(Items.PURPLE_DYE), 0, mc.font.lineHeight)
+        drawItemStack(ItemStack(Items.DYE.lime), 0, -4)
+        drawItemStack(ItemStack(Items.DYE.purple), 0, mc.font.lineHeight)
 
         widthTwilight.coerceAtMost(widthToxic) + 20 to mc.font.lineHeight * 2 + 5
     }

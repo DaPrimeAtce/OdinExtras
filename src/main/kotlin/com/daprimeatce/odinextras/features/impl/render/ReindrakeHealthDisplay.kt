@@ -22,7 +22,7 @@ object ReindrakeHealthDisplay : Module(
     description = "Displays the health of Reindrakes."
 ) {
     private var dragons = mutableMapOf<EnderDragon, Int>()
-    private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
+    private val size by NumberSetting("Text Scale", 1f, 0.5..2.0, 0.1f, desc = "Scale of health display.")
 
     init {
         onReceive<ClientboundSetEntityDataPacket> {

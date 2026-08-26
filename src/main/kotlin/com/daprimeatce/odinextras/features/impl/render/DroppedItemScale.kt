@@ -7,5 +7,5 @@ object DroppedItemScale : Module(
     name = "Dropped Item Scale",
     description = "Lets you change the size of dropped items."
 ) {
-    val scale by NumberSetting("Dropped Item Scale", 1f, 0.5f, 5f, 0.1f, desc = "Scale of dropped items.")
+    val scale by NumberSetting("Dropped Item Scale", 1f, 0.5..5.0, 0.1f, desc = "Scale of dropped items.")
 }

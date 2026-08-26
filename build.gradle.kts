@@ -6,8 +6,8 @@ plugins {
     `maven-publish`
 }
 
-group = property("maven_group")!!
-version = property("mod_version")!!
+group = property("maven_group") as String
+version = property("mod_version") as String
 
 
 repositories {
@@ -16,15 +16,15 @@ repositories {
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
     maven("https://maven.terraformersmc.com/")
     maven("https://api.modrinth.com/maven")
-    ivy {
-        url = uri("https://github.com/odtheking/Odin/releases/download")
-        patternLayout {
-            artifact("[revision]/[artifact]-[revision].[ext]")
-        }
-        metadataSources {
-            artifact()
-        }
-    }
+//    ivy {
+//        url = uri("https://github.com/odtheking/Odin/releases/download")
+//        patternLayout {
+//            artifact("[revision]/[artifact]-[revision].[ext]")
+//        }
+//        metadataSources {
+//            artifact()
+//        }
+//    }
 }
 
 dependencies {
@@ -35,17 +35,25 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
 
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
-    implementation("com.github.odtheking:Odin:${property("odin_version")}")
+    // implementation("com.github.odtheking:Odin:${property("odin_version")}")
+    implementation(files("libs/Odin-0.3.1-26.2.jar"))
 
-    implementation("com.github.stivais:Commodore:${property("commodore_version")}")
+    compileOnly("com.terraformersmc:modmenu:${property("modmenu_version")}")
 
-    property("minecraft_lwjgl_version").let { lwjglVersion ->
-        implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
-
-        listOf("windows", "linux", "macos", "macos-arm64").forEach { os ->
-            implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-$os")
-        }
+    // implementation("com.github.stivais:Commodore:${property("commodore_version")}")
+    property("commodore_version").let {
+        implementation("com.github.stivais:Commodore:$it")
+        include("com.github.stivais:Commodore:$it")
     }
+
+//    property("minecraft_lwjgl_version").let { lwjglVersion ->
+//        implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
+//
+//        listOf("windows", "linux", "macos", "macos-arm64").forEach { os ->
+//            implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-$os")
+//        }
+//    }
+
 }
 
 loom {

@@ -15,7 +15,9 @@ object KuudraEatenTimer : Module(
     name = "Kuudra Eaten Timer",
     description = "Timer until the stunner is eaten."
 ) {
-    private val select by SelectorSetting("Timer Type", "Milliseconds", listOf("Milliseconds", "Ticks"), desc = "Type of timer.")
+    enum class TimerTypes { TICKS, MILLISECONDS }
+    private val select by SelectorSetting("Timer Type", TimerTypes.MILLISECONDS, "Type of timer.", listOf(
+        TimerTypes.MILLISECONDS, TimerTypes.TICKS))
     private val cooldownTicks = 100 // In case blindness is applied again for some reason
 
     private var ticks = -1
@@ -23,11 +25,11 @@ object KuudraEatenTimer : Module(
     @Suppress("unused")
     private val hud by HUD(name, desc = "Shows time remaining until eaten.") {
         if (it) {
-            textDim("§bEaten in " + if (select == 0) "§a500ms" else "§a10t", 0, 0)
+            textDim("§bEaten in " + if (select == TimerTypes.MILLISECONDS) "§a500ms" else "§a10t", 0, 0)
         } else if (KuudraUtils.inKuudra && ticks > cooldownTicks) {
             val displayTicks = ticks - cooldownTicks
             var text = "§bEaten in " + color(displayTicks)
-            text += if (select == 0) "${(displayTicks) * 50}ms" else "${displayTicks}t"
+            text += if (select == TimerTypes.MILLISECONDS) "${(displayTicks) * 50}ms" else "${displayTicks}t"
 
             textDim(text, 0, 0)
         } else {

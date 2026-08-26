@@ -16,6 +16,7 @@ import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.toFixed
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
@@ -26,7 +27,7 @@ object VoidgloomLasers : Module(
     name = "Voidgloom Lasers",
     description = "Displays a timer for when the lasers of a voidgloom will end."
 ) {
-    private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of timer.")
+    private val size by NumberSetting("Text Scale", 1f, 0.5..2.0, 0.1f, desc = "Scale of timer.")
 
     private var endermen = mutableMapOf<EnderMan, Int>()
     private var serverTicks = 0
@@ -50,7 +51,7 @@ object VoidgloomLasers : Module(
 
             for (id in passengers) {
                 val entity = mc.level?.getEntity(id) as? EnderMan ?: return@onReceive
-                if (entity.type == EntityType.ENDERMAN && entity !in endermen) endermen[entity] = 162
+                if (entity.type == EntityTypes.ENDERMAN && entity !in endermen) endermen[entity] = 162
             }
         }
 
@@ -60,7 +61,7 @@ object VoidgloomLasers : Module(
                 val emanEntity = eman.asLivingEntity() ?: return@forEach
 
                 // Make sure this isn't basically esp
-                val camera = mc.gameRenderer.mainCamera.blockPosition()
+                val camera = mc.gameRenderer.mainCamera().blockPosition()
                 val target = emanEntity.eyePosition
                 val player = mc.player?.asLivingEntity() ?: return@on
                 val clipContext = ClipContext(Vec3(camera), target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)

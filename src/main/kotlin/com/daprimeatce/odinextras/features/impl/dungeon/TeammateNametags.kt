@@ -22,7 +22,7 @@ object TeammateNametags : Module(
     name = "Teammate Nametags",
     description = "Replaces the vanilla Skyblock nametags with custom, Dungeons class-based nametags."
 ) {
-    private val textScale by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of the nametag text.")
+    private val textScale by NumberSetting("Text Scale", 1f, 0.5..2.0, 0.1f, desc = "Scale of the nametag text.")
 
     private fun DungeonPlayer.resolveEntity(): Player? {
         entity?.takeUnless { it.isRemoved }?.let { return it }
