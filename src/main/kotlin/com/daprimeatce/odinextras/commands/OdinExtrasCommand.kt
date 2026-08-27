@@ -11,7 +11,7 @@ import com.odtheking.odin.utils.modMessage
 val odinExtrasCommand = Commodore("oe", "odinextras") {
 
     runs {
-        mc.schedule { mc.setScreenAndShow(ClickGUI) }
+        mc.schedule { mc.gui.setScreen(ClickGUI) }
     }
 
 //    literal("chatemotes").runs {
@@ -21,6 +21,6 @@ val odinExtrasCommand = Commodore("oe", "odinextras") {
 //    }
 
     literal("hud", "gui").runs {
-        mc.schedule { mc.setScreenAndShow(HudManager) }
+        mc.schedule { mc.gui.setScreen(HudManager) }
     }
 }

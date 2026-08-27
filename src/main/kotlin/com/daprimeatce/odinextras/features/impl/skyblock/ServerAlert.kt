@@ -13,6 +13,7 @@ import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.playSoundSettings
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.mojang.authlib.minecraft.client.MinecraftClient
 import com.odtheking.odin.utils.modMessage
 import net.minecraft.network.chat.Component
 import java.time.Instant
@@ -48,8 +49,8 @@ object ServerAlert : Module(
                         modMessage("Recently left $currentServer §a${formatTime(secondsSince * 1000, 0)} §rago.") // formatTime is in milliseconds
                         playSoundSettings(soundSettings())
                         if (title) {
-                            mc.gui.setTimes(0, 40, 20)
-                            mc.gui.setTitle(Component.literal("§cRecent Server"))
+                            mc.gui.hud.setTimes(0, 40, 20)
+                            mc.gui.hud.setTitle(Component.literal("§cRecent Server"))
                         }
                     }
                 }
