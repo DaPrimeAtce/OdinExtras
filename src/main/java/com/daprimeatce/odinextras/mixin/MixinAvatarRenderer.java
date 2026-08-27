@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AvatarRenderer.class)
 public class MixinAvatarRenderer {
     @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/Avatar;D)Z", at = @At("HEAD"), cancellable = true)
-    private void odinextras$hideTeammateNametag(Avatar avatar, double distanceSquared, CallbackInfoReturnable<Boolean> cir) {
-        if (TeammateNametags.shouldHideVanillaNametag(avatar)) cir.setReturnValue(false);
+    private void odinextras$hideTeammateNametag(Avatar entity, double distanceToCameraSq, CallbackInfoReturnable<Boolean> cir) {
+        if (TeammateNametags.shouldHideVanillaNametag(entity)) cir.setReturnValue(false);
     }
 }

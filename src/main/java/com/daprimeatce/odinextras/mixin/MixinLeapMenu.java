@@ -23,11 +23,12 @@ abstract class MixinLeapMenu implements AccessorLeapMenu {
                 "Leap Message",
                 "Leaped to {name}!",
                 128,
-                "The message to send when leaping to a player. Use \"{name}\" for specific player names."
+                "The message to send when leaping to a player. Use \"{name}\" for specific player names.",
+                "Leaped to {name}!"
         );
         Setting.Companion.withDependency(StateSharedMixinLeapMenu.odinextras$customLeapMessage, () -> ((AccessorLeapMenu)(Object) LeapMenu.INSTANCE).odinextras$getLeapAnnounce());
     }
-//
+
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void odinextras$reorderLeapMenu(CallbackInfo ci) {
         LinkedHashMap<String, Setting<?>> settings = LeapMenu.INSTANCE.getSettings();

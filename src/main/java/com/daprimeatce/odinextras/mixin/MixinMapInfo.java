@@ -48,7 +48,8 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "Custom Title",
                 "&a300 Score",
                 64,
-                "What to render when reaching 300 score. Use \"&\" for color codes."
+                "What to render when reaching 300 score. Use \"&\" for color codes.",
+                "&a300 Score"
         );
         Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
@@ -69,7 +70,8 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "Custom Message",
                 "300 Score Reached!",
                 64,
-                "What to send when reaching 300 score."
+                "What to send when reaching 300 score.",
+                "300 Score Reached!"
         );
         Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
@@ -101,7 +103,8 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "Custom Title",
                 "270 Score",
                 64,
-                "What to render when reaching 270 score. Use \"&\" for color codes."
+                "What to render when reaching 270 score. Use \"&\" for color codes.",
+                "270 Score"
         );
         Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
@@ -122,7 +125,8 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "Custom Message",
                 "270 Score Reached!",
                 64,
-                "What to send when reaching 270 score."
+                "What to send when reaching 270 score.",
+                "270 Score Reached!"
         );
         Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }

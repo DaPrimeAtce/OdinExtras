@@ -45,7 +45,7 @@ abstract class MixinSplits {
     @Unique
     private static HUDSetting timeLostToLag;
     @Unique
-    private static SelectorSetting sendTimeLost;
+    private static SelectorSetting<TimeLostSelectorSettings> sendTimeLost;
     @Unique
     private static HUDSetting stormDps;
 
@@ -82,6 +82,8 @@ abstract class MixinSplits {
     private static final Pattern stormStartRegex = RegexUtils.INSTANCE.getStormStartRegex().toPattern();
     @Unique
     private static final Pattern stormEnrageRegex = RegexUtils.INSTANCE.getStormEnrageRegex().toPattern();
+
+    private enum TimeLostSelectorSettings { NONE, LOCAL, PARTY }
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$addExtraSplitsTimers(CallbackInfo ci) {
@@ -159,11 +161,11 @@ abstract class MixinSplits {
                 }
         );
 
-        sendTimeLost = new SelectorSetting(
+        sendTimeLost = new SelectorSetting<>(
                 "Send Time Lost",
-                "Local",
-                List.of("None", "Local", "Party"),
-                "Sends to the chat the run time lost to lag."
+                TimeLostSelectorSettings.LOCAL,
+                "Sends to the chat the run time lost to lag.",
+                List.of(TimeLostSelectorSettings.NONE, TimeLostSelectorSettings.LOCAL, TimeLostSelectorSettings.PARTY)
         );
         Setting.Companion.withDependency(sendTimeLost, () -> timeLostToLag.isEnabled());
 
@@ -279,8 +281,8 @@ abstract class MixinSplits {
                         startTicking = false;
                         sentTime = true;
                         schedule(5, true, () -> {
-                            if (sendTimeLost.getValue() == 1) modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
-                            else if (sendTimeLost.getValue() == 2) sendCommand("pc " + timeLost + " lost to lag");
+                            if (sendTimeLost.getValue() == TimeLostSelectorSettings.LOCAL) modMessage(timeLost + " lost to lag.", "§3Odin§aExtras §8»§r ", null);
+                            else if (sendTimeLost.getValue() == TimeLostSelectorSettings.PARTY) sendCommand("pc " + timeLost + " lost to lag");
                             return null;
                         });
                     }
