@@ -270,6 +270,9 @@ object ChatCommandsPlus : Module(
         }
 
         when (words[0]) {
+            "!help" ->
+                if (channel == ChatChannel.PARTY) sendCommand("pc Commands: ${help.filterValues { it }.keys.joinToString(", ")}")
+
             "hi" ->
                 if (hi && channel == ChatChannel.PARTY && name != mc.player?.name?.string) channelMessage(
                     "bye",
@@ -322,7 +325,6 @@ object ChatCommandsPlus : Module(
             }
         }
 
-
         for (command in commands) {
             if (command.requiresLeader && !PartyUtils.isLeader()) continue
             if (channel in command.channels && commandMatches(command.keywords, words[0])) {
@@ -342,6 +344,14 @@ object ChatCommandsPlus : Module(
             ChatChannel.PRIVATE -> sendCommand("msg $name $message")
         }
     }
+
+    val help = mapOf(
+    "allinv" to allinv.isNotEmpty(), "inv" to inv.isNotEmpty(), "warp" to warp.isNotEmpty(), "transfer" to transfer.isNotEmpty(), "disband" to disband.isNotEmpty(), "kick" to kick.isNotEmpty(),
+    "reinv" to reinv.isNotEmpty(), "tyfr" to tyfr.isNotEmpty(), "boop" to boop.isNotEmpty(), "cf" to cf.isNotEmpty(), "ping" to ping.isNotEmpty(), "tps" to tps.isNotEmpty(),
+    "fps" to fps.isNotEmpty(), "dt" to dt.isNotEmpty(), "undt" to undt.isNotEmpty(), "time" to time.isNotEmpty(), "demote" to demote.isNotEmpty(), "promote" to promote.isNotEmpty(),
+    "kickoffline" to kickOffline.isNotEmpty(), "area" to location.isNotEmpty(), "holding" to holding.isNotEmpty(),
+    "hi" to hi, "8ball" to eightball, "dice" to dice, "kickrandom" to kickRandom, "rng" to rng, "f1-m7 / t1-t5" to qInstance
+    )
 
     private val responses = arrayOf(
         "It is certain.", "It is decidedly so.", "Without a doubt.",
@@ -390,7 +400,7 @@ object ChatCommandsPlus : Module(
         ":skull:" to ChatEmote("☠", false),
         ":bum:" to ChatEmote("♿", false),
 
-        ":panda:" to ChatEmote("70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)", false),
+        ":xlpxnda:" to ChatEmote("70sbloodcamp completed a device! (7/7) (100.248s | 100.248s)", false),
         ":x:" to ChatEmote(":no:", false),
         ":wheelchair:" to ChatEmote("♿", false)
     )
