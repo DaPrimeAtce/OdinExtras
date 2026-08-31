@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.mixin;
 
-import com.daprimeatce.odinextras.accessor.AccessorMapInfo;
+import com.daprimeatce.odinextras.mixin.accessor.AccessorMapInfo;
 import com.daprimeatce.odinextras.state.StateSharedMixinMapInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.odtheking.odin.clickgui.settings.Setting;
@@ -14,7 +14,6 @@ import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -27,12 +26,6 @@ import static com.odtheking.odin.utils.PlayerUtilsKt.alert;
 @Mixin(MapInfo.class)
 @SuppressWarnings("unused")
 abstract class MixinMapInfo implements AccessorMapInfo {
-    @Invoker("getScoreTitle")
-    public abstract boolean odinextras$getScoreTitle();
-
-    @Invoker("getPrintWhenScore")
-    public abstract boolean odinextras$getPrintWhenScore();
-
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$add300ScoreDropdownSetting(CallbackInfo ci) {
         StateSharedMixinMapInfo.odinextras$score300Dropdown = new DropdownSetting(

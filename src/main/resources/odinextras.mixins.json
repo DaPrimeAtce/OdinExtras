@@ -22,6 +22,9 @@
     "MixinPanel",
     "MixinModuleManager",
     "MixinTickTimers",
-    "MixinSplits"
+    "MixinSplits",
+    "accessor.AccessorSplitsManager",
+    "accessor.AccessorLeapMenu",
+    "accessor.AccessorMapInfo"
   ]
 }
