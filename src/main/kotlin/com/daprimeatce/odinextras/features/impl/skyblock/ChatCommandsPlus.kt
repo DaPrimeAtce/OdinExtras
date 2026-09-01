@@ -345,12 +345,12 @@ object ChatCommandsPlus : Module(
         }
     }
 
-    val help = mapOf(
-    "allinv" to allinv.isNotEmpty(), "inv" to inv.isNotEmpty(), "warp" to warp.isNotEmpty(), "transfer" to transfer.isNotEmpty(), "disband" to disband.isNotEmpty(), "kick" to kick.isNotEmpty(),
-    "reinv" to reinv.isNotEmpty(), "tyfr" to tyfr.isNotEmpty(), "boop" to boop.isNotEmpty(), "cf" to cf.isNotEmpty(), "ping" to ping.isNotEmpty(), "tps" to tps.isNotEmpty(),
-    "fps" to fps.isNotEmpty(), "dt" to dt.isNotEmpty(), "undt" to undt.isNotEmpty(), "time" to time.isNotEmpty(), "demote" to demote.isNotEmpty(), "promote" to promote.isNotEmpty(),
-    "kickoffline" to kickOffline.isNotEmpty(), "area" to location.isNotEmpty(), "holding" to holding.isNotEmpty(),
-    "hi" to hi, "8ball" to eightball, "dice" to dice, "kickrandom" to kickRandom, "rng" to rng, "f1-m7 / t1-t5" to qInstance
+    val help get() = mapOf(
+        "allinv" to allinv.isNotEmpty(), "inv" to inv.isNotEmpty(), "warp" to warp.isNotEmpty(), "transfer" to transfer.isNotEmpty(), "disband" to disband.isNotEmpty(), "kick" to kick.isNotEmpty(),
+        "reinv" to reinv.isNotEmpty(), "tyfr" to tyfr.isNotEmpty(), "boop" to boop.isNotEmpty(), "cf" to cf.isNotEmpty(), "ping" to ping.isNotEmpty(), "tps" to tps.isNotEmpty(),
+        "fps" to fps.isNotEmpty(), "dt" to dt.isNotEmpty(), "undt" to undt.isNotEmpty(), "time" to time.isNotEmpty(), "demote" to demote.isNotEmpty(), "promote" to promote.isNotEmpty(),
+        "kickoffline" to kickOffline.isNotEmpty(), "area" to location.isNotEmpty(), "holding" to holding.isNotEmpty(),
+        "hi" to hi, "8ball" to eightball, "dice" to dice, "kickrandom" to kickRandom, "rng" to rng, "f1-m7 / t1-t5" to qInstance
     )
 
     private val responses = arrayOf(
