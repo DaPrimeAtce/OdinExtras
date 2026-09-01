@@ -5,7 +5,7 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
-import com.odtheking.odin.events.ChatPacketEvent
+import com.odtheking.odin.events.ChatMessageEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
@@ -55,6 +55,7 @@ object ChatCommandsPlus : Module(
     private val autoConfirm by BooleanSetting("Auto Confirm Invite", true, desc = "Removes the need to confirm a party invite with the !invite command.").withDependency { booleanSettings }
     private val rng by BooleanSetting("RNG", true, desc = "Will roll from 1 or a given min to a given max, inclusive.").withDependency { booleanSettings }
     private val qInstance by BooleanSetting("Queue Instance", true, desc = "Queue instance commands.").withDependency { booleanSettings }
+    private val qInstanceLeaderOnly by BooleanSetting("Leader Only", false, desc = "Only sends queue instance command if the user is the party leader.").withDependency { booleanSettings && qInstance}
 
     private val tyfr by StringSetting("TYFR", "", 128, desc = "Auto leave party upon saying a specified key word(s).").withDependency { stringSettings }
     private val tyfrDelay by NumberSetting("TYFR Delay", 10, 5, 40, 1, unit = "t", desc = "The delay in ticks before leaving the party.").withDependency { stringSettings && tyfr.isNotEmpty()}
@@ -198,7 +199,7 @@ object ChatCommandsPlus : Module(
     }
 
     init {
-        on<ChatPacketEvent> {
+        on<ChatMessageEvent> {
             if (!dtAlert && (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex))) {
                 if (dt.isEmpty() || dtReason.isEmpty()) return@on
                 dtAlert = true
@@ -320,6 +321,7 @@ object ChatCommandsPlus : Module(
             "!f1", "!f2", "!f3", "!f4", "!f5", "!f6", "!f7", "!m1", "!m2", "!m3", "!m4", "!m5", "!m6", "!m7", "!t1", "!t2", "!t3", "!t4", "!t5" -> {
                 if (!qInstance || channel != ChatChannel.PARTY || !PartyUtils.isLeader()) return
                 val wordsNoExclaim = message.drop(1).split(" ").map { it.lowercase() }
+                if (name != mc.player?.name?.string && qInstanceLeaderOnly) return modMessage("§eBlocked §b${wordsNoExclaim[0].lowercase()} §ecommand from non-leader party member.")
                 modMessage("§eEntering -> §b${wordsNoExclaim[0].capitalizeFirst()}")
                 sendCommand("odin ${wordsNoExclaim[0].lowercase()}")
             }

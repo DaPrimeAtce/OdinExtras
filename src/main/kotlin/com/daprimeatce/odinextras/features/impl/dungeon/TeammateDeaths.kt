@@ -7,7 +7,7 @@ import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.alert
-import com.odtheking.odin.events.ChatPacketEvent
+import com.odtheking.odin.events.ChatMessageEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
 import com.daprimeatce.odinextras.utils.RegexUtils
@@ -31,7 +31,7 @@ object TeammateDeaths: Module(
     var thresholdReached = false
 
     init {
-        on<ChatPacketEvent> {
+        on<ChatMessageEvent> {
             if (RegexUtils.playerDeathRegex.matches(value)) {
                 var ign = RegexUtils.playerDeathRegex.find(value)?.groupValues[2]
                 if (ign != null && ign == "You") ign = mc.player?.name?.string

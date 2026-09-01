@@ -43,7 +43,7 @@ abstract class MixinLeapMenu implements AccessorLeapMenu {
 abstract class MixinLeapMenuSendCommand {
     @SuppressWarnings("UnresolvedMixinReference")
     @ModifyArg(
-            method = "invoke(Lcom/odtheking/odin/events/ChatPacketEvent;)V",
+            method = "invoke(Lcom/odtheking/odin/events/ChatMessageEvent;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/odtheking/odin/utils/ChatUtilsKt;sendCommand(Ljava/lang/String;)V"

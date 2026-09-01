@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras.mixin;
 import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.daprimeatce.odinextras.mixin.accessor.AccessorSplitsManager;
 import com.odtheking.odin.clickgui.settings.impl.*;
-import com.odtheking.odin.events.ChatPacketEvent;
+import com.odtheking.odin.events.ChatMessageEvent;
 import com.odtheking.odin.events.LevelEvent;
 import com.odtheking.odin.events.TickEvent;
 import com.odtheking.odin.events.core.EventBus;
@@ -265,7 +265,7 @@ abstract class MixinSplits {
 
         EventBus.INSTANCE.registerListener(
                 Splits.class,
-                ChatPacketEvent.class,
+                ChatMessageEvent.class,
                 0,
                 false,
                 event -> {
