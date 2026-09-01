@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.features.impl.render
 
-import com.odtheking.odin.events.ChatPacketEvent
+import com.odtheking.odin.events.ChatMessageEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
@@ -41,6 +41,7 @@ object SlayerDisplay : Module(
         "Riftstalker Bloodfiend"
     )
 
+    @Suppress("unused")
     private val hud by HUD(name, "Displays slayer info in the HUD.") {
         if (it) {
             textDim("§c03:00", 0, 0)
@@ -75,7 +76,7 @@ object SlayerDisplay : Module(
             pendingStands.clear()
         }
 
-        on<ChatPacketEvent> {
+        on<ChatMessageEvent> {
             if (RegexUtils.slayerCompleteRegex.matches(value)) resetValues()
             if (RegexUtils.slayerFailRegex.matches(value)) resetValues()
             if (RegexUtils.slayerCancelRegex.matches(value)) resetValues()

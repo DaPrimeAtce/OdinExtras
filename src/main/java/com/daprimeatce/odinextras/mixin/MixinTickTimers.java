@@ -2,7 +2,7 @@ package com.daprimeatce.odinextras.mixin;
 
 import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.odtheking.odin.clickgui.settings.impl.*;
-import com.odtheking.odin.events.ChatPacketEvent;
+import com.odtheking.odin.events.ChatMessageEvent;
 import com.odtheking.odin.events.LevelEvent;
 import com.odtheking.odin.events.TickEvent;
 import com.odtheking.odin.events.core.EventBus;
@@ -166,7 +166,7 @@ abstract class MixinTickTimers {
 
         EventBus.INSTANCE.registerListener(
                 TickTimers.class,
-                ChatPacketEvent.class,
+                ChatMessageEvent.class,
                 0,
                 false,
                 event -> {

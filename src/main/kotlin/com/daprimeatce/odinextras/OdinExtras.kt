@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras
 import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
-import com.daprimeatce.odinextras.commands.odinExtrasCommand
+import com.daprimeatce.odinextras.commands.*
 import com.daprimeatce.odinextras.features.impl.skyblock.*
 import com.daprimeatce.odinextras.features.impl.nether.*
 import com.daprimeatce.odinextras.features.impl.render.*
@@ -19,7 +19,7 @@ object OdinExtras : ClientModInitializer {
         // Register commands by adding to the array
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             arrayOf(
-                odinExtrasCommand
+                odinExtrasCommand, chatCmdsPlusCommand
             ).forEach { commodore -> commodore.register(dispatcher) }
         }
 

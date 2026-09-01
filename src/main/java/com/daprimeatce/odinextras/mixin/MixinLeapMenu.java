@@ -1,12 +1,11 @@
 package com.daprimeatce.odinextras.mixin;
 
-import com.daprimeatce.odinextras.accessor.AccessorLeapMenu;
+import com.daprimeatce.odinextras.mixin.accessor.AccessorLeapMenu;
 import com.daprimeatce.odinextras.state.StateSharedMixinLeapMenu;
 import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.clickgui.settings.impl.*;
 import com.odtheking.odin.features.impl.dungeon.LeapMenu;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.LinkedHashMap;
@@ -14,8 +13,6 @@ import java.util.LinkedHashMap;
 @Mixin(LeapMenu.class)
 @SuppressWarnings("unused")
 abstract class MixinLeapMenu implements AccessorLeapMenu {
-    @Invoker("getLeapAnnounce")
-    public abstract boolean odinextras$getLeapAnnounce();
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$addLeapMessage(CallbackInfo ci) {
@@ -46,7 +43,7 @@ abstract class MixinLeapMenu implements AccessorLeapMenu {
 abstract class MixinLeapMenuSendCommand {
     @SuppressWarnings("UnresolvedMixinReference")
     @ModifyArg(
-            method = "invoke(Lcom/odtheking/odin/events/ChatPacketEvent;)V",
+            method = "invoke(Lcom/odtheking/odin/events/ChatMessageEvent;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/odtheking/odin/utils/ChatUtilsKt;sendCommand(Ljava/lang/String;)V"
