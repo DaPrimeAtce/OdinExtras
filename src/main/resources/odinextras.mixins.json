@@ -23,6 +23,7 @@
     "MixinModuleManager",
     "MixinTickTimers",
     "MixinSplits",
+    "MixinTerminalTitles",
     "accessor.AccessorSplitsManager",
     "accessor.AccessorLeapMenu",
     "accessor.AccessorMapInfo"
