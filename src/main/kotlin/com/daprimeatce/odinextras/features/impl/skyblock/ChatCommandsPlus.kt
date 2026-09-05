@@ -5,6 +5,7 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
+import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.events.ChatMessageEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
@@ -84,6 +85,7 @@ object ChatCommandsPlus : Module(
 
     private val dtReason = mutableListOf<Pair<String, String>>()
     private var dtAlert = false
+    val blacklist: MutableList<String> by ListSetting("Blacklist", mutableListOf())
 
     private lateinit var commands: List<ChatCommand>
 
@@ -221,6 +223,8 @@ object ChatCommandsPlus : Module(
 
             val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: return@on
             val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: return@on
+
+            if (isInBlacklist(ign)) return@on
 
             schedule(4) {
                 handleChatCommands(msg, ign, channel)
@@ -406,6 +410,9 @@ object ChatCommandsPlus : Module(
         ":x:" to ChatEmote(":no:", false),
         ":wheelchair:" to ChatEmote("♿", false)
     )
+
+    private fun isInBlacklist(name: String) =
+        blacklist.contains(name.lowercase())
 
     enum class ChatChannel {
         PARTY, GUILD, PRIVATE
