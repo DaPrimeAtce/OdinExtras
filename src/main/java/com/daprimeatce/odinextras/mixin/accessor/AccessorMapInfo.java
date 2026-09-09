@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin (MapInfo.class)
 public interface AccessorMapInfo {
+
     @Invoker("getScoreTitle")
     boolean odinextras$getScoreTitle();
 
