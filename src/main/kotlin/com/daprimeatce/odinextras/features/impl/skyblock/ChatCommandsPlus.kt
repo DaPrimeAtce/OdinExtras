@@ -6,7 +6,7 @@ import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
@@ -201,8 +201,8 @@ object ChatCommandsPlus : Module(
     }
 
     init {
-        on<ChatMessageEvent> {
-            if (!dtAlert && (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex))) {
+        on<MessageEvent.Chat> {
+            if (!dtAlert && (message.matches(RegexUtils.endOfDungeonRegex) || message.matches(RegexUtils.endOfKuudraRegex))) {
                 if (dt.isEmpty() || dtReason.isEmpty()) return@on
                 dtAlert = true
                 schedule(30) {
@@ -213,7 +213,7 @@ object ChatCommandsPlus : Module(
                 }
             }
 
-            val result = RegexUtils.messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(message) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "From" -> if (!privateChatCommands) return@on else ChatChannel.PRIVATE
                 "Party" -> if (!partyChatCommands)  return@on else ChatChannel.PARTY

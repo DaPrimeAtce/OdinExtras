@@ -4,7 +4,7 @@ import com.daprimeatce.odinextras.utils.RegexUtils
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.textDim
@@ -30,9 +30,9 @@ object Chat: Module(
     var implosionTime = 0L
 
     init {
-        on<ChatMessageEvent> {
+        on<MessageEvent.Chat> {
             if (implosionHud.enabled) {
-                RegexUtils.implosionRegex.find(value)?.let {
+                RegexUtils.implosionRegex.find(message)?.let {
                     enemyCount = it.groups[1]?.value
                     enemy = it.groups[2]?.value
                     damage = it.groups[3]?.value
@@ -41,11 +41,11 @@ object Chat: Module(
             }
 
             // genuine if statement of doom
-            if (hideImplosion && RegexUtils.implosionRegex.matches(value) ||
-                hideTeleport && RegexUtils.teleportRegex.matches(value) ||
-                hideInventoryFull && RegexUtils.inventoryFullRegex.matches(value) ||
-                hideRadio && RegexUtils.blaztekkRadioRegex.matches(value) ||
-                hidePickupStash && RegexUtils.pickupStashRegex.matches(value))
+            if (hideImplosion && RegexUtils.implosionRegex.matches(message) ||
+                hideTeleport && RegexUtils.teleportRegex.matches(message) ||
+                hideInventoryFull && RegexUtils.inventoryFullRegex.matches(message) ||
+                hideRadio && RegexUtils.blaztekkRadioRegex.matches(message) ||
+                hidePickupStash && RegexUtils.pickupStashRegex.matches(message))
                 cancel()
         }
     }

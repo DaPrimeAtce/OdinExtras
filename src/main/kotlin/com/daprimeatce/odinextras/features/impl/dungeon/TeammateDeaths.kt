@@ -7,7 +7,7 @@ import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.alert
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
 import com.daprimeatce.odinextras.utils.RegexUtils
@@ -31,9 +31,9 @@ object TeammateDeaths: Module(
     var thresholdReached = false
 
     init {
-        on<ChatMessageEvent> {
-            if (RegexUtils.playerDeathRegex.matches(value)) {
-                var ign = RegexUtils.playerDeathRegex.find(value)?.groupValues[2]
+        on<MessageEvent.Chat> {
+            if (RegexUtils.playerDeathRegex.matches(message)) {
+                var ign = RegexUtils.playerDeathRegex.find(message)?.groupValues[2]
                 if (ign != null && ign == "You") ign = mc.player?.name?.string
                 if (DungeonUtils.deathCount + 1 == threshold.toInt() && !thresholdReached) { // Should work assuming that tab list always updates after the chat message (which it generally should)
                     if (sendThresholdMessage && (!onlyInClear || onlyInClear && DungeonUtils.inClear)) schedule(10) {

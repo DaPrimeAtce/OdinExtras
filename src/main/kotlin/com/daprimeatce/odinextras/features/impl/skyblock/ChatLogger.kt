@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.ModuleManager
@@ -33,7 +33,7 @@ object ChatLogger : Module(
     private val privacyInfo by ListSetting("Privacy Info", mutableListOf(""))
 
     init {
-        on<ChatMessageEvent> {
+        on<MessageEvent.Chat> {
             if (!enabled || webhookUrl.isEmpty()) return@on
 
             if (privacyInfo[0] == "") {
@@ -47,7 +47,7 @@ object ChatLogger : Module(
                 return@on
             }
 
-            val result = RegexUtils.messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(message) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "Party Finder" -> Channel.PARTY_FINDER_JOIN
                 "Party" -> Channel.PARTY

@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras.mixin;
 import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.daprimeatce.odinextras.mixin.accessor.AccessorSplitsManager;
 import com.odtheking.odin.clickgui.settings.impl.*;
-import com.odtheking.odin.events.ChatMessageEvent;
+import com.odtheking.odin.events.MessageEvent;
 import com.odtheking.odin.events.LevelEvent;
 import com.odtheking.odin.events.TickEvent;
 import com.odtheking.odin.events.core.EventBus;
@@ -261,17 +261,17 @@ abstract class MixinSplits {
 
         EventBus.INSTANCE.registerListener(
                 Splits.class,
-                ChatMessageEvent.class,
+                MessageEvent.Chat.class,
                 0,
                 false,
                 event -> {
-                    if (startOfDungeonRegex.matcher(event.getValue()).matches() || startOfKuudraRegex.matcher(event.getValue()).matches()) {
+                    if (startOfDungeonRegex.matcher(event.getMessage()).matches() || startOfKuudraRegex.matcher(event.getMessage()).matches()) {
                         startTimeMs = System.currentTimeMillis();
                         startTicking = true;
                         return null;
                     }
 
-                    if (!sentTime && (endOfDungeonRegex.matcher(event.getValue()).matches() || endOfKuudraRegex.matcher(event.getValue()).matches())) {
+                    if (!sentTime && (endOfDungeonRegex.matcher(event.getMessage()).matches() || endOfKuudraRegex.matcher(event.getMessage()).matches())) {
                         endTimeMs = System.currentTimeMillis();
                         startTicking = false;
                         sentTime = true;
@@ -282,13 +282,13 @@ abstract class MixinSplits {
                         });
                     }
 
-                    if (stormStartRegex.matcher(event.getValue()).matches()) {
+                    if (stormStartRegex.matcher(event.getMessage()).matches()) {
                         startTimeStormMs = System.currentTimeMillis();
                         startTickingStorm = true;
                         return null;
                     }
 
-                    if (stormEnrageRegex.matcher(event.getValue()).matches()) {
+                    if (stormEnrageRegex.matcher(event.getMessage()).matches()) {
                         endTimeStormMs = System.currentTimeMillis();
                         startTickingStorm = false;
                         return null;

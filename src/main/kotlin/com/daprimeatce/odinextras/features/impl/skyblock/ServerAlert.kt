@@ -4,7 +4,7 @@ import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.features.Module
@@ -32,8 +32,8 @@ object ServerAlert : Module(
     private var currentServer = ""
 
     init {
-        on<ChatMessageEvent> {
-            val result = RegexUtils.serverRegex.find(value) ?: return@on
+        on<MessageEvent.Chat> {
+            val result = RegexUtils.serverRegex.find(message) ?: return@on
             val server = result.groups[1]?.value ?: return@on
             if (currentServer.isNotEmpty()) servers[currentServer] = Instant.now().epochSecond
             currentServer = server
