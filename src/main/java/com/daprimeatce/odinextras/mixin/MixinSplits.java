@@ -13,20 +13,16 @@ import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.utils.skyblock.Split;
 import com.odtheking.odin.utils.skyblock.SplitsManager;
 import net.minecraft.client.Minecraft;
-
 import kotlin.Pair;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import static com.odtheking.odin.utils.ChatUtilsKt.modMessage;
 import static com.odtheking.odin.utils.ChatUtilsKt.sendCommand;
 import static com.odtheking.odin.utils.Utils.formatTime;

@@ -31,7 +31,7 @@ object OdinExtras : ClientModInitializer {
             // no Boss category modules yet    // Boss
             TeammateDeaths, TeammateNametags,   // Dungeon
             KuudraEatenTimer,   // Kuudra
-            CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers,   // Render
+            CPSDisplay, DroppedItemScale, ReindrakeHealthDisplay, SlayerDisplay, VoidgloomLasers, Chat,   // Render
             ArrowPoisonDisplay, ChatCommandsPlus, ChatLogger, ServerAlert   // Skyblock
         )
 
