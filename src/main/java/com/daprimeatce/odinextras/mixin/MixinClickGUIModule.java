@@ -1,13 +1,15 @@
 package com.daprimeatce.odinextras.mixin;
 
 import com.daprimeatce.odinextras.state.StateSharedMixinClickGUIModule;
+import com.odtheking.odin.clickgui.ClickGUI;
 import com.odtheking.odin.clickgui.Panel;
 import com.odtheking.odin.clickgui.settings.ModuleButton;
 import com.odtheking.odin.clickgui.settings.Setting;
-import com.odtheking.odin.features.Category;
-import com.odtheking.odin.features.impl.render.ClickGUIModule;
 import com.odtheking.odin.clickgui.settings.impl.StringSetting;
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting;
+import com.odtheking.odin.utils.ui.animations.EaseOutAnimation;
+import com.odtheking.odin.features.Category;
+import com.odtheking.odin.features.impl.render.ClickGUIModule;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,12 +41,22 @@ abstract class MixinClickGUIModule {
         );
     }
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void odinextras$addDisableClickGUIAnimation(CallbackInfo ci) {
+        StateSharedMixinClickGUIModule.odinextras$disableClickGUIAnimation = new BooleanSetting(
+                "Disable Open Animation",
+                false,
+                "Disables the Click GUI opening animation."
+        );
+    }
+
     @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void odinextras$reorderLeapMenu(CallbackInfo ci) {
+    private static void odinextras$reorderClickGUIModule(CallbackInfo ci) {
         LinkedHashMap<String, Setting<?>> settings = ClickGUIModule.INSTANCE.getSettings();
 
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>(settings);
         reordered.put("Alphabetical Sorting", StateSharedMixinClickGUIModule.odinextras$alphabeticalSorting);
+        reordered.put("Disable Open Animation", StateSharedMixinClickGUIModule.odinextras$disableClickGUIAnimation);
         reordered.put("Custom GUI Scale", StateSharedMixinClickGUIModule.odinextras$clickGUIScale);
 
         settings.clear();
@@ -89,6 +101,22 @@ abstract class MixinPanel {
             this.moduleButtons = odinextras$alphabeticalOrder;
         } else {
             this.moduleButtons = odinextras$defaultOrder;
+        }
+    }
+}
+
+@Mixin(value = ClickGUI.class)
+@SuppressWarnings("unused")
+abstract class MixinClickGUI {
+    @Shadow
+    private static EaseOutAnimation openAnim;
+
+    @Inject(method = "onClose", at = @At("TAIL"))
+    private void odinextras$disableAnim(CallbackInfo ci) {
+        if (StateSharedMixinClickGUIModule.odinextras$disableClickGUIAnimation.getValue()) {
+            openAnim = new EaseOutAnimation(0);
+        } else {
+            openAnim = new EaseOutAnimation(500);
         }
     }
 }

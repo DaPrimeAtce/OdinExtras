@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.features.impl.render
 
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
@@ -76,10 +76,10 @@ object SlayerDisplay : Module(
             pendingStands.clear()
         }
 
-        on<ChatMessageEvent> {
-            if (RegexUtils.slayerCompleteRegex.matches(value)) resetValues()
-            if (RegexUtils.slayerFailRegex.matches(value)) resetValues()
-            if (RegexUtils.slayerCancelRegex.matches(value)) resetValues()
+        on<MessageEvent.Chat> {
+            if (RegexUtils.slayerCompleteRegex.matches(message)) resetValues()
+            if (RegexUtils.slayerFailRegex.matches(message)) resetValues()
+            if (RegexUtils.slayerCancelRegex.matches(message)) resetValues()
         }
 
         onReceive<ClientboundAddEntityPacket> {

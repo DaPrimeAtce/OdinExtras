@@ -3,7 +3,7 @@ package com.daprimeatce.odinextras.mixin;
 import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.daprimeatce.odinextras.mixin.accessor.AccessorSplitsManager;
 import com.odtheking.odin.clickgui.settings.impl.*;
-import com.odtheking.odin.events.ChatMessageEvent;
+import com.odtheking.odin.events.MessageEvent;
 import com.odtheking.odin.events.LevelEvent;
 import com.odtheking.odin.events.TickEvent;
 import com.odtheking.odin.events.core.EventBus;
@@ -13,20 +13,16 @@ import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.utils.skyblock.Split;
 import com.odtheking.odin.utils.skyblock.SplitsManager;
 import net.minecraft.client.Minecraft;
-
 import kotlin.Pair;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import static com.odtheking.odin.utils.ChatUtilsKt.modMessage;
 import static com.odtheking.odin.utils.ChatUtilsKt.sendCommand;
 import static com.odtheking.odin.utils.Utils.formatTime;
@@ -265,17 +261,17 @@ abstract class MixinSplits {
 
         EventBus.INSTANCE.registerListener(
                 Splits.class,
-                ChatMessageEvent.class,
+                MessageEvent.Chat.class,
                 0,
                 false,
                 event -> {
-                    if (startOfDungeonRegex.matcher(event.getValue()).matches() || startOfKuudraRegex.matcher(event.getValue()).matches()) {
+                    if (startOfDungeonRegex.matcher(event.getMessage()).matches() || startOfKuudraRegex.matcher(event.getMessage()).matches()) {
                         startTimeMs = System.currentTimeMillis();
                         startTicking = true;
                         return null;
                     }
 
-                    if (!sentTime && (endOfDungeonRegex.matcher(event.getValue()).matches() || endOfKuudraRegex.matcher(event.getValue()).matches())) {
+                    if (!sentTime && (endOfDungeonRegex.matcher(event.getMessage()).matches() || endOfKuudraRegex.matcher(event.getMessage()).matches())) {
                         endTimeMs = System.currentTimeMillis();
                         startTicking = false;
                         sentTime = true;
@@ -286,13 +282,13 @@ abstract class MixinSplits {
                         });
                     }
 
-                    if (stormStartRegex.matcher(event.getValue()).matches()) {
+                    if (stormStartRegex.matcher(event.getMessage()).matches()) {
                         startTimeStormMs = System.currentTimeMillis();
                         startTickingStorm = true;
                         return null;
                     }
 
-                    if (stormEnrageRegex.matcher(event.getValue()).matches()) {
+                    if (stormEnrageRegex.matcher(event.getMessage()).matches()) {
                         endTimeStormMs = System.currentTimeMillis();
                         startTickingStorm = false;
                         return null;

@@ -21,7 +21,13 @@ object RegexUtils {
     val slayerCancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
 
     // Misc regex
-    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)\$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)\$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|Co-op > (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|(Party Finder > (\\[[^]]*?])? ?(\\w{1,16}) joined the (dungeon group!|group!) \\(?(\\w{1,7}) Level \\w{1,60}\\)\$))")
+    val messageRegex = Regex("^(?:Party > (\\[[^]]*?])? ?(\\w{1,16})(?: [ቾ⚒])?: ?(.+)\$|Guild > (\\[[^]]*?])? ?(\\w{1,16})(?: \\[([^]]*?)])?: ?(.+)\$|(From|To) (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|Co-op > (\\[[^]]*?])? ?(\\w{1,16}): ?(.+)|(Party Finder > (\\[[^]]*?])? ?(\\w{1,16}) joined the (dungeon group!|group!) \\(?(\\w{1,7}) Level \\w{1,60}\\)$))")
     val serverRegex = Regex("^Sending to server (.*)...$")
-}
 
+    // Chat spam regex
+    val implosionRegex = Regex("^Your Implosion hit (\\d{1,3}) (enemy|enemies) for ((?:\\d{1,3},?)+(?:\\.\\d)?) damage.$")
+    val teleportRegex = Regex("^There are blocks in the way!$")
+    val inventoryFullRegex = Regex("^Inventory full\\? Don't forget to check out your Storage inside the SkyBlock Menu!$")
+    val blaztekkRadioRegex = Regex("^Your radio is weak\\. Find another enjoyer to boost it\\.$")
+    val pickupStashRegex = Regex("^ {16}>>> CLICK HERE to pick them up! <<<$|^ {1,14}\\(This totals (?:\\d{1,3},?)+ types of materials stashed!\\)$")
+}

@@ -5,7 +5,8 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.clickgui.settings.impl.ListSetting
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.MessageSentEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
@@ -43,6 +44,7 @@ object ChatCommandsPlus : Module(
     private val partyChatCommands by BooleanSetting("Party Commands", true, "Enables party chat commands.")
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
+    private val coopChatCommands by BooleanSetting("Coop Commands", true, "Enables coop chat commands.")
     private val booleanSettings by DropdownSetting("Toggle Commands", false, desc = "Enable togglable chat commands")
     private val stringSettings by DropdownSetting("Customizable Commands", false, desc = "Enable chat commands that allows custom keywords as comma separated values, eg \".allinv, allinv, ai\"")
 
@@ -84,6 +86,7 @@ object ChatCommandsPlus : Module(
 
     private val dtReason = mutableListOf<Pair<String, String>>()
     private var dtAlert = false
+    val blacklist: MutableList<String> by ListSetting("Blacklist", mutableListOf())
 
     private lateinit var commands: List<ChatCommand>
 
@@ -92,7 +95,7 @@ object ChatCommandsPlus : Module(
             ChatCommand({ allinv }, channelsOf(ChatChannel.PARTY), true) { _, _, _ ->
                 sendCommand("p settings allinvite")
             },
-            ChatCommand({ inv }, channelsOf(ChatChannel.PRIVATE),  false) { _, name, _ ->
+            ChatCommand({ inv }, channelsOf(ChatChannel.PRIVATE, ChatChannel.COOP),  false) { _, name, _ ->
                 if (autoConfirm) sendCommand("p invite $name")
                 else modMessage(
                     Component.literal("§aClick on this message to invite $name to your party!").withStyle {
@@ -127,33 +130,33 @@ object ChatCommandsPlus : Module(
                     }
                 }
             },
-            ChatCommand({ coords }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE), false) { _, name, channel ->
+            ChatCommand({ coords }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage(getPositionString(), name, channel)
             },
             ChatCommand(
                 { boop }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { words, name, _ ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { words, name, _ ->
                 if (words.size > 1 && words[1].length <= 16) sendCommand("boop ${words[1]}")
                 else sendCommand("boop $name")
             },
             ChatCommand(
                 { cf }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage(if (Math.random() < 0.5) "Heads" else "Tails", name, channel)
             },
             ChatCommand(
                 { ping }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("Ping: ${ServerUtils.currentPing}ms", name, channel)
             },
             ChatCommand(
                 { tps }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("TPS: ${ServerUtils.averageTps.toFixed(1)}", name, channel)
             },
             ChatCommand(
                 { fps }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("FPS: ${mc.fps}", name, channel)
             },
             ChatCommand({ dt }, channelsOf(ChatChannel.PARTY), false) { words, name, _ ->
@@ -171,7 +174,7 @@ object ChatCommandsPlus : Module(
             },
             ChatCommand(
                 { time }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("Time: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a (z)", Locale.ENGLISH))}", name, channel)
             },
             ChatCommand({ demote }, channelsOf(ChatChannel.PARTY), true) { words, name, _ ->
@@ -187,20 +190,20 @@ object ChatCommandsPlus : Module(
             },
             ChatCommand(
                 { location }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("Current Location: ${LocationUtils.currentArea.displayName}", name, channel)
             },
             ChatCommand(
                 { holding }, channelsOf(ChatChannel.PARTY, ChatChannel.PRIVATE,
-                ChatChannel.GUILD), false) { _, name, channel ->
+                ChatChannel.GUILD, ChatChannel.COOP), false) { _, name, channel ->
                 channelMessage("Holding: ${mc.player?.mainHandItem?.hoverName?.string?.noControlCodes ?: "Nothing :("}", name, channel)
             }
         )
     }
 
     init {
-        on<ChatMessageEvent> {
-            if (!dtAlert && (value.matches(RegexUtils.endOfDungeonRegex) || value.matches(RegexUtils.endOfKuudraRegex))) {
+        on<MessageEvent.Chat> {
+            if (!dtAlert && (message.matches(RegexUtils.endOfDungeonRegex) || message.matches(RegexUtils.endOfKuudraRegex))) {
                 if (dt.isEmpty() || dtReason.isEmpty()) return@on
                 dtAlert = true
                 schedule(30) {
@@ -211,16 +214,19 @@ object ChatCommandsPlus : Module(
                 }
             }
 
-            val result = RegexUtils.messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(message) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
                 "From" -> if (!privateChatCommands) return@on else ChatChannel.PRIVATE
                 "Party" -> if (!partyChatCommands)  return@on else ChatChannel.PARTY
                 "Guild" -> if (!guildChatCommands)  return@on else ChatChannel.GUILD
+                "Co-op" -> if (!coopChatCommands)    return@on else ChatChannel.COOP
                 else -> return@on
             }
 
-            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: return@on
-            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: return@on
+            val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: result.groups[13]?.value ?: return@on
+            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[14]?.value ?: return@on
+
+            if (isInBlacklist(ign)) return@on
 
             schedule(4) {
                 handleChatCommands(msg, ign, channel)
@@ -228,7 +234,7 @@ object ChatCommandsPlus : Module(
         }
 
         on<MessageSentEvent> {
-            if (!moreChatEmotes || (message.startsWith("/") && !listOf("/pc", "/ac", "/gc", "/msg", "/w", "/r").any { message.startsWith(it) })) return@on
+            if (!moreChatEmotes || (message.startsWith("/") && !listOf("/pc", "/ac", "/gc", "/msg", "/w", "/r", "/cc").any { message.startsWith(it) })) return@on
 
             var replaced = false
             val words = message.split(" ").toMutableList()
@@ -343,6 +349,7 @@ object ChatCommandsPlus : Module(
         when (channel) {
             ChatChannel.GUILD -> sendCommand("gc $message")
             ChatChannel.PARTY -> sendCommand("pc $message")
+            ChatChannel.COOP -> sendCommand("cc $message")
             ChatChannel.PRIVATE -> sendCommand("msg $name $message")
         }
     }
@@ -407,8 +414,11 @@ object ChatCommandsPlus : Module(
         ":wheelchair:" to ChatEmote("♿", false)
     )
 
+    private fun isInBlacklist(name: String) =
+        blacklist.contains(name.lowercase())
+
     enum class ChatChannel {
-        PARTY, GUILD, PRIVATE
+        PARTY, GUILD, PRIVATE, COOP
     }
 
     data class ChatCommand(

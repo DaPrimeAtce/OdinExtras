@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.ModuleManager
@@ -33,7 +33,7 @@ object ChatLogger : Module(
     private val privacyInfo by ListSetting("Privacy Info", mutableListOf(""))
 
     init {
-        on<ChatMessageEvent> {
+        on<MessageEvent.Chat> {
             if (!enabled || webhookUrl.isEmpty()) return@on
 
             if (privacyInfo[0] == "") {
@@ -47,20 +47,20 @@ object ChatLogger : Module(
                 return@on
             }
 
-            val result = RegexUtils.messageRegex.find(value) ?: return@on
+            val result = RegexUtils.messageRegex.find(message) ?: return@on
             val channel = when(result.value.split(" ")[0]) {
+                "Party Finder" -> Channel.PARTY_FINDER_JOIN
                 "Party" -> Channel.PARTY
                 "Guild" -> Channel.GUILD
                 "From" -> Channel.PRIVATE_FROM
                 "To" -> Channel.PRIVATE_TO
                 "Co-op" -> Channel.COOP
-                "Party Finder" -> Channel.PARTY_FINDER_JOIN
                 else -> null
             }
 
             if (channel == null) return@on
             val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: result.groups[13]?.value ?: result.groups[17]?.value ?: return@on
-            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[14]?.value ?: result.groups[15]?.value ?:return@on
+            val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[14]?.value ?: result.groups[15]?.value ?: return@on
 
             if (ign == "stash") return@on
 
@@ -76,12 +76,12 @@ object ChatLogger : Module(
     }
 
     enum class Channel {
+        PARTY_FINDER_JOIN,
         PARTY,
         GUILD,
         PRIVATE_FROM,
         PRIVATE_TO,
-        COOP,
-        PARTY_FINDER_JOIN
+        COOP
     }
 
     fun getIntFromRGB(r: Int, g: Int, b: Int): Int {
@@ -99,12 +99,12 @@ object ChatLogger : Module(
         val embed = JsonObject().apply {
             add("author", playerObj)
             addProperty("color", when (channel) {
+                Channel.PARTY_FINDER_JOIN -> getIntFromRGB(251, 168, 0)
                 Channel.PRIVATE_FROM -> getIntFromRGB(255, 0, 255)
                 Channel.PRIVATE_TO -> getIntFromRGB(255, 0, 255)
                 Channel.GUILD -> getIntFromRGB(0, 255, 0)
                 Channel.PARTY -> getIntFromRGB(0, 0, 255)
                 Channel.COOP -> getIntFromRGB(83, 255, 255)
-                Channel.PARTY_FINDER_JOIN -> getIntFromRGB(251, 168, 0)
             })
             addProperty("description", message)
             addProperty("timestamp", Instant.now().toString())

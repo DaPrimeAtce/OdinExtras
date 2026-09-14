@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LeapMenu.class)
 public interface AccessorLeapMenu {
+
     @Invoker("getLeapAnnounce")
     boolean odinextras$getLeapAnnounce();
 }
