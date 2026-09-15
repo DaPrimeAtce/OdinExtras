@@ -35,8 +35,8 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
 
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
-    // implementation("com.github.odtheking:Odin:${property("odin_version")}")
-    implementation(files("libs/Odin-0.3.1-26.2.jar"))
+//    implementation("com.github.odtheking:Odin:${property("odin_version")}")
+    implementation(files("libs/Odin-0.3.4-26.2.jar"))
 
     compileOnly("com.terraformersmc:modmenu:${property("modmenu_version")}")
 
