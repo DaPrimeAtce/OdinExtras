@@ -2,7 +2,7 @@ package com.daprimeatce.odinextras.mixin;
 
 import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.odtheking.odin.clickgui.settings.impl.*;
-import com.odtheking.odin.events.ChatPacketEvent;
+import com.odtheking.odin.events.MessageEvent;
 import com.odtheking.odin.events.LevelEvent;
 import com.odtheking.odin.events.TickEvent;
 import com.odtheking.odin.events.core.EventBus;
@@ -166,20 +166,20 @@ abstract class MixinTickTimers {
 
         EventBus.INSTANCE.registerListener(
                 TickTimers.class,
-                ChatPacketEvent.class,
+                MessageEvent.Chat.class,
                 0,
                 false,
                 event -> {
-                    if (professorHud.isEnabled() && !professorTriggered && professorRegex.matcher(event.getValue()).matches()) {
+                    if (professorHud.isEnabled() && !professorTriggered && professorRegex.matcher(event.getMessage()).matches()) {
                         professorTriggered = true;
                     }
-                    if (stormMoveHud.isEnabled() && !stormMoveTriggered && stormMoveRegex.matcher(event.getValue()).matches()) {
+                    if (stormMoveHud.isEnabled() && !stormMoveTriggered && stormMoveRegex.matcher(event.getMessage()).matches()) {
                         stormMoveTriggered = true;
                     }
-                    if (stormEnrageHud.isEnabled() && !stormEnrageTriggered && stormEnrageRegex.matcher(event.getValue()).matches()) {
+                    if (stormEnrageHud.isEnabled() && !stormEnrageTriggered && stormEnrageRegex.matcher(event.getMessage()).matches()) {
                         stormEnrageTriggered = true;
                     }
-                    if (ragHud.isEnabled() && !ragTriggered && ragRegex.matcher(event.getValue()).matches()) {
+                    if (ragHud.isEnabled() && !ragTriggered && ragRegex.matcher(event.getMessage()).matches()) {
                         ragTriggered = true;
                     }
                     return null;

@@ -20,8 +20,13 @@
     "MixinMapInfo",
     "MixinMapInfoOnScoreUpdateEvent",
     "MixinPanel",
+    "MixinClickGUI",
     "MixinModuleManager",
     "MixinTickTimers",
-    "MixinSplits"
+    "MixinSplits",
+    "MixinTerminalTitles",
+    "accessor.AccessorSplitsManager",
+    "accessor.AccessorLeapMenu",
+    "accessor.AccessorMapInfo"
   ]
 }
