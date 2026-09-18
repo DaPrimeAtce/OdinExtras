@@ -2,7 +2,7 @@ package com.daprimeatce.odinextras.features.impl.render
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LevelEvent
-import com.odtheking.odin.events.RenderEvent
+import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
@@ -15,7 +15,6 @@ import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.toFixed
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.level.ClipContext
@@ -55,7 +54,7 @@ object VoidgloomLasers : Module(
             }
         }
 
-        on<RenderEvent.Extract> {
+        on<RenderExtractEvent> {
             endermen.forEach { (eman, ticks) ->
                 if (ticks < 0) return@forEach
                 val emanEntity = eman.asLivingEntity() ?: return@forEach

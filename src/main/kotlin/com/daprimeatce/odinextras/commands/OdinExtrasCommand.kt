@@ -8,10 +8,10 @@ import com.odtheking.odin.clickgui.HudManager
 val odinExtrasCommand = Commodore("oe", "odinextras") {
 
     runs {
-        mc.schedule { mc.setScreen(ClickGUI) }
+        mc.schedule { mc.setScreenAndShow(ClickGUI) }
     }
 
     literal("hud", "gui").runs {
-        mc.schedule { mc.setScreen(HudManager) }
+        mc.schedule { mc.setScreenAndShow(HudManager) }
     }
 }

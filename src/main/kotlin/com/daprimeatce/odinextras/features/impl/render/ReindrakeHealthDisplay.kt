@@ -1,7 +1,7 @@
 package com.daprimeatce.odinextras.features.impl.render
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.RenderEvent
+import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.onReceive
@@ -33,7 +33,7 @@ object ReindrakeHealthDisplay : Module(
             dragons[dragon] = health.toInt()
         }
 
-        on<RenderEvent.Extract> {
+        on<RenderExtractEvent> {
             dragons.forEach { (dragon, health) ->
                 drawText("${color(health)}${health}§c❤", Vec3(dragon.renderX, dragon.renderY, dragon.renderZ), size * 7, false)
             }

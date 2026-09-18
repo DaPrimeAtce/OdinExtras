@@ -1,10 +1,9 @@
 package com.daprimeatce.odinextras.state;
 
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting;
-import com.odtheking.odin.clickgui.settings.impl.StringSetting;
+import com.odtheking.odin.clickgui.settings.impl.NumberSetting;
 
 public class StateSharedMixinClickGUIModule {
-    public static StringSetting odinextras$clickGUIScale;
     public static BooleanSetting odinextras$alphabeticalSorting;
-    public static BooleanSetting odinextras$disableClickGUIAnimation;
+    public static NumberSetting<Double> odinextras$clickGUISize;
 }

@@ -15,9 +15,10 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.TextColor
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.util.StringDecomposer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import java.util.concurrent.ConcurrentHashMap
 
 object SlayerDisplay : Module(
@@ -41,11 +42,14 @@ object SlayerDisplay : Module(
         "Riftstalker Bloodfiend"
     )
 
+    private val colorCodeField = ChatFormatting::class.java.getDeclaredField("code").apply { isAccessible = true }
+
     @Suppress("unused")
     private val hud by HUD(name, "Displays slayer info in the HUD.") {
         if (it) {
             textDim("§c03:00", 0, 0)
-            val exampleWidth = textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
+            val exampleWidth =
+                textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
             return@HUD exampleWidth to 2 * mc.font.lineHeight + 5
         }
 
@@ -53,12 +57,23 @@ object SlayerDisplay : Module(
         if (timeStand != null) {
             textDim(("§c" + timeStand?.displayName?.string?.takeLast(5)), 0, 0, shadow = true)
 
-            if (listOf("ASHEN", "AURIC", "CRYSTAL", "SPIRIT").any { timeStand?.displayName?.string?.contains(it) == true }) {
+            if (listOf(
+                    "ASHEN",
+                    "AURIC",
+                    "CRYSTAL",
+                    "SPIRIT"
+                ).any { timeStand?.displayName?.string?.contains(it) == true }
+            ) {
                 textDim((timeStand?.displayName?.coloredString()?.dropLast(5)) ?: "", 50, 0, shadow = true)
             }
         }
         if (healthStand != null) {
-            width = textDim((healthStand?.displayName?.coloredString()?.substringAfter("☠")?.drop(1)) ?: "", 0, mc.font.lineHeight + 5, shadow = true).first
+            width = textDim(
+                (healthStand?.displayName?.coloredString()?.substringAfter("☠")?.drop(1)) ?: "",
+                0,
+                mc.font.lineHeight + 5,
+                shadow = true
+            ).first
         }
         width to 2 * mc.font.lineHeight + 5
     }
@@ -85,7 +100,7 @@ object SlayerDisplay : Module(
         onReceive<ClientboundAddEntityPacket> {
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@onReceive
 
-            if (type == EntityType.ARMOR_STAND) {
+            if (type == EntityTypes.ARMOR_STAND) {
                 pendingStands[id] = currentTick
             }
         }
@@ -144,8 +159,11 @@ object SlayerDisplay : Module(
         timeStand = armorStands.filter { it.displayName.string.contains(":") && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
     }
 
+
+    private val colors = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
+
     private val colorToFormatting: Map<Int, ChatFormatting> =
-        ChatFormatting.entries.filter { it.isColor }.associateBy { it.color ?: -1 }
+        ChatFormatting.entries.filter { colorCodeField.get(it) as Char in colors}.associateBy { TextColor.fromLegacyFormat(it)?.value ?: -1 }
 
     fun Component.coloredString(): String {
         val builder = StringBuilder()

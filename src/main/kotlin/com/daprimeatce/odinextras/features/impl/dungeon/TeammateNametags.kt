@@ -1,7 +1,7 @@
 package com.daprimeatce.odinextras.features.impl.dungeon
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.RenderEvent
+import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonPlayer
@@ -32,7 +32,7 @@ object TeammateNametags : Module(
     }
 
     init {
-        on<RenderEvent.Extract> {
+        on<RenderExtractEvent> {
             if (!enabled || !DungeonUtils.inDungeons) return@on
             dungeonTeammatesNoSelf.forEach { teammate ->
                 val entity = teammate.resolveEntity() ?: return@forEach
