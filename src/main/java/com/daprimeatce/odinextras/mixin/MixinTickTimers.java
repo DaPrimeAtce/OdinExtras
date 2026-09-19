@@ -30,16 +30,12 @@ abstract class MixinTickTimers {
     protected abstract boolean getShowPrefix();
 
     @Unique
-    private static HUDSetting professorHud;
-    @Unique
     private static HUDSetting stormMoveHud;
     @Unique
     private static HUDSetting stormEnrageHud;
     @Unique
     private static HUDSetting ragHud;
 
-    @Unique
-    private static boolean professorTriggered = false;
     @Unique
     private static boolean stormMoveTriggered = false;
     @Unique
@@ -48,16 +44,12 @@ abstract class MixinTickTimers {
     private static boolean ragTriggered = false;
 
     @Unique
-    private static int professorTickTime = 104;
-    @Unique
     private static int stormMoveTickTime = 138;
     @Unique
     private static int stormEnrageTickTime = 66;
     @Unique
     private static int ragTickTime = 100;
 
-    @Unique
-    private static final Pattern professorRegex = RegexUtils.INSTANCE.getProfessorRegex().toPattern();
     @Unique
     private static final Pattern stormMoveRegex = RegexUtils.INSTANCE.getStormMoveRegex().toPattern();
     @Unique
@@ -68,21 +60,6 @@ abstract class MixinTickTimers {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$addExtraTickTimers(CallbackInfo ci) {
         Module module = ((Module)(Object) this);
-
-        professorHud = new HUDSetting(
-            "Professor Hud",
-            10,
-            10,
-            1f,
-            true,
-            "Displays a time for when to use the fire freeze staff for the Professor boss in M3.",
-            module,
-            (graphics, example) -> {
-                if (example) graphics.text(Minecraft.getInstance().font, formatTimer(104, 104, "§3Fire freeze in: "), 0, 0, 0xFFFFFFFF);
-                else if (professorTickTime >= 0 && professorTriggered) graphics.text(Minecraft.getInstance().font, formatTimer(professorTickTime, 104, "§3Fire freeze in: "), 0, 0, 0xFFFFFFFF);
-                return new Pair<>(105, 10);
-            }
-        );
 
         stormMoveHud = new HUDSetting(
             "Storm Move Hud",
@@ -135,7 +112,6 @@ abstract class MixinTickTimers {
         LinkedHashMap<String, Setting<?>> settings = TickTimers.INSTANCE.getSettings();
 
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>(settings);
-        reordered.put("Professor Hud", professorHud);
         reordered.put("Storm Move Hud", stormMoveHud);
         reordered.put("Storm Enrage Hud", stormEnrageHud);
         reordered.put("Dragon Rag Hud", ragHud);
@@ -152,8 +128,6 @@ abstract class MixinTickTimers {
             0,
             false,
             event -> {
-                professorTickTime = 104;
-                professorTriggered = false;
                 stormMoveTickTime = 138;
                 stormMoveTriggered = false;
                 stormEnrageTickTime = 66;
@@ -170,9 +144,6 @@ abstract class MixinTickTimers {
                 0,
                 false,
                 event -> {
-                    if (professorHud.isEnabled() && !professorTriggered && professorRegex.matcher(event.getMessage()).matches()) {
-                        professorTriggered = true;
-                    }
                     if (stormMoveHud.isEnabled() && !stormMoveTriggered && stormMoveRegex.matcher(event.getMessage()).matches()) {
                         stormMoveTriggered = true;
                     }
@@ -192,7 +163,6 @@ abstract class MixinTickTimers {
                 0,
                 false,
                 event -> {
-                    if (professorTriggered && professorHud.isEnabled()) professorTickTime--;
                     if (stormMoveTriggered && stormMoveHud.isEnabled()) stormMoveTickTime--;
                     if (stormEnrageTriggered && stormEnrageHud.isEnabled()) stormEnrageTickTime--;
                     if (ragTriggered && ragHud.isEnabled()) ragTickTime--;
