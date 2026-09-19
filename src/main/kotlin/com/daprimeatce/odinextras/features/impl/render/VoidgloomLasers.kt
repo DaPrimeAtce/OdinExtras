@@ -16,7 +16,7 @@ import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.toFixed
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.world.entity.EntityTypes
-import net.minecraft.world.entity.monster.EnderMan
+import net.minecraft.world.entity.monster.Enderman
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.HitResult
@@ -28,7 +28,7 @@ object VoidgloomLasers : Module(
 ) {
     private val size by NumberSetting("Text Scale", 1f, 0.5..2.0, 0.1f, desc = "Scale of timer.")
 
-    private var endermen = mutableMapOf<EnderMan, Int>()
+    private var endermen = mutableMapOf<Enderman, Int>()
     private var serverTicks = 0
 
 
@@ -49,7 +49,7 @@ object VoidgloomLasers : Module(
             if (LocationUtils.currentArea != Island.TheEnd) return@onReceive
 
             for (id in passengers) {
-                val entity = mc.level?.getEntity(id) as? EnderMan ?: return@onReceive
+                val entity = mc.level?.getEntity(id) as? Enderman ?: return@onReceive
                 if (entity.type == EntityTypes.ENDERMAN && entity !in endermen) endermen[entity] = 162
             }
         }
