@@ -45,6 +45,7 @@ object ChatCommandsPlus : Module(
     private val guildChatCommands by BooleanSetting("Guild Commands", false, "Enables guild chat commands.")
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
     private val coopChatCommands by BooleanSetting("Coop Commands", true, "Enables coop chat commands.")
+    val whitelist by BooleanSetting("Whitelist", false, desc = "Sets the Chat Commands blacklist the function as a whitelist instead.")
     private val booleanSettings by DropdownSetting("Toggle Commands", false, desc = "Enable togglable chat commands")
     private val stringSettings by DropdownSetting("Customizable Commands", false, desc = "Enable chat commands that allows custom keywords as comma separated values, eg \".allinv, allinv, ai\"")
 
@@ -226,7 +227,7 @@ object ChatCommandsPlus : Module(
             val ign = result.groups[2]?.value ?: result.groups[5]?.value ?: result.groups[10]?.value ?: result.groups[13]?.value ?: return@on
             val msg = result.groups[3]?.value ?: result.groups[7]?.value ?: result.groups[11]?.value ?: result.groups[14]?.value ?: return@on
 
-            if (isInBlacklist(ign)) return@on
+            if (isInBlacklist(ign) != whitelist) return@on
 
             schedule(4) {
                 handleChatCommands(msg, ign, channel)
