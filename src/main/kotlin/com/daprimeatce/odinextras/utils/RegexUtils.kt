@@ -29,5 +29,5 @@ object RegexUtils {
     val teleportRegex = Regex("^There are blocks in the way!$")
     val inventoryFullRegex = Regex("^Inventory full\\? Don't forget to check out your Storage inside the SkyBlock Menu!$")
     val blaztekkRadioRegex = Regex("^Your radio is weak\\. Find another enjoyer to boost it\\.$")
-    val pickupStashRegex = Regex("^ {1,18}>>> CLICK HERE to pick (?:it|them) up! <<<|^ {1,14}\\(This totals (?:\\d{1,3},?)+ (?:type|types) of (?:material|materials) stashed!\\)$")
+    val pickupStashRegex = Regex("^ {1,18}>>> CLICK HERE to pick (?:it|them) up! <<<|^ {1,16}\\(This totals (?:\\d{1,3},?)+ (?:type|types) of (?:material|materials) stashed!\\)$")
 }
