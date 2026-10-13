@@ -20,7 +20,8 @@ object Chat: Module(
     private val hideRadio by BooleanSetting("Hide Blazetekk Radio", false, desc = "Removes the Blazetekk™ Ham Radio message. (Your radio is weak. Find another enjoyer to boost it.)").withDependency{ spamFilter }
     private val hidePickupStash by BooleanSetting("Compact Pickup Stash", false, desc = "Removes an extra line from the Pickup Stash message. (>>> CLICK HERE to pick them up! <<<)").withDependency{ spamFilter }
     private val implosionHud by HUD("Implosion HUD", "Displays the Implosion/Wither Impact's damage message as a custom HUD.") {
-        if (implosionTime >= System.currentTimeMillis()) textDim("§7Implosion hit §c$enemyCount §7$enemy for §c$damage §7damage", 0,0)
+        if (it) textDim("§7Implosion hit §c10 §7enemies for §c100,000,000 §7damage", 0,0)
+        else if (implosionTime >= System.currentTimeMillis()) textDim("§7Implosion hit §c$enemyCount §7$enemy for §c$damage §7damage", 0,0)
         else textDim("", 0,0)
     }
 

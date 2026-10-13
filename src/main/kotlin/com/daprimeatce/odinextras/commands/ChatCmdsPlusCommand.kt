@@ -4,6 +4,7 @@ import com.github.stivais.commodore.Commodore
 import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.features.ModuleManager
+import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.whitelist
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.blacklist
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.replacements
 import com.daprimeatce.odinextras.features.impl.skyblock.ChatCommandsPlus.help
@@ -28,7 +29,7 @@ val chatCmdsPlusCommand = Commodore("chatcommands") {
         literal("add").runs { name: String ->
             val lowercase = name.lowercase()
             if (lowercase in blacklist) return@runs modMessage("$name is already in the blacklist.")
-            if (name.equals(mc.player?.name?.string, true)) return@runs modMessage("You can't blacklist yourself!")
+            if (name.equals(mc.player?.name?.string, true) && !whitelist) return@runs modMessage("You can't blacklist yourself!")
             modMessage("Added $name to blacklist.")
             blacklist.add(lowercase)
             ModuleManager.saveConfigurations()
