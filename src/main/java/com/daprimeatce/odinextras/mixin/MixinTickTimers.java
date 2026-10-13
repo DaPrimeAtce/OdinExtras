@@ -33,29 +33,21 @@ abstract class MixinTickTimers {
     private static HUDSetting stormMoveHud;
     @Unique
     private static HUDSetting stormEnrageHud;
-    @Unique
-    private static HUDSetting ragHud;
 
     @Unique
     private static boolean stormMoveTriggered = false;
     @Unique
     private static boolean stormEnrageTriggered = false;
-    @Unique
-    private static boolean ragTriggered = false;
 
     @Unique
-    private static int stormMoveTickTime = 138;
+    private static int stormMoveTickTime = 98;
     @Unique
     private static int stormEnrageTickTime = 66;
-    @Unique
-    private static int ragTickTime = 100;
 
     @Unique
     private static final Pattern stormMoveRegex = RegexUtils.INSTANCE.getStormMoveRegex().toPattern();
     @Unique
     private static final Pattern stormEnrageRegex = RegexUtils.INSTANCE.getStormEnrageRegex().toPattern();
-    @Unique
-    private static final Pattern ragRegex = RegexUtils.INSTANCE.getWitherKingStartRegex().toPattern();
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void odinextras$addExtraTickTimers(CallbackInfo ci) {
@@ -71,7 +63,7 @@ abstract class MixinTickTimers {
             module,
             (graphics, example) -> {
                 if (example) graphics.text(Minecraft.getInstance().font, formatTimer(138, 138, "§c§lStorm will move in: "), 0, 0, 0xFFFFFFFF);
-                else if (stormMoveTickTime >= 0 && stormMoveTriggered) graphics.text(Minecraft.getInstance().font, formatTimer(stormMoveTickTime, 138, "§c§lStorm will move in: "), 0, 0, 0xFFFFFFFF);
+                else if (stormMoveTickTime >= 0 && stormMoveTriggered) graphics.text(Minecraft.getInstance().font, formatTimer(stormMoveTickTime, 98, "§c§lStorm will move in: "), 0, 0, 0xFFFFFFFF);
                 return new Pair<>(140, 10);
             }
         );
@@ -91,20 +83,6 @@ abstract class MixinTickTimers {
             }
         );
 
-        ragHud = new HUDSetting(
-            "Dragon Rag Hud",
-            10,
-            10,
-            1f,
-            true,
-            "Displays a timer for when to rag for the first dragon.",
-            module,
-            (graphics, example) -> {
-                if (example) graphics.text(Minecraft.getInstance().font, formatTimer(100, 100, "§bRag in: "), 0, 0, 0xFFFFFFFF);
-                else if (ragTickTime >= 0 && ragTriggered) graphics.text(Minecraft.getInstance().font, formatTimer(ragTickTime, 100, "§bRag in: "), 0, 0, 0xFFFFFFFF);
-                return new Pair<>(65, 10);
-            }
-        );
     }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
@@ -114,7 +92,6 @@ abstract class MixinTickTimers {
         LinkedHashMap<String, Setting<?>> reordered = new LinkedHashMap<>(settings);
         reordered.put("Storm Move Hud", stormMoveHud);
         reordered.put("Storm Enrage Hud", stormEnrageHud);
-        reordered.put("Dragon Rag Hud", ragHud);
 
         settings.clear();
         settings.putAll(reordered);
@@ -128,12 +105,10 @@ abstract class MixinTickTimers {
             0,
             false,
             event -> {
-                stormMoveTickTime = 138;
+                stormMoveTickTime = 98;
                 stormMoveTriggered = false;
                 stormEnrageTickTime = 66;
                 stormEnrageTriggered = false;
-                ragTickTime = 100;
-                ragTriggered = false;
                 return null;
             }
         );
@@ -150,9 +125,6 @@ abstract class MixinTickTimers {
                     if (stormEnrageHud.isEnabled() && !stormEnrageTriggered && stormEnrageRegex.matcher(event.getMessage()).matches()) {
                         stormEnrageTriggered = true;
                     }
-                    if (ragHud.isEnabled() && !ragTriggered && ragRegex.matcher(event.getMessage()).matches()) {
-                        ragTriggered = true;
-                    }
                     return null;
                 }
         );
@@ -165,7 +137,6 @@ abstract class MixinTickTimers {
                 event -> {
                     if (stormMoveTriggered && stormMoveHud.isEnabled()) stormMoveTickTime--;
                     if (stormEnrageTriggered && stormEnrageHud.isEnabled()) stormEnrageTickTime--;
-                    if (ragTriggered && ragHud.isEnabled()) ragTickTime--;
                     return null;
                 }
         );

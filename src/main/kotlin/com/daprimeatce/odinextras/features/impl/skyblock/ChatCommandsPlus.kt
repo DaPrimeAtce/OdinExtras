@@ -220,7 +220,7 @@ object ChatCommandsPlus : Module(
                 "From" -> if (!privateChatCommands) return@on else ChatChannel.PRIVATE
                 "Party" -> if (!partyChatCommands)  return@on else ChatChannel.PARTY
                 "Guild" -> if (!guildChatCommands)  return@on else ChatChannel.GUILD
-                "Co-op" -> if (!coopChatCommands)    return@on else ChatChannel.COOP
+                "Co-op" -> if (!coopChatCommands)   return@on else ChatChannel.COOP
                 else -> return@on
             }
 
