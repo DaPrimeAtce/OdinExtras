@@ -3,6 +3,7 @@ package com.daprimeatce.odinextras.mixin;
 import com.daprimeatce.odinextras.mixin.accessor.AccessorMapInfo;
 import com.daprimeatce.odinextras.state.StateSharedMixinMapInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.odtheking.odin.clickgui.settings.RenderableSetting;
 import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting;
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting;
@@ -44,7 +45,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "What to render when reaching 300 score. Use \"&\" for color codes.",
                 "&a300 Score"
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -54,7 +55,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 false,
                 "Sends a custom message on 300 score."
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300ShouldSendToParty, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300ShouldSendToParty, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -66,7 +67,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "What to send when reaching 300 score.",
                 "300 Score Reached!"
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score300PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
 
 
@@ -87,7 +88,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 false,
                 "Displays a title on 270 score."
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldRenderTitle, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldRenderTitle, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -99,7 +100,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "What to render when reaching 270 score. Use \"&\" for color codes.",
                 "270 Score"
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270CustomTitle, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -109,7 +110,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 false,
                 "Sends a custom message on 270 score."
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldSendToParty, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldSendToParty, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -121,7 +122,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 "What to send when reaching 270 score.",
                 "270 Score Reached!"
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270PartyMessage, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -131,7 +132,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
                 false,
                 "Displays a title on 270 score."
         );
-        Setting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldPrintScoreTime, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
+        RenderableSetting.Companion.withDependency(StateSharedMixinMapInfo.odinextras$score270ShouldPrintScoreTime, () -> StateSharedMixinMapInfo.odinextras$score270Dropdown.getValue());
     }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
@@ -167,7 +168,7 @@ abstract class MixinMapInfo implements AccessorMapInfo {
 
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "NEW", target = "Lcom/odtheking/odin/clickgui/settings/impl/BooleanSetting;", ordinal = 2))
     private static BooleanSetting odinextras$addBase300ScoreTitleDependency(BooleanSetting original) {
-        return Setting.Companion.withDependency(original, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
+        return RenderableSetting.Companion.withDependency(original, () -> StateSharedMixinMapInfo.odinextras$score300Dropdown.getValue());
     }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))

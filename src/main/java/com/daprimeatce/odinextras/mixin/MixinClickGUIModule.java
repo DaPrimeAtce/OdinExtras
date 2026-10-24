@@ -1,11 +1,11 @@
-package com.daprimeatce.odinextras.mixin;
+/*package com.daprimeatce.odinextras.mixin;
 
 import com.daprimeatce.odinextras.state.StateSharedMixinClickGUIModule;
 import com.odtheking.odin.clickgui.ClickGUI;
 import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting;
 import com.odtheking.odin.clickgui.widget.ModuleWidget;
-import com.odtheking.odin.clickgui.widget.PanelWidget;
+import com.odtheking.odin.clickgui.ui.Panel;
 import com.odtheking.odin.features.Category;
 import com.odtheking.odin.features.impl.render.ClickGUIModule;
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting;
@@ -57,7 +57,7 @@ abstract class MixinClickGUIModule {
     }
 }
 
-@Mixin(value = PanelWidget.class, remap = false)
+@Mixin(value = Panel.class, remap = false)
 @SuppressWarnings("unused")
 abstract class MixinPanel {
     @Shadow
@@ -97,5 +97,4 @@ abstract class MixinClickGUI {
     private static void odinextras$applyCustomGUISize(CallbackInfo ci) {
         scale = (float) (StateSharedMixinClickGUIModule.odinextras$clickGUISize.getValue() / Minecraft.getInstance().getWindow().getGuiScale());
     }
-}
-
+}*/

@@ -1,6 +1,6 @@
 package com.daprimeatce.odinextras.features.impl.skyblock
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
@@ -13,7 +13,6 @@ import com.odtheking.odin.utils.formatTime
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.playSoundSettings
 import com.daprimeatce.odinextras.utils.RegexUtils
-import com.mojang.authlib.minecraft.client.MinecraftClient
 import com.odtheking.odin.utils.modMessage
 import net.minecraft.network.chat.Component
 import java.time.Instant

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("net.fabricmc.fabric-loom")
     kotlin("jvm")
+    kotlin("plugin.compose")
     `maven-publish`
 }
 
@@ -12,6 +13,7 @@ version = property("mod_version") as String
 
 repositories {
     mavenCentral()
+    google()
     maven("https://jitpack.io")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
     maven("https://maven.terraformersmc.com/")
@@ -26,6 +28,9 @@ repositories {
 //        }
 //    }
 }
+
+val bundled: Configuration by configurations.creating
+configurations.implementation { extendsFrom(bundled) }
 
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
@@ -45,6 +50,12 @@ dependencies {
         include("com.github.stivais:Commodore:$it")
     }
 
+    bundled("androidx.compose.runtime:runtime-desktop:${property("compose_runtime_version")}") {
+        exclude("org.jetbrains.kotlin")
+        exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
+        exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm")
+    }
+
 //    property("minecraft_lwjgl_version").let { lwjglVersion ->
 //        implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
 //
@@ -53,6 +64,12 @@ dependencies {
 //        }
 //    }
 
+}
+
+configurations.named("include") {
+    dependencies.addAllLater(provider {
+        bundled.resolvedConfiguration.resolvedArtifacts.map { project.dependencies.create(it.moduleVersion.id.toString()) }
+    })
 }
 
 loom {

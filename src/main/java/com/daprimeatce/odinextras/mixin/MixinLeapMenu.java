@@ -2,6 +2,7 @@ package com.daprimeatce.odinextras.mixin;
 
 import com.daprimeatce.odinextras.mixin.accessor.AccessorLeapMenu;
 import com.daprimeatce.odinextras.state.StateSharedMixinLeapMenu;
+import com.odtheking.odin.clickgui.settings.RenderableSetting;
 import com.odtheking.odin.clickgui.settings.Setting;
 import com.odtheking.odin.clickgui.settings.impl.*;
 import com.odtheking.odin.features.impl.dungeon.LeapMenu;
@@ -23,7 +24,7 @@ abstract class MixinLeapMenu implements AccessorLeapMenu {
                 "The message to send when leaping to a player. Use \"{name}\" for specific player names.",
                 "Leaped to {name}!"
         );
-        Setting.Companion.withDependency(StateSharedMixinLeapMenu.odinextras$customLeapMessage, () -> ((AccessorLeapMenu)(Object) LeapMenu.INSTANCE).odinextras$getLeapAnnounce());
+        RenderableSetting.Companion.withDependency(StateSharedMixinLeapMenu.odinextras$customLeapMessage, () -> ((AccessorLeapMenu)(Object) LeapMenu.INSTANCE).odinextras$getLeapAnnounce());
     }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))

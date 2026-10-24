@@ -1,7 +1,8 @@
 package com.daprimeatce.odinextras.mixin;
 
-import com.daprimeatce.odinextras.utils.RegexUtils;
+/*import com.daprimeatce.odinextras.utils.RegexUtils;
 import com.daprimeatce.odinextras.mixin.accessor.AccessorSplitsManager;
+import com.odtheking.odin.clickgui.settings.RenderableSetting;
 import com.odtheking.odin.clickgui.settings.impl.*;
 import com.odtheking.odin.events.MessageEvent;
 import com.odtheking.odin.events.LevelEvent;
@@ -164,7 +165,7 @@ abstract class MixinSplits {
                 "Sends to the chat the run time lost to lag.",
                 List.of(TimeLostSelectorSettings.NONE, TimeLostSelectorSettings.LOCAL, TimeLostSelectorSettings.PARTY)
         );
-        Setting.Companion.withDependency(sendTimeLost, () -> timeLostToLag.isEnabled());
+        RenderableSetting.Companion.withDependency(sendTimeLost, () -> timeLostToLag.isEnabled());
 
 
         stormDps = new HUDSetting(
@@ -310,4 +311,4 @@ abstract class MixinSplits {
 
         return splits.stream().mapToInt(split -> getStringWidth(split.getName())).max().orElse(50);
     }
-}
+}*/
