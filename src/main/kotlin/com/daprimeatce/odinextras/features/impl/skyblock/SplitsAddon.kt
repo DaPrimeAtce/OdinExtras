@@ -204,5 +204,5 @@ object SplitsAddon {
         EventBus.subscribe(this)
     }
 
-    fun getMaxSplitsWidth(): Int = SplitsManager.currentRows().maxOfOrNull { it.name.length } ?: 50
+    fun getMaxSplitsWidth(): Int = SplitsManager.currentRows().maxOfOrNull { getStringWidth(it.name) } ?: 50
 }
