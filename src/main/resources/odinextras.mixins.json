@@ -14,14 +14,8 @@
     "MixinAvatarRenderer",
     "MixinChatUtils",
     "MixinItemEntityRenderer",
-    "MixinLeapMenu",
-    "MixinLeapMenuSendCommand",
-    "MixinMapInfo",
-    "MixinMapInfoOnScoreUpdateEvent",
     "MixinModuleManager",
     "MixinTerminalTitles",
-    "accessor.AccessorSplitsManager",
-    "accessor.AccessorLeapMenu",
-    "accessor.AccessorMapInfo"
+    "MixinPanel"
   ]
 }

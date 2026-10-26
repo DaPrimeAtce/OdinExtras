@@ -4,6 +4,7 @@ import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
 import com.daprimeatce.odinextras.commands.*
+import com.daprimeatce.odinextras.features.impl.boss.TickTimersAddon
 import com.daprimeatce.odinextras.features.impl.skyblock.*
 import com.daprimeatce.odinextras.features.impl.nether.*
 import com.daprimeatce.odinextras.features.impl.render.*
@@ -37,6 +38,14 @@ object OdinExtras : ClientModInitializer {
 
         // Registering too early uses default values rather than values stored in the config
         ChatCommandsPlus.registerChatCommandsOnInitializeClient()
+
+        SplitsAddon.register()
+        TickTimersAddon.register()
+        MapInfoAddon.register()
+        LeapMenuAddon.register()
+        ClickGuiAddon.register()
+
+        ModuleManager.loadConfigurations()
     }
 }
 

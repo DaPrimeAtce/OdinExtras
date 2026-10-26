@@ -1,94 +1,93 @@
 package com.daprimeatce.odinextras.features.impl.render
 
+import com.daprimeatce.odinextras.utils.ChatUtils
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import com.daprimeatce.odinextras.utils.RegexUtils
+import com.odtheking.odin.events.EntityEvent
 import net.minecraft.world.entity.decoration.ArmorStand
-import net.minecraft.ChatFormatting
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
-import net.minecraft.util.StringDecomposer
-import net.minecraft.world.entity.EntityTypes
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.scores.DisplaySlot
+import net.minecraft.world.scores.PlayerTeam
 import java.util.concurrent.ConcurrentHashMap
 
 object SlayerDisplay : Module(
     name = "Slayer Display",
     description = "Displays the info above a slayer boss on your screen, including hellion shield."
 ) {
-    private var armorStands = mutableListOf<ArmorStand>()
-    private var nameStand: ArmorStand? = null
-    private var healthStand: ArmorStand? = null
-    private var timeStand: ArmorStand? = null
-
-    private var currentTick = 0
-    private val pendingStands = ConcurrentHashMap<Int, Int>() // id, tick spawned
-
     private val slayerNames = listOf(
         "Revenant Horror", "Atoned Horror",
         "Tarantula Broodfather", "Primordial Broodfather", "Conjoined Brood",
         "Sven Packmaster",
         "Voidgloom Seraph",
-        "Inferno Demonlord",
+        "Inferno Demonlord", "ⓉⓎⓅⒽⓄⒺⓊⓈ", "ⓆⓊⒶⓏⒾⒾ",
         "Riftstalker Bloodfiend"
     )
 
-    private val colorCodeField = ChatFormatting::class.java.getDeclaredField("code").apply { isAccessible = true }
+    private var bossSpawned = false
+
+    private var healthStand: Entity? = null
+    private var timeStand: Entity? = null
+
+    private val armorStands = ConcurrentHashMap<Int, ArmorStand>() // id, stand
+
+    private val slayerPrefix = Regex(
+        "^.*?]\\s*((?:§.)*)(?:[^\\s§]+\\s*)?((?:§.)*)\\s*(?=" +
+                slayerNames.joinToString("|") { Regex.escape(it) } + ")"
+    )
+
 
     @Suppress("unused")
-    private val hud by HUD(name, "Displays slayer info in the HUD.") {
-        if (it) {
+    private val hud by HUD(name, "Displays slayer info in the HUD.") { example ->
+        if (example) {
             textDim("§c03:00", 0, 0)
             val exampleWidth =
-                textDim("§r§bRevenant Horror I §r§e100§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
+                textDim("§r§2Revenant Horror I §c0§r/§a500§r§c❤", 0, mc.font.lineHeight + 5, shadow = true).first
             return@HUD exampleWidth to 2 * mc.font.lineHeight + 5
         }
 
         var width = 0
         if (timeStand != null) {
-            textDim(("§c" + timeStand?.displayName?.string?.takeLast(5)), 0, 0, shadow = true)
+            textDim(("§c" + ChatUtils.toColoredString(timeStand!!.displayName).takeLast(5)), 0, 0, shadow = true)
 
-            if (listOf(
-                    "ASHEN",
-                    "AURIC",
-                    "CRYSTAL",
-                    "SPIRIT"
-                ).any { timeStand?.displayName?.string?.contains(it) == true }
-            ) {
-                textDim((timeStand?.displayName?.coloredString()?.dropLast(5)) ?: "", 50, 0, shadow = true)
+            if (listOf("ASHEN", "AURIC", "CRYSTAL", "SPIRIT").any { timeStand!!.displayName.string.contains(it) }) {
+                textDim((ChatUtils.toColoredString(timeStand!!.displayName).dropLast(5)), 40, 0, shadow = true)
             }
         }
         if (healthStand != null) {
-            width = textDim(
-                (healthStand?.displayName?.coloredString()?.substringAfter("☠")?.drop(1)) ?: "",
-                0,
-                mc.font.lineHeight + 5,
-                shadow = true
-            ).first
+            val name = (ChatUtils.toColoredString(healthStand!!.displayName))
+            val prefixlessName = name.replace(slayerPrefix) { m ->
+                m.groupValues[2].ifEmpty { m.groupValues[1] }
+            }
+
+            width = textDim(prefixlessName, 0, mc.font.lineHeight + 5, shadow = true).first
         }
         width to 2 * mc.font.lineHeight + 5
     }
 
-    fun resetValues() {
-        nameStand = null
-        healthStand = null
-        timeStand = null
-    }
 
     init {
+        on<EntityEvent.Add> {
+            if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
+
+            val e = entity
+            if (e is ArmorStand) {
+                armorStands[e.id] = e
+            }
+        }
+
+        on<EntityEvent.Remove> {
+            armorStands.remove(entity.id)
+        }
+
         on<LevelEvent.Load> {
             resetValues()
-            currentTick = 0
-            pendingStands.clear()
         }
 
         on<MessageEvent.Chat> {
@@ -97,93 +96,74 @@ object SlayerDisplay : Module(
             if (RegexUtils.slayerCancelRegex.matches(message)) resetValues()
         }
 
-        onReceive<ClientboundAddEntityPacket> {
-            if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@onReceive
-
-            if (type == EntityTypes.ARMOR_STAND) {
-                pendingStands[id] = currentTick
-            }
-        }
-
+        var tickCount = 0
         on<TickEvent.Server> {
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
 
-            if (nameStand != null && nameStand!!.isCustomNameVisible) {
-                healthStand = null
-                timeStand = null
-                handleBossSpawned()
+            if (tickCount++ % 20 == 0) {
+                bossSpawned = getScoreboardLines().any { "Slay the boss" in it }
             }
 
-            currentTick++
+            if (tickCount % 10 == 0) {
+                if (bossSpawned) {
+                    val player = mc.player!!
+                    val nearby = armorStands.values
+                        .filter { it.distanceTo(player) < 20 }
 
-            if (pendingStands.isEmpty()) return@on
+                    val healthStands = nearby
+                        .filter { stand ->
+                            val name = stand.displayName.string
+                            slayerNames.any { it in name }
+                        }
+                        .sortedBy { it.distanceTo(player) }
 
-            val toRemove = mutableListOf<Int>()
-            pendingStands.forEach { (id, spawnTick) ->
-                val entity = mc.level?.getEntity(id) as? ArmorStand ?: run {
-                    toRemove.add(id)
-                    return@forEach
-                }
-                val name = entity.customName?.string
-
-                when {
-                     name != null && RegexUtils.slayerSpawnerRegex.find(name)?.groups[1]?.value == mc.player?.name?.string -> {
-                        toRemove.add(id)
-                        nameStand = entity
-                        schedule(2  , true) { handleBossSpawned() }
+                    val timeStands = nearby.filter { stand ->
+                        val name = stand.customName?.string ?: return@filter false
+                        RegexUtils.slayerTimeRegex.containsMatchIn(name) || "IMMUNE" in name
                     }
-                    !name.isNullOrEmpty() -> toRemove.add(id)
-                    currentTick - spawnTick > 40 -> toRemove.add(id)
+
+                    var foundHealth: ArmorStand? = null
+                    var foundTime: ArmorStand? = null
+
+                    for (health in healthStands) {
+                        val time = timeStands
+                            .filter { it.distanceTo(health) < 1 }
+                            .minByOrNull { it.distanceTo(health) }
+                        val timeName = time?.customName?.string.orEmpty()
+                        if ("IMMUNE" in timeName) continue
+
+                        foundHealth = health
+                        foundTime = time
+                        break
+                    }
+
+                    healthStand = foundHealth
+                    timeStand = foundTime
                 }
             }
-            toRemove.forEach { pendingStands.remove(it) }
+
+            armorStands.keys.removeIf { mc.level?.getEntity(it) !is ArmorStand }
         }
     }
 
-    private fun handleBossSpawned() {
-        val entities = mc.level?.entitiesForRendering() ?: return
-
+    fun resetValues() {
         armorStands.clear()
-        armorStands = entities.filterIsInstanceTo(armorStands)
+        healthStand = null
+        timeStand = null
+    }
 
-        val currentNameStand = nameStand ?: return
-        armorStands.retainAll { it.distanceTo(currentNameStand) < 0.5 }
+    fun getScoreboardLines(): List<String> {
+        val scoreboard = mc.level?.scoreboard ?: return emptyList()
+        val objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR) ?: return emptyList()
 
-        armorStands.forEach { stand ->
-            if (slayerNames.any { stand.displayName.string.contains(it) }) {
-                healthStand = stand
-                return@forEach
+        return scoreboard.listPlayerScores(objective)
+            .filter { !it.isHidden }                    // skips "#"-prefixed hidden entries
+            .sortedByDescending { it.value() }          // top of the sidebar first
+            .map { entry ->
+                val team = scoreboard.getPlayersTeam(entry.owner())
+                PlayerTeam.formatNameForTeam(team, entry.ownerName()).string
             }
-        }
-
-        timeStand = armorStands.filter { it.displayName.string.contains(":") && it != nameStand }.minByOrNull { it.distanceTo(currentNameStand) }
     }
 
 
-    private val colors = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
-
-    private val colorToFormatting: Map<Int, ChatFormatting> =
-        ChatFormatting.entries.filter { colorCodeField.get(it) as Char in colors}.associateBy { TextColor.fromLegacyFormat(it)?.value ?: -1 }
-
-    fun Component.coloredString(): String {
-        val builder = StringBuilder()
-        var lastStyle: Style? = null
-
-        StringDecomposer.iterateFormatted(this, Style.EMPTY) { _, style, codepoint ->
-            if (style != lastStyle) {
-                builder.append(ChatFormatting.RESET)
-                style.color?.value?.let { rgb -> colorToFormatting[rgb]?.let { builder.append(it) } }
-                if (style.isBold) builder.append(ChatFormatting.BOLD)
-                if (style.isItalic) builder.append(ChatFormatting.ITALIC)
-                if (style.isUnderlined) builder.append(ChatFormatting.UNDERLINE)
-                if (style.isStrikethrough) builder.append(ChatFormatting.STRIKETHROUGH)
-                if (style.isObfuscated) builder.append(ChatFormatting.OBFUSCATED)
-                lastStyle = style
-            }
-            builder.appendCodePoint(codepoint)
-            true
-        }
-
-        return builder.toString()
-    }
 }
