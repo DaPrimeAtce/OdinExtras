@@ -24,12 +24,7 @@ object ClickGuiAddon {
     private var pending: List<Category>? = null
     private var readdAt = 0L
 
-    val alphabeticalSorting = BooleanSetting(
-        "Alphabetical Sorting",
-        false,
-        "Reorganizes the Click GUI modules based on A-Z instead of by character length."
-    )
-
+    val alphabeticalSorting = BooleanSetting("Alphabetical Sorting", false, "Reorganizes the Click GUI modules based on A-Z instead of by character length.")
     val scaleSetting = NumberSetting("Click GUI Scale", 2f, 1.0..4.0, 0.1f, desc = "GUI scale the Click GUI is drawn at.")
 
     @JvmStatic

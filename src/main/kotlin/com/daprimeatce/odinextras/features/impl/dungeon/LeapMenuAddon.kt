@@ -13,14 +13,7 @@ import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 
 object LeapMenuAddon {
     val leapAnnounce = BooleanSetting("Leap Announce", false, "Customize what happens when reaching 300 score.")
-    val leapMessage = StringSetting(
-        "Leap Message",
-        "Leaped to {name}!",
-        128,
-        "The message to send when leaping to a player. Use \"{name}\" for specific player names.",
-        "Leaped to {name}!"
-    ).withDependency { leapAnnounce.value }
-
+    val leapMessage = StringSetting("Leap Message", "Leaped to {name}!", 128, "The message to send when leaping to a player. Use \"{name}\" for specific player names.", "Leaped to {name}!").withDependency { leapAnnounce.value }
 
     fun register() {
         val settings = LeapMenu.settings

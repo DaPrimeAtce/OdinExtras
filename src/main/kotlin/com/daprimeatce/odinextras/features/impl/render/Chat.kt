@@ -28,7 +28,7 @@ object Chat: Module(
     private var lastRemovedTime = -1L
     private val implosionHudMessages = ArrayDeque<ImplosionHudMessage>()
     private val implosionHud by HUD("Implosion HUD", "Displays the Implosion/Wither Impact's damage message as a custom HUD.") {
-        if (it) textDim("§7Implosion hit §c10 §7enemies for §c100,000,000 §7damage", 0,0)
+        if (it) textDim("§7Your Implosion hit §c10 §7enemies for §c100,000,000 §7damage.", 0,0)
         else {
             // i dont even know bro
 

@@ -41,12 +41,7 @@ object SplitsAddon {
 
     val totalRunTime = Splits.HUD("Total Run Time", "Shows a split timer for the full run time.") { example -> drawTotalRunTime(example) }
     val timeLostToLag = Splits.HUD("Time Lost To Lag", "Shows a split timer for how much run time is lost to lag.") { example -> drawTimeLostToLag(example) }
-    val sendTimeLost = SelectorSetting(
-        "Send Time Lost",
-        TimeLostTypes.LOCAL,
-        "Sends to the chat the run time lost to lag.",
-        listOf(TimeLostTypes.NONE, TimeLostTypes.LOCAL, TimeLostTypes.PARTY)
-    ).withDependency { timeLostToLag.isEnabled }
+    val sendTimeLost = SelectorSetting("Send Time Lost", TimeLostTypes.LOCAL, "Sends to the chat the run time lost to lag.", listOf(TimeLostTypes.NONE, TimeLostTypes.LOCAL, TimeLostTypes.PARTY)).withDependency { timeLostToLag.isEnabled }
     val stormDps = Splits.HUD("Storm DPS", "Show the split timer for Storm purple pillar DPS.") { example -> drawStormDps(example) }
 
     fun register() {
@@ -87,10 +82,7 @@ object SplitsAddon {
         if (startTimeMs == -1L) return 0 to 0
 
         val maxWidth = getMaxSplitsWidth()
-        val totalTime = formatTime(
-            if (endTimeMs > 0) endTimeMs else System.currentTimeMillis() - startTimeMs,
-            2
-        )
+        val totalTime = formatTime(if (endTimeMs > 0) endTimeMs else System.currentTimeMillis() - startTimeMs, 2)
         val displayText = if (tick) totalTime + " §8(§7" + String.format("%.2f", serverTicks / 20f) + "§8)" else totalTime
 
         text(Minecraft.getInstance().font,"§a§lTotal", 0, 0, 0xFFFFFFFF.toInt())
