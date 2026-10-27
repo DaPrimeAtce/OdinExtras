@@ -39,18 +39,22 @@ object Chat: Module(
             }
 
             val lineHeight = Minecraft.getInstance().font.lineHeight
-            val yOffset = (lineHeight * (1f - easeOut((currentTime - lastRemovedTime) / 300f))).toInt()
+            var yOffset = (lineHeight * (1f - easeOut((currentTime - lastRemovedTime) / 300f))).toInt()
 
             implosionHudMessages.forEachIndexed { index, message ->
                 val lifetime = currentTime - message.messageTime
                 val xOffset = (100 * ((1f - easeOut(lifetime / 300f)) + easeIn((lifetime - (MESSAGE_LIFETIME - 300)) / 300f))).toInt()
 
-                textDim(ChatUtils.toColoredString(message.message), xOffset, index * lineHeight + yOffset)
+                var y = index * lineHeight + yOffset
+                if (implosionHudDirection) y *= -1
+                textDim(ChatUtils.toColoredString(message.message), xOffset, y)
             }
 
             textDim("", 0, 0)
         }
     }
+    private val implosionHudDirection: Boolean by BooleanSetting("Flip Implosion HUD", false, "Makes messages stack up instead of down.").withDependency { implosionHud.enabled }
+
 
     init {
         on<MessageEvent.Chat> {
