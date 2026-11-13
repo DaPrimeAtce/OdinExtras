@@ -1,9 +1,9 @@
 package com.daprimeatce.odinextras.features.impl.render
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.RenderEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.LevelEvent
+import com.odtheking.odin.events.RenderEvent
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.drawText
@@ -12,35 +12,51 @@ import com.odtheking.odin.utils.renderY
 import com.odtheking.odin.utils.renderZ
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
+import java.util.concurrent.ConcurrentHashMap
 
 
 object ReindrakeHealthDisplay : Module(
     name = "Reindrake Health Display",
     description = "Displays the health of Reindrakes."
 ) {
-    private var dragons = mutableMapOf<EnderDragon, Int>()
-    private val size by NumberSetting("Text Scale", 1f, 0.5f, 2f, 0.1f, desc = "Scale of health display.")
+    private val dragonHealth = ConcurrentHashMap<Int, Int>()
+    private val size by NumberSetting("Text Scale", 1f, 0.5, 2.0, 0.1f, desc = "Scale of health display.")
 
     init {
         onReceive<ClientboundSetEntityDataPacket> {
-            if (LocationUtils.currentArea != Island.JerryWorkshop) return@onReceive
+            val health = (packedItems.find { it.id == 9 }?.value as? Float)?.toInt() ?: return@onReceive
+            dragonHealth[id] = health
+        }
 
-            val dragon = mc.level?.getEntity(id) as? EnderDragon ?: return@onReceive
-            val health = (packedItems.find { it.id == 9 }?.value as? Float) ?: return@onReceive
-            dragons[dragon] = health.toInt()
+        onReceive<ClientboundRemoveEntitiesPacket> {
+            entityIds.forEach { dragonHealth.remove(it) }
         }
 
         on<RenderEvent.Extract> {
-            dragons.forEach { (dragon, health) ->
-                drawText("${color(health)}${health}§c❤", Vec3(dragon.renderX, dragon.renderY, dragon.renderZ), size * 7, false)
+            if (LocationUtils.currentArea != Island.JerryWorkshop) return@on
+            val level = mc.level ?: return@on
+
+            val iter = dragonHealth.entries.iterator()
+            while (iter.hasNext()) {
+                val (id, health) = iter.next()
+                val entity = level.getEntity(id) ?: continue
+                if (entity !is EnderDragon || entity.isRemoved) { iter.remove(); continue }
+
+                drawText(
+                    "${color(health)}$health§c❤",
+                    Vec3(entity.renderX, entity.renderY + 2.0, entity.renderZ),
+                    size * 10,
+                    false
+                )
             }
         }
 
         on<LevelEvent.Load> {
-            dragons.clear()
+            dragonHealth.clear()
         }
     }
 
