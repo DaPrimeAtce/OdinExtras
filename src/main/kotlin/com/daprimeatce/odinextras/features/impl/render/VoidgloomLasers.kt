@@ -15,7 +15,6 @@ import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.toFixed
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
-import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.monster.Enderman
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
@@ -28,47 +27,58 @@ object VoidgloomLasers : Module(
 ) {
     private val size by NumberSetting("Text Scale", 1f, 0.5..2.0, 0.1f, desc = "Scale of timer.")
 
-    private var endermen = mutableMapOf<Enderman, Int>()
-    private var serverTicks = 0
-
+    // entity id, remaining ticks
+    private val endermen = mutableMapOf<Int, Int>()
 
     init {
         on<LevelEvent.Load> {
-            serverTicks = 0
             endermen.clear()
         }
 
         on<TickEvent.Server> {
             if (LocationUtils.currentArea != Island.TheEnd) return@on
-            serverTicks++
-            endermen.replaceAll { _, ticks -> ticks - 1 }
-            endermen.entries.removeAll { it.value <= -5 }
+            val level = mc.level ?: return@on
+            val iter = endermen.entries.iterator()
+            while (iter.hasNext()) {
+                val entry = iter.next()
+                val entity = level.getEntity(entry.key)
+                entry.setValue(entry.value - 1)
+                if (entry.value <= -5 || entity == null || entity.isRemoved) iter.remove()
+            }
         }
 
         onReceive<ClientboundSetPassengersPacket> {
             if (LocationUtils.currentArea != Island.TheEnd) return@onReceive
+            val ids = passengers.toList()
+            mc.execute {
+                val level = mc.level ?: return@execute
+                for (id in ids) {
+                    val entity = level.getEntity(id) as? Enderman ?: continue
+                    if (id in endermen) continue
 
-            for (id in passengers) {
-                val entity = mc.level?.getEntity(id) as? Enderman ?: return@onReceive
-                if (entity.type == EntityTypes.ENDERMAN && entity !in endermen) endermen[entity] = 162
+                    if (entity.tickCount < 2) continue
+                    endermen[id] = 162
+                }
             }
         }
 
         on<RenderExtractEvent> {
-            endermen.forEach { (eman, ticks) ->
+            val level = mc.level ?: return@on
+            val player = mc.player ?: return@on
+            val cameraPos = mc.gameRenderer.mainCamera().position()
+
+            endermen.forEach { (id, ticks) ->
                 if (ticks < 0) return@forEach
-                val emanEntity = eman.asLivingEntity() ?: return@forEach
+                val eman = level.getEntity(id) as? Enderman ?: return@forEach
 
                 // Make sure this isn't basically esp
-                val camera = mc.gameRenderer.mainCamera().blockPosition()
-                val target = emanEntity.eyePosition
-                val player = mc.player?.asLivingEntity() ?: return@on
-                val clipContext = ClipContext(Vec3(camera), target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)
-                val hitResult = mc.level?.clip(clipContext)
-                if (hitResult?.type == HitResult.Type.BLOCK) return@on
+                val clip = ClipContext(cameraPos, eman.eyePosition, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)
+                if (level.clip(clip).type == HitResult.Type.BLOCK) return@forEach
 
-                drawText("${color(ticks)}${(ticks.toFloat() / 20).toFixed(2)}",
-                    Vec3(emanEntity.renderX, emanEntity.renderY + 1.5, emanEntity.renderZ), size * 3, false)
+                drawText(
+                    "${color(ticks)}${(ticks.toFloat() / 20).toFixed(2)}",
+                    Vec3(eman.renderX, eman.renderY + 1.5, eman.renderZ), size * 3, false
+                )
             }
         }
     }
