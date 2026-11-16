@@ -1,20 +1,17 @@
 package com.daprimeatce.odinextras.features.impl.render
 
 import com.daprimeatce.odinextras.utils.ChatUtils
-import com.odtheking.odin.events.MessageEvent
+import com.daprimeatce.odinextras.utils.RegexUtils
+import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.LevelEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
-import com.daprimeatce.odinextras.utils.RegexUtils
-import com.odtheking.odin.events.EntityEvent
 import net.minecraft.world.entity.decoration.ArmorStand
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.scores.DisplaySlot
-import net.minecraft.world.scores.PlayerTeam
 import java.util.concurrent.ConcurrentHashMap
 
 object SlayerDisplay : Module(
@@ -30,10 +27,17 @@ object SlayerDisplay : Module(
         "Riftstalker Bloodfiend"
     )
 
-    private var bossSpawned = false
+    private val timeKeywords = listOf("ASHEN", "AURIC", "CRYSTAL", "SPIRIT")
 
-    private var healthStand: Entity? = null
-    private var timeStand: Entity? = null
+    private var bossSpawned = false
+    private var tickCount = 0
+
+    private var healthStand: ArmorStand? = null
+    private var timeStand: ArmorStand? = null
+
+    private var healthText: String? = null
+    private var timeText: String? = null
+    private var timeExtra: String? = null
 
     private val armorStands = ConcurrentHashMap<Int, ArmorStand>() // id, stand
 
@@ -41,7 +45,6 @@ object SlayerDisplay : Module(
         "^.*?]\\s*((?:§.)*)(?:[^\\s§]+\\s*)?((?:§.)*)\\s*(?=" +
                 slayerNames.joinToString("|") { Regex.escape(it) } + ")"
     )
-
 
     @Suppress("unused")
     private val hud by HUD(name, "Displays slayer info in the HUD.") { example ->
@@ -52,25 +55,16 @@ object SlayerDisplay : Module(
             return@HUD exampleWidth to 2 * mc.font.lineHeight + 5
         }
 
-        var width = 0
-        if (timeStand != null) {
-            textDim(("§c" + ChatUtils.toColoredString(timeStand!!.displayName).takeLast(5)), 0, 0, shadow = true)
-
-            if (listOf("ASHEN", "AURIC", "CRYSTAL", "SPIRIT").any { timeStand!!.displayName.string.contains(it) }) {
-                textDim((ChatUtils.toColoredString(timeStand!!.displayName).dropLast(5)), 40, 0, shadow = true)
-            }
+        val time = timeText
+        if (time != null) {
+            textDim("§c$time", 0, 0, shadow = true)
+            timeExtra?.let { textDim(it, 40, 0, shadow = true) }
         }
-        if (healthStand != null) {
-            val name = (ChatUtils.toColoredString(healthStand!!.displayName))
-            val prefixlessName = name.replace(slayerPrefix) { m ->
-                m.groupValues[2].ifEmpty { m.groupValues[1] }
-            }
 
-            width = textDim(prefixlessName, 0, mc.font.lineHeight + 5, shadow = true).first
-        }
+        val health = healthText
+        val width = if (health != null) textDim(health, 0, mc.font.lineHeight + 5, shadow = true).first else 0
         width to 2 * mc.font.lineHeight + 5
     }
-
 
     init {
         on<EntityEvent.Add> {
@@ -94,55 +88,88 @@ object SlayerDisplay : Module(
             if (RegexUtils.slayerCompleteRegex.matches(message)) resetValues()
             if (RegexUtils.slayerFailRegex.matches(message)) resetValues()
             if (RegexUtils.slayerCancelRegex.matches(message)) resetValues()
+
+            if (RegexUtils.slayerSpawnRegex.matches(message)) bossSpawned = true
         }
 
-        var tickCount = 0
         on<TickEvent.Server> {
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
 
-            if (tickCount++ % 20 == 0) {
-                bossSpawned = getScoreboardLines().any { "Slay the boss" in it }
+            val periodic = tickCount++ % 10 == 0
+            if (periodic) armorStands.keys.removeIf { mc.level?.getEntity(it) !is ArmorStand }
+
+            if (bossSpawned) {
+                val h = healthStand
+                if (periodic || h == null || h.isRemoved) findStands()
+                refreshText()
             }
+        }
+    }
 
-            if (tickCount % 10 == 0) {
-                if (bossSpawned) {
-                    val player = mc.player!!
-                    val nearby = armorStands.values
-                        .filter { it.distanceTo(player) < 20 }
 
-                    val healthStands = nearby
-                        .filter { stand ->
-                            val name = stand.displayName.string
-                            slayerNames.any { it in name }
-                        }
-                        .sortedBy { it.distanceTo(player) }
+    private class BossGroup(val name: ArmorStand?, val timer: ArmorStand?)
 
-                    val timeStands = nearby.filter { stand ->
-                        val name = stand.customName?.string ?: return@filter false
-                        RegexUtils.slayerTimeRegex.containsMatchIn(name) || "IMMUNE" in name
-                    }
-
-                    var foundHealth: ArmorStand? = null
-                    var foundTime: ArmorStand? = null
-
-                    for (health in healthStands) {
-                        val time = timeStands
-                            .filter { it.distanceTo(health) < 1 }
-                            .minByOrNull { it.distanceTo(health) }
-                        val timeName = time?.customName?.string.orEmpty()
-                        if ("IMMUNE" in timeName) continue
-
-                        foundHealth = health
-                        foundTime = time
-                        break
-                    }
-
-                    healthStand = foundHealth
-                    timeStand = foundTime
-                }
+    private fun nearest(from: ArmorStand, candidates: List<ArmorStand>, taken: Set<ArmorStand>): ArmorStand? {
+        var best: ArmorStand? = null
+        var bestDist = 1.0
+        for (s in candidates) {
+            if (s in taken) continue
+            val d = from.distanceToSqr(s)
+            if (d < bestDist) {
+                bestDist = d
+                best = s
             }
+        }
+        return best
+    }
 
-            armorStands.keys.removeIf { mc.level?.getEntity(it) !is ArmorStand }
+    private fun findStands() {
+        val tags = ArrayList<ArmorStand>(2)
+        val names = ArrayList<ArmorStand>(2)
+        val timers = ArrayList<ArmorStand>(2)
+
+        for (stand in armorStands.values) {
+            val text = stand.customName?.string ?: continue
+            if (RegexUtils.slayerNameRegex.matches(text)) tags += stand
+            if (slayerNames.any { it in text }) names += stand
+            if ("IMMUNE" in text || RegexUtils.slayerTimeRegex.containsMatchIn(text)) timers += stand
+        }
+        if (tags.isEmpty()) return
+
+        val usedNames = HashSet<ArmorStand>()
+        val usedTimers = HashSet<ArmorStand>()
+        val groups = tags.map { tag ->
+            val name = nearest(tag, names, usedNames)?.also { usedNames += it }
+            val timer = nearest(tag, timers, usedTimers)?.also { usedTimers += it }
+            BossGroup(name, timer)
+        }
+
+        val valid = groups.filter { g ->
+            g.name != null && "IMMUNE" !in g.name.customName?.string.orEmpty() && "IMMUNE" !in g.timer?.customName?.string.orEmpty()
+        }
+
+        val active = valid.firstOrNull { "Inferno Demonlord" in it.name?.customName?.string.orEmpty() } ?: valid.firstOrNull()
+
+        healthStand = active?.name
+        timeStand = active?.timer
+    }
+
+    private fun refreshText() {
+        val h = healthStand
+        healthText = if (h != null && !h.isRemoved) {
+            ChatUtils.toColoredString(h.displayName).replace(slayerPrefix) { m ->
+                m.groupValues[2].ifEmpty { m.groupValues[1] }
+            }
+        } else null
+
+        val t = timeStand
+        if (t != null && !t.isRemoved) {
+            val full = ChatUtils.toColoredString(t.displayName)
+            timeText = full.takeLast(5)
+            timeExtra = if (timeKeywords.any { it in t.displayName.string }) full.dropLast(5) else null
+        } else {
+            timeText = null
+            timeExtra = null
         }
     }
 
@@ -150,20 +177,9 @@ object SlayerDisplay : Module(
         armorStands.clear()
         healthStand = null
         timeStand = null
+        healthText = null
+        timeText = null
+        timeExtra = null
+        bossSpawned = false
     }
-
-    fun getScoreboardLines(): List<String> {
-        val scoreboard = mc.level?.scoreboard ?: return emptyList()
-        val objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR) ?: return emptyList()
-
-        return scoreboard.listPlayerScores(objective)
-            .filter { !it.isHidden }                    // skips "#"-prefixed hidden entries
-            .sortedByDescending { it.value() }          // top of the sidebar first
-            .map { entry ->
-                val team = scoreboard.getPlayersTeam(entry.owner())
-                PlayerTeam.formatNameForTeam(team, entry.ownerName()).string
-            }
-    }
-
-
 }
