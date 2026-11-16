@@ -31,6 +31,7 @@ object SlayerDisplay : Module(
 
     private var bossSpawned = false
     private var tickCount = 0
+    private var cocoonTicks = 0
 
     private var healthStand: ArmorStand? = null
     private var timeStand: ArmorStand? = null
@@ -85,22 +86,26 @@ object SlayerDisplay : Module(
         }
 
         on<MessageEvent.Chat> {
-            if (RegexUtils.slayerCompleteRegex.matches(message)) resetValues()
-            if (RegexUtils.slayerFailRegex.matches(message)) resetValues()
-            if (RegexUtils.slayerCancelRegex.matches(message)) resetValues()
+            if (cocoonTicks <= 0 &&
+                (RegexUtils.slayerCompleteRegex.matches(message)
+                        || RegexUtils.slayerFailRegex.matches(message)
+                        || RegexUtils.slayerCancelRegex.matches(message))
+            ) resetValues()
 
             if (RegexUtils.slayerSpawnRegex.matches(message)) bossSpawned = true
+            if (RegexUtils.slayerCocoonRegex.matches(message)) cocoonTicks = 160 // Lasts 6.4s according to SkyHanni, 8s should be safe
         }
 
         on<TickEvent.Server> {
             if (DungeonUtils.inDungeons || KuudraUtils.inKuudra) return@on
+            if (cocoonTicks > 0) cocoonTicks--
 
             val periodic = tickCount++ % 10 == 0
             if (periodic) armorStands.keys.removeIf { mc.level?.getEntity(it) !is ArmorStand }
 
             if (bossSpawned) {
                 val h = healthStand
-                if (periodic || h == null || h.isRemoved) findStands()
+                if (periodic || h == null || h.isRemoved || isDead(h)) findStands()
                 refreshText()
             }
         }
@@ -134,7 +139,11 @@ object SlayerDisplay : Module(
             if (slayerNames.any { it in text }) names += stand
             if ("IMMUNE" in text || RegexUtils.slayerTimeRegex.containsMatchIn(text)) timers += stand
         }
-        if (tags.isEmpty()) return
+        if (tags.isEmpty()) {
+            healthStand = null
+            timeStand = null
+            return
+        }
 
         val usedNames = HashSet<ArmorStand>()
         val usedTimers = HashSet<ArmorStand>()
@@ -144,11 +153,12 @@ object SlayerDisplay : Module(
             BossGroup(name, timer)
         }
 
-        val valid = groups.filter { g ->
-            g.name != null && "IMMUNE" !in g.name.customName?.string.orEmpty() && "IMMUNE" !in g.timer?.customName?.string.orEmpty()
+        val active = groups.firstOrNull { g ->
+            g.name != null &&
+                    !isDead(g.name) &&
+                    "IMMUNE" !in g.name.customName?.string.orEmpty() &&
+                    "IMMUNE" !in g.timer?.customName?.string.orEmpty()
         }
-
-        val active = valid.firstOrNull { "Inferno Demonlord" in it.name?.customName?.string.orEmpty() } ?: valid.firstOrNull()
 
         healthStand = active?.name
         timeStand = active?.timer
@@ -156,14 +166,16 @@ object SlayerDisplay : Module(
 
     private fun refreshText() {
         val h = healthStand
-        healthText = if (h != null && !h.isRemoved) {
+        val alive = h != null && !h.isRemoved && !isDead(h)
+
+        healthText = if (alive) {
             ChatUtils.toColoredString(h.displayName).replace(slayerPrefix) { m ->
                 m.groupValues[2].ifEmpty { m.groupValues[1] }
             }
         } else null
 
         val t = timeStand
-        if (t != null && !t.isRemoved) {
+        if (alive && t != null && !t.isRemoved) {
             val full = ChatUtils.toColoredString(t.displayName)
             timeText = full.takeLast(5)
             timeExtra = if (timeKeywords.any { it in t.displayName.string }) full.dropLast(5) else null
@@ -181,5 +193,11 @@ object SlayerDisplay : Module(
         timeText = null
         timeExtra = null
         bossSpawned = false
+        tickCount = 0
+    }
+
+    private fun isDead(stand: ArmorStand?): Boolean {
+        val text = stand?.customName?.string?: return false
+        return " 0/" in ChatUtils.removeFormatting(text)
     }
 }
