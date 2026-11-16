@@ -7,35 +7,43 @@ import net.minecraft.network.chat.TextColor
 import net.minecraft.util.StringDecomposer
 
 object ChatUtils {
-    private val colorCodeField = ChatFormatting::class.java.getDeclaredField("code").apply { isAccessible = true }
+    private val formatCodes = Regex("§.")
 
-    private val colors = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
-
-    private val colorToFormatting: Map<Int, ChatFormatting> =
+    private val colorToCode: Map<Int, String> =
         ChatFormatting.entries
-            .filter { colorCodeField.get(it) as Char in colors }
-            .associateBy { TextColor.fromLegacyFormat(it)?.value ?: -1 }
+            .filter { it.isColor }
+            .associate { (TextColor.fromLegacyFormat(it)?.value ?: -1) to "§${it.char}" }
 
+    private val prefixCache = HashMap<Style, String>()
+
+    private fun prefixFor(style: Style): String = prefixCache.getOrPut(style) {
+        buildString {
+            append("§r")
+            style.color?.value?.let { colorToCode[it]?.let(::append) }
+            if (style.isBold) append("§l")
+            if (style.isItalic) append("§o")
+            if (style.isUnderlined) append("§n")
+            if (style.isStrikethrough) append("§m")
+            if (style.isObfuscated) append("§k")
+        }
+    }
 
     fun toColoredString(component: Component): String {
-        val builder = StringBuilder()
+        val builder = StringBuilder(64)
         var lastStyle: Style? = null
 
         StringDecomposer.iterateFormatted(component, Style.EMPTY) { _, style, codepoint ->
-            if (style != lastStyle) {
-                builder.append(ChatFormatting.RESET)
-                style.color?.value?.let { rgb -> colorToFormatting[rgb]?.let { builder.append(it) } }
-                if (style.isBold) builder.append(ChatFormatting.BOLD)
-                if (style.isItalic) builder.append(ChatFormatting.ITALIC)
-                if (style.isUnderlined) builder.append(ChatFormatting.UNDERLINE)
-                if (style.isStrikethrough) builder.append(ChatFormatting.STRIKETHROUGH)
-                if (style.isObfuscated) builder.append(ChatFormatting.OBFUSCATED)
+            if (style !== lastStyle) {
+                builder.append(prefixFor(style))
                 lastStyle = style
             }
             builder.appendCodePoint(codepoint)
             true
         }
-
         return builder.toString()
     }
+
+    fun removeFormatting(text: String): String =
+        if ('§' !in text) text else text.replace(formatCodes, "")
+
 }
