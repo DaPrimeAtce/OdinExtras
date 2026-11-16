@@ -1,5 +1,7 @@
 package com.daprimeatce.odinextras.utils
 
+import net.minecraft.client.Minecraft
+
 // Started to see duplicate regex usage between files, so regex goes here now or something
 object RegexUtils {
     // Instanced content regex
@@ -15,7 +17,10 @@ object RegexUtils {
     val playerDeathRegex = Regex("^ (☠) ?(\\w{1,16}) ?(.+) (and became a ghost\\.)$")
 
     // Slayer regex
+    private val mcName get() = Minecraft.getInstance().user.name
+    val slayerNameRegex = Regex("^${Regex.escape(mcName)}'s SLAYER BOSS$")
     val slayerTimeRegex = Regex("\\d\\d:\\d\\d")
+    val slayerSpawnRegex = Regex("SLAYER BOSS! The (.*) spawned!")
     val slayerCompleteRegex = Regex("^(\\s*)SLAYER QUEST COMPLETE!$")
     val slayerFailRegex = Regex("^(\\s*)SLAYER QUEST FAILED!$")
     val slayerCancelRegex = Regex("^Your Slayer Quest has been cancelled!$")
